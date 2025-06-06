@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            logger.debug("No valid Authorization header found");
+            logger.debug("No valid Authorization header found: {}", authorizationHeader);
             filterChain.doFilter(request, response);
             return;
         }
@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = authorizationHeader.substring(7);
             SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-            Claims claims = Jwts.parser()
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
@@ -50,13 +50,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String role = claims.get("role", String.class);
 
             if (email != null && role != null) {
-                List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+                // Ensure role has ROLE_ prefix for Spring Security
+                String authority = role.toUpperCase().startsWith("ROLE_") ? role.toUpperCase() : "ROLE_" + role.toUpperCase();
+                List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(authority));
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         email, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
-                logger.debug("Authenticated user: {} with role: {}", email, role);
+                logger.debug("Authenticated user: {} with role: {}", email, authority);
             } else {
-                logger.warn("Missing email or role in JWT claims");
+                logger.warn("Missing email or role in JWT claims: email={}, role={}", email, role);
             }
         } catch (ExpiredJwtException e) {
             logger.warn("JWT token expired: {}", e.getMessage());

@@ -39,7 +39,7 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
+        return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
@@ -56,7 +56,7 @@ public class JwtUtil {
             throw new RuntimeException("User not found");
         }
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getRole());
+        claims.put("role", user.getRole()); // Store role without ROLE_ prefix
         return createToken(claims, email);
     }
 
