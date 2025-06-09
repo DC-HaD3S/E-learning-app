@@ -2,78 +2,71 @@ package com.example.e_learning.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.example.e_learning.dto.CourseDTO;
 import com.example.e_learning.entity.Course;
-import com.example.e_learning.entity.EnrolledCourse;
-import com.example.e_learning.entity.EnrolledUser;
 import com.example.e_learning.repository.CourseRepository;
-import com.example.e_learning.repository.EnrolledCourseRepository;
-import com.example.e_learning.repository.EnrolledUserRepository;
-
-import java.time.LocalDateTime;
+import jakarta.validation.Valid;
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 @Service
 public class CourseService {
+
     @Autowired
     private CourseRepository courseRepository;
-    @Autowired
-    private EnrolledCourseRepository enrolledCourseRepository;
-    @Autowired
-    private EnrolledUserRepository enrolledUserRepository;
 
-    public List<Course> getCourseList() {
-        return courseRepository.findAll();
+    // Get all courses
+    public List<CourseDTO> getAllCourses() {
+        return courseRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Course getCourseDetails(Integer courseid) {
-        return courseRepository.findById(courseid).orElse(null);
+    // Create a new course
+    public void createCourse(@Valid CourseDTO courseDTO) {
+        Course course = new Course();
+        course.setTitle(courseDTO.getTitle());
+        course.setBody(courseDTO.getBody());
+        course.setImageUrl(courseDTO.getImageUrl());
+        course.setPrice(courseDTO.getPrice());
+        courseRepository.save(course);
     }
 
-    public EnrolledCourse applyCourse(Integer userid, Integer courseid) {
-        Course course = courseRepository.findById(courseid).orElse(null);
-        if (course == null) return null;
-
-        // Insert into enrolled_courses for user view
-        EnrolledCourse enrollment = new EnrolledCourse();
-        enrollment.setUserid(userid);
-        enrollment.setCourseid(courseid);
-        enrollment.setCourseName(course.getTitle());
-        enrollment.setCoursePrice(course.getPrice());
-        enrollment.setEnrolledAt(LocalDateTime.now());
-        enrolledCourseRepository.save(enrollment);
-
-        // Insert into enrolled_users for admin view
-        EnrolledUser enrolledUser = new EnrolledUser();
-        enrolledUser.setUserid(userid);
-        enrolledUser.setCourseid(courseid);
-        enrolledUser.setEnrolledAt(LocalDateTime.now());
-        enrolledUserRepository.save(enrolledUser);
-
-        return enrollment;
-    }
-
-    public Course createCourse(Course course) {
-        course.setCreatedAt(LocalDateTime.now());
-        return courseRepository.save(course);
-    }
-
-    public Course updateCourse(Integer courseid, Course course) {
-        Course existing = courseRepository.findById(courseid).orElse(null);
-        if (existing == null) return null;
-        existing.setTitle(course.getTitle());
-        existing.setBody(course.getBody());
-        existing.setImageUrl(course.getImageUrl());
-        existing.setPrice(course.getPrice());
-        return courseRepository.save(existing);
-    }
-
-    public boolean deleteCourse(Integer courseid) {
-        if (courseRepository.existsById(courseid)) {
-            courseRepository.deleteById(courseid);
-            return true;
+    // Update an existing course
+    public void updateCourse(Long courseId, @Valid CourseDTO courseDTO) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + courseId));
+        if (courseDTO.getTitle() != null) {
+            course.setTitle(courseDTO.getTitle());
         }
-        return false;
+        if (courseDTO.getBody() != null) {
+            course.setBody(courseDTO.getBody());
+        }
+        if (courseDTO.getImageUrl() != null) {
+            course.setImageUrl(courseDTO.getImageUrl());
+        }
+        if (courseDTO.getPrice() != null) {
+            course.setPrice(courseDTO.getPrice());
+        }
+        courseRepository.save(course);
+    }
+
+    // Delete a course
+    public void deleteCourse(Long courseId) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new IllegalArgumentException("Course not found with ID: " + courseId);
+        }
+        courseRepository.deleteById(courseId);
+    }
+
+    // Convert Course entity to CourseDTO
+    private CourseDTO convertToDTO(Course course) {
+        CourseDTO dto = new CourseDTO();
+        dto.setId(course.getId());
+        dto.setTitle(course.getTitle());
+        dto.setBody(course.getBody());
+        dto.setImageUrl(course.getImageUrl());
+        dto.setPrice(course.getPrice());
+        return dto;
     }
 }

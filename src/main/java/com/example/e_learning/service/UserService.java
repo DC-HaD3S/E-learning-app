@@ -1,85 +1,76 @@
 package com.example.e_learning.service;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.example.e_learning.entity.EnrolledCourse;
+import org.springframework.transaction.annotation.Transactional;
+import com.example.e_learning.dto.SignupRequest;
+import com.example.e_learning.dto.UserDTO;
 import com.example.e_learning.entity.User;
-import com.example.e_learning.repository.EnrolledCourseRepository;
 import com.example.e_learning.repository.UserRepository;
-
-import javax.crypto.SecretKey;
-import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-public class UserService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private EnrolledCourseRepository enrolledCourseRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+public class UserService implements UserDetailsService {
+	private final UserRepository userRepository;
+	private final BCryptPasswordEncoder passwordEncoder;
 
-    public Map<String, Object> signUp(User user) {
-        if (userRepository.findByEmail(user.getEmail()) != null) {
-            throw new RuntimeException("Email already exists");
-        }
-        if (userRepository.findByUsername(user.getUsername()) != null) {
-            throw new RuntimeException("Username already exists");
-        }
-        user.setUserid(null);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
-        user.setRole("user");
-        User savedUser = userRepository.save(user);
-        Map<String, Object> response = new HashMap<>();
-        response.put("user", savedUser);
-        response.put("token", generateJwtToken(savedUser));
-        return response;
-    }
+	public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+	}
 
-    public Map<String, Object> login(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("user", user);
-            response.put("token", generateJwtToken(user));
-            return response;
-        }
-        throw new RuntimeException("Invalid credentials");
-    }
+	@Transactional
+	public void registerUser(SignupRequest signupRequest) {
+		if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
+			throw new IllegalArgumentException("Username is already taken");
+		}
+		if (signupRequest.getUsername() == null || signupRequest.getUsername().trim().isEmpty()) {
+			throw new IllegalArgumentException("Username cannot be empty");
+		}
+		if (signupRequest.getPassword() == null || signupRequest.getPassword().trim().isEmpty()) {
+			throw new IllegalArgumentException("Password cannot be empty");
+		}
+		if (signupRequest.getEmail() == null || signupRequest.getEmail().trim().isEmpty()) {
+			throw new IllegalArgumentException("Email cannot be empty");
+		}
+		User user = new User();
+		user.setName(signupRequest.getName());
+		user.setEmail(signupRequest.getEmail());
+		user.setUsername(signupRequest.getUsername());
+		user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+		user.setRole("USER"); // Default role
+		userRepository.save(user);
+	}
 
-    private String generateJwtToken(User user) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-        return Jwts.builder()
-                .setSubject(user.getEmail())
-                .claim("role", user.getRole())
-                .setIssuedAt(new java.util.Date())
-                .setExpiration(new java.util.Date(System.currentTimeMillis() + 86400000)) // 1 day
-                .signWith(key)
-                .compact();
-    }
+	public List<UserDTO> getAllUsers() {
+		return userRepository.findAll().stream().map(user -> {
+			UserDTO dto = new UserDTO();
+			dto.setName(user.getName());
+			dto.setEmail(user.getEmail());
+			dto.setUsername(user.getUsername());
+			return dto;
+		}).collect(Collectors.toList());
+	}
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
+	public Optional<User> findByUsername(String username) {
+		return userRepository.findByUsername(username);
+	}
 
-    public List<EnrolledCourse> getEnrolledCourses(Integer userid) {
-        return enrolledCourseRepository.findByUserid(userid);
-    }
-
-	public List<User> getRegisteredUsers() {    
-		return userRepository.findAll();
-    }
-
-}	
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		User user = userRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+		if (user.getRole() == null || user.getRole().trim().isEmpty()) {
+			throw new IllegalStateException("User role cannot be empty for username: " + username);
+		}
+		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+				Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase())));
+	}
+}

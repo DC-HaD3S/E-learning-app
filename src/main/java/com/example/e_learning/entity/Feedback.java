@@ -1,61 +1,59 @@
 package com.example.e_learning.entity;
 
-import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.ManyToOne;
 
 @Entity
-@Table(name = "feedbacks")
 public class Feedback {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer feedbackid;
-    private Integer userid;
-    private Integer courseid;
-    private Integer rating;
-    @Column(columnDefinition = "TEXT")
-    private String comments;
-    private LocalDateTime submittedAt;
-	public Integer getFeedbackid() {
-		return feedbackid;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	@ManyToOne
+	private User user;
+	@ManyToOne
+	private Course course;
+	private Integer rating;
+	private String comments;
+
+	// Getters and setters
+	public Long getId() {
+		return id;
 	}
-	public void setFeedbackid(Integer feedbackid) {
-		this.feedbackid = feedbackid;
+
+	public void setId(Long id) {
+		this.id = id;
 	}
-	public Integer getUserid() {
-		return userid;
+
+	public User getUser() {
+		return user;
 	}
-	public void setUserid(Integer userid) {
-		this.userid = userid;
+
+	public void setUser(User user) {
+		this.user = user;
 	}
-	public Integer getCourseid() {
-		return courseid;
+
+	public Course getCourse() {
+		return course;
 	}
-	public void setCourseid(Integer courseid) {
-		this.courseid = courseid;
+
+	public void setCourse(Course course) {
+		this.course = course;
 	}
+
 	public Integer getRating() {
 		return rating;
 	}
+
 	public void setRating(Integer rating) {
 		this.rating = rating;
 	}
+
 	public String getComments() {
 		return comments;
 	}
-	public void setComments(String comments) {
-		this.comments = comments;
-	}
-	public LocalDateTime getSubmittedAt() {
-		return submittedAt;
-	}
-	public void setSubmittedAt(LocalDateTime submittedAt) {
-		this.submittedAt = submittedAt;
-	}
-    
+
+	public void setComments(String comments) { this.comments = comments; }
 }

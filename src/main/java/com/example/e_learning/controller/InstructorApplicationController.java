@@ -1,0 +1,33 @@
+package com.example.e_learning.controller;
+
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import com.example.e_learning.dto.InstructorApplicationDTO;
+import com.example.e_learning.service.InstructorApplicationService;
+
+@RestController
+@RequestMapping("/api/instructor")
+public class InstructorApplicationController {
+    @Autowired
+    private InstructorApplicationService service;
+
+    @PostMapping("/apply")
+    public ResponseEntity<String> apply(@RequestBody InstructorApplicationDTO dto, @RequestParam String username) {
+        service.submitApplication(dto, username);
+        return ResponseEntity.ok("Application submitted");
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/applications")
+    public ResponseEntity<List<InstructorApplicationDTO>> getAllApplications() {
+        return ResponseEntity.ok(service.getAllApplications());
+    }
+}

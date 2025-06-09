@@ -3,7 +3,6 @@ package com.example.e_learning.config;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -20,12 +19,12 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Job Portal API")
+                        .title("E learning platform")
                         .version("1.0")
                         .description("Spring Boot 3 REST API for managing users, resumes, and job applications")
                         
                         )
-                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME)) // Apply security globally
+                .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME)) 
                 .components(new Components().addSecuritySchemes(SECURITY_SCHEME_NAME,
                         new SecurityScheme()
                                 .name(SECURITY_SCHEME_NAME)
