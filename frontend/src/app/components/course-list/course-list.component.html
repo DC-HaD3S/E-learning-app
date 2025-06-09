@@ -1,0 +1,18 @@
+<div class="course-grid">
+  <div *ngIf="error$ | async as error" class="error">{{ error }}</div>
+  <mat-card *ngFor="let course of (courses$ | async)" class="course-card">
+    <mat-card-header>
+      <mat-card-title>{{ course.title }}</mat-card-title>
+    </mat-card-header>
+    <img mat-card-image [src]="course.imageUrl" alt="{{ course.title }}" *ngIf="course.imageUrl">
+    <mat-card-content>
+      <p>{{ course.body | slice:0:100 }}...</p>
+      <p class="price">Price: {{ course.price === 0 ? 'Free' : 'Rs.' + course.price }}</p>
+    </mat-card-content>
+<mat-card-actions>
+    <button mat-raised-button color="primary" (click)="openApplyDialog(course)" *ngIf="!(isAdmin$ | async)">Apply</button>
+    <button mat-stroked-button color="primary" (click)="openDetailsDialog(course)">View Details</button>
+    <button mat-raised-button color="accent" (click)="viewEnrolledUsers(course.id)" *ngIf="isAdmin$ | async">View Enrolled</button>
+  </mat-card-actions>
+  </mat-card>
+</div>

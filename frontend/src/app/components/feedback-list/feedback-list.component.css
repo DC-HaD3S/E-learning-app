@@ -1,0 +1,15 @@
+.feedback-list-container {
+  max-width: 800px;
+  margin: 24px auto;
+  padding: 24px;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 24px;
+}
+
+.feedback-item {
+  margin-bottom: 16px;
+}

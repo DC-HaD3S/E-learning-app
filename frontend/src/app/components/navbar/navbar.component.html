@@ -1,0 +1,37 @@
+<mat-toolbar color="primary">
+  <span routerLink="/" style="cursor: pointer;">E-Learning Platform</span>
+  
+  <div class="nav-buttons">
+    <div *ngIf="role$ | async as role; else notLoggedIn">
+      <!-- Admin Buttons -->
+      <ng-container *ngIf="role === 'admin'">
+        <button mat-button (click)="goToRegisteredUsers()">Registered Users</button>
+        <button mat-button (click)="goToAdminFeedbacks()">Feedbacks</button>
+        <button mat-button (click)="goToAdminInstructors()">Instructors</button>
+        <button mat-button (click)="goToAdminEnrolled()">Enrolled</button>
+        <button mat-button (click)="goToAdminManageCourses()">Manage Courses</button>
+      </ng-container>
+      
+      <!-- User Buttons -->
+      <ng-container *ngIf="role === 'user'">
+        <button mat-button (click)="goToUserApplyInstructor()">Apply as Instructor</button>
+        <button mat-button (click)="goToUserFeedback()">Submit Feedback</button>
+        <button mat-button (click)="goToUserEnrolled()">Enrolled Courses</button>
+      </ng-container>
+      
+      <!-- Custom Dropdown for Username -->
+      <div class="username-container">
+        <button mat-button class="username-button" [attr.aria-label]="'User menu for ' + role">
+          {{ role }}
+        </button>
+        <div class="dropdown-menu">
+          <button class="dropdown-item" (click)="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+    
+    <ng-template #notLoggedIn>
+      <button mat-button class="login-button" (click)="goToLogin()">Login</button>
+    </ng-template>
+  </div>
+</mat-toolbar>

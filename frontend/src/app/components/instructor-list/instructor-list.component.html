@@ -1,0 +1,14 @@
+<div class="instructor-list-container">
+  <h2>Instructor Applications</h2>
+  <div *ngFor="let instructor of instructors" class="instructor-item">
+    <app-details-card
+      [title]="'Application #' + instructor.id"
+      [details]="[
+        'Name: ' + instructor.name,
+        'Email: ' + instructor.email,
+        'Qualifications: ' + instructor.qualifications,
+        'Years of Experience: ' + instructor.yearsOfExperience
+      ]">
+    </app-details-card>
+  </div>
+</div>

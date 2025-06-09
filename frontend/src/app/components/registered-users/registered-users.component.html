@@ -1,0 +1,14 @@
+<div class="registered-users-container">
+  <h1>Registered Users</h1>
+  <div class="users-grid">
+    <app-details-card
+      *ngFor="let user of users"
+      [title]="user.name"
+      [details]="[
+        'Email: ' + user.email,
+        'Username: ' + user.username,
+        'Password (hashed): ' + (user.password.slice(0, 20) + '...')
+      ]">
+    </app-details-card>
+  </div>
+</div>

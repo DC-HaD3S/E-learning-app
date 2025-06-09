@@ -1,0 +1,10 @@
+<div class="enrolled-users-container">
+  <h1>Enrolled Users</h1>
+  <div class="users-grid">
+    <app-details-card
+      *ngFor="let user of enrolledUsers"
+      [title]="user.name"
+      [details]="getUserDetails(user)">
+    </app-details-card>
+  </div>
+</div>

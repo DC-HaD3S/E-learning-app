@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>{{ data.title }}</h1>
+<div mat-dialog-content>
+  <div class="dialog-image-container" *ngIf="data.imageUrl">
+    <img [src]="data.imageUrl" alt="{{ data.title }}">
+  </div>
+  <div class="dialog-content">
+    <p>{{ data.body }}</p>
+    <p class="price">Price: {{ data.price === 0 ? 'Free' : 'Rs.' + data.price }}</p>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <div class="button-center">
+    <button mat-button mat-dialog-close>Close</button>
+    <button mat-raised-button color="primary" (click)="applyForCourse()">Apply</button>
+  </div>
+</div>

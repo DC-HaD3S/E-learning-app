@@ -1,0 +1,55 @@
+h1.mat-dialog-title {
+  color: #2d3748;
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dialog-image-container {
+  margin-bottom: 20px;
+  
+  img {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+}
+
+.dialog-content {
+  p {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+}
+
+.price {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #10b981;
+  margin: 20px 0;
+}
+
+.mat-dialog-actions {
+  padding: 20px 0 0 0;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 20px;
+  display: flex; /* Ensure mat-dialog-actions uses flexbox */
+  justify-content: center; /* Center the inner div */
+  /* Remove any default margins or paddings that might interfere */
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.button-center {
+  display: flex;
+  justify-content: center; /* Center buttons horizontally */
+  gap: 10px; /* Add spacing between buttons */
+  width: 100%; /* Ensure the div takes full width to properly center */
+}
+
+.button-center button {
+  min-width: 100px; /* Optional: Give buttons a consistent width */
+}
