@@ -123,28 +123,16 @@ mat-toolbar button[mat-button]:not(.username-button):hover::after {
 .dropdown-item {
   display: block;
   width: 100%;
-  padding: 8px 16px; /* Reduced padding to match button */
+  padding: 8px 16px; 
   font-size: 0.9rem;
   color: #424242;
   background: none;
   border: none;
-  text-align: center; /* Center align text */
+  text-align: center;
   transition: all 0.2s ease;
   cursor: pointer;
-  white-space: nowrap; /* Prevent text wrapping */
+  white-space: nowrap;  
 }
-/* .dropdown-item {
-  display: block;
-  width: 100%;
-  padding: 8px 24px;
-  font-size: 0.9rem;
-  color: #424242;
-  background: none;
-  border: none;
-  text-align: left;
-  transition: all 0.2s ease;
-  cursor: pointer;
-} */
 
 
 
