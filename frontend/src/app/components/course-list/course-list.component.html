@@ -1,18 +1,33 @@
-<div class="course-grid">
+<div class="course-grid-container">
+  <!-- Sort Dropdown -->
+  <div class="sort-container">
+    <mat-form-field appearance="outline" class="sort-field">
+      <mat-label>Sort By</mat-label>
+      <mat-select [(ngModel)]="sortCriteria" (selectionChange)="sortCourses()">
+        <mat-option value="title-asc">Title (A-Z)</mat-option>
+        <mat-option value="title-desc">Title (Z-A)</mat-option>
+        <mat-option value="price-asc">Price (Low to High)</mat-option>
+        <mat-option value="price-desc">Price (High to Low)</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
   <div *ngIf="error$ | async as error" class="error">{{ error }}</div>
-  <mat-card *ngFor="let course of (courses$ | async)" class="course-card">
-    <mat-card-header>
-      <mat-card-title>{{ course.title }}</mat-card-title>
-    </mat-card-header>
-    <img mat-card-image [src]="course.imageUrl" alt="{{ course.title }}" *ngIf="course.imageUrl">
-    <mat-card-content>
-      <p>{{ course.body | slice:0:100 }}...</p>
-      <p class="price">Price: {{ course.price === 0 ? 'Free' : 'Rs.' + course.price }}</p>
-    </mat-card-content>
-<mat-card-actions>
-    <button mat-raised-button color="primary" (click)="openApplyDialog(course)" *ngIf="!(isAdmin$ | async)">Apply</button>
-    <button mat-stroked-button color="primary" (click)="openDetailsDialog(course)">View Details</button>
-    <button mat-raised-button color="accent" (click)="viewEnrolledUsers(course.id)" *ngIf="isAdmin$ | async">View Enrolled</button>
-  </mat-card-actions>
-  </mat-card>
+  <div class="course-grid">
+    <mat-card *ngFor="let course of sortedCourses" class="course-card">
+      <mat-card-header>
+        <mat-card-title>{{ course.title ?? 'Untitled Course' }}</mat-card-title>
+      </mat-card-header>
+      <img mat-card-image [src]="course.imageUrl ?? ''" [alt]="course.title ?? 'Course Image'" *ngIf="course.imageUrl">
+      <mat-card-content>
+        <p>{{ (course.body ?? '') | slice:0:50 }}...</p>
+        <p class="price">Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="openApplyDialog(course)" *ngIf="!(isAdmin$ | async)">Apply</button>
+        <button mat-stroked-button color="primary" (click)="openDetailsDialog(course)">View Details</button>
+        <button mat-raised-button color="accent" (click)="viewEnrolledUsers(course.id)" *ngIf="isAdmin$ | async">View Enrolled</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
 </div>

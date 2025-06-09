@@ -1,3 +1,29 @@
+.course-grid-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.sort-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px; /* Added to move the dropdown down */
+}
+
+.sort-field {
+  width: 200px;
+}
+
+.sort-field mat-label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.sort-field mat-select {
+  font-size: 0.9rem;
+  color: #333;
+}
+
 .course-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -90,8 +116,6 @@ button[mat-stroked-button][color="primary"] {
   color: #3b82f6;
   border-color: #3b82f6;
 }
-
-
 
 .error {
   color: #dc3545;

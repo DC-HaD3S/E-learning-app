@@ -30,6 +30,7 @@ import { ManageCoursesComponent } from './components/manage-courses/manage-cours
 import { AuthGuard } from './guards/auth.guards';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CourseDetailsDialogComponent } from './components/course-details-dialog/course-details-dialog.component';
+import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,8 @@ import { CourseDetailsDialogComponent } from './components/course-details-dialog
   ],
   imports: [
     BrowserModule,
+    MatSelectModule, // Provides mat-select and mat-option
+
     AppRoutingModule,
     MatSnackBarModule,
     BrowserAnimationsModule,

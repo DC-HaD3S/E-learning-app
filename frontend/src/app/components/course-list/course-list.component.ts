@@ -21,6 +21,9 @@ export class CourseListComponent implements OnInit {
   error$: Observable<string | null>;
   isAdmin$: Observable<boolean>;
   role$: Observable<UserRole | null>;
+  sortedCourses: Course[] = [];
+  sortCriteria: string = 'title-asc';
+  private rawCourses: Course[] = [];
 
   constructor(
     private store: Store<{ courses: { courses: Course[], error: string | null }, auth: { role: UserRole | null } }>,
@@ -33,12 +36,45 @@ export class CourseListComponent implements OnInit {
     this.isAdmin$ = this.store.select(state => state.auth.role === UserRole.Admin);
     this.role$ = this.store.select(state => state.auth.role);
   }
-ngOnInit(): void {
-  this.store.dispatch(loadCourses());
-  this.courses$.subscribe(courses => console.log('Courses:', courses));
-  this.error$.subscribe(error => console.log('Error:', error));
-  this.isAdmin$.subscribe(isAdmin => console.log('Is Admin:', isAdmin));
-}
+
+  ngOnInit(): void {
+    this.store.dispatch(loadCourses());
+    this.courses$.subscribe(courses => {
+      console.log('Courses:', courses);
+      this.rawCourses = [...courses];
+      // Log courses with missing title or price
+      this.rawCourses.forEach(course => {
+        if (!course.title) console.warn('Course missing title:', course);
+        if (course.price == null) console.warn('Course missing price:', course);
+      });
+      this.sortCourses();
+    });
+    this.error$.subscribe(error => console.log('Error:', error));
+    this.isAdmin$.subscribe(isAdmin => console.log('Is Admin:', isAdmin));
+  }
+
+  sortCourses(): void {
+    this.sortedCourses = [...this.rawCourses];
+    const [field, direction] = this.sortCriteria.split('-');
+
+    this.sortedCourses.sort((a, b) => {
+      if (field === 'title') {
+        const valueA = a.title ? a.title.toLowerCase() : '';
+        const valueB = b.title ? b.title.toLowerCase() : '';
+        return direction === 'asc'
+          ? valueA.localeCompare(valueB)
+          : valueB.localeCompare(valueA);
+      } else if (field === 'price') {
+        const valueA = a.price != null ? a.price : 0;
+        const valueB = b.price != null ? b.price : 0;
+        return direction === 'asc'
+          ? valueA - valueB
+          : valueB - valueA;
+      }
+      return 0;
+    });
+  }
+
   openApplyDialog(course: Course): void {
     this.role$.pipe(take(1)).subscribe(role => {
       if (!role) {
@@ -63,20 +99,19 @@ ngOnInit(): void {
     });
   }
 
+  openDetailsDialog(course: any): void {
+    const dialogRef = this.dialog.open(CourseDetailsDialogComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: course
+    });
 
-openDetailsDialog(course: any): void {
-  const dialogRef = this.dialog.open(CourseDetailsDialogComponent, {
-    width: '600px',
-    maxWidth: '90vw',
-    data: course
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-    if (result === 'apply') {
-      this.openApplyDialog(course);
-    }
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'apply') {
+        this.openApplyDialog(course);
+      }
+    });
+  }
 
   viewEnrolledUsers(courseId: number): void {
     this.snackBar.open(`Viewing enrolled users for course ID: ${courseId}`, 'Close', {
