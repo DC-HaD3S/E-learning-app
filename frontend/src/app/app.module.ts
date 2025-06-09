@@ -3,13 +3,15 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms'; // Needed for ngModel
+import { FormsModule } from '@angular/forms'; 
 import { HttpClientModule } from '@angular/common/http';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { authReducer } from './state/auth.reducer';
 import { courseReducer } from './state/course.reducer';
 import { CourseEffects } from './state/course.effects';
+import { MatTableModule } from '@angular/material/table'; 
+import { MatSortModule } from '@angular/material/sort'; 
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
@@ -24,10 +26,10 @@ import { SignupComponent } from './components/signup/signup.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { HomeComponent } from './components/home/home.component';
 import { CourseListComponent } from './components/course-list/course-list.component';
+import { ManageCoursesComponent } from './components/manage-courses/manage-courses.component'; // Added
 import { AuthGuard } from './guards/auth.guards';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { CourseDetailsDialogComponent } from './components/course-details-dialog/course-details-dialog.component';
-import { RegisteredUsersComponent } from './components/registered-users/registered-users.component';
 
 @NgModule({
   declarations: [
@@ -38,8 +40,7 @@ import { RegisteredUsersComponent } from './components/registered-users/register
     ForgotPasswordComponent,
     HomeComponent,
     CourseListComponent,
-    
-    
+    ManageCoursesComponent, // Added to declarations
     CourseDetailsDialogComponent,
   ],
   imports: [
@@ -48,7 +49,8 @@ import { RegisteredUsersComponent } from './components/registered-users/register
     MatSnackBarModule,
     BrowserAnimationsModule,
     FormsModule, 
-    
+    MatTableModule,
+    MatSortModule,
     HttpClientModule,
     MatToolbarModule,
     MatButtonModule,

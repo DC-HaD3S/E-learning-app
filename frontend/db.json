@@ -1,22 +1,22 @@
 {
   "courses": [
     {
-      "id": 1,
+      "id": "1",
       "title": "Introduction to Angular",
       "body": "Master Angular fundamentals, including components, directives, and services to build dynamic web applications.",
       "userId": 101,
       "imageUrl": "https://blog.solguruz.com/wp-content/uploads/2023/11/Top-Angular-Frameworks-for-Web-App-Development.png",
-      "price": 1049
+      "price": 1050
     },
     {
-      "id": 2,
+      "id": "2",
       "title": "JavaScript Essentials",
       "body": "Learn JavaScript basics like variables, loops, and functions to kickstart your programming journey.",
       "imageUrl": "https://miro.medium.com/v2/resize:fit:1400/1*a3BHGbuAMpOaZj6HkTrNqA.png",
       "price": 0
     },
     {
-      "id": 3,
+      "id": "3",
       "title": "Advanced TypeScript",
       "body": "Explore TypeScript’s advanced features, including generics, interfaces, and type inference for robust code.",
       "userId": 103,
@@ -24,7 +24,7 @@
       "price": 1079
     },
     {
-      "id": 4,
+      "id": "4",
       "title": "Full-Stack Web Development",
       "body": "Build full-stack apps with HTML, CSS, JavaScript, Node.js, and MongoDB in this comprehensive bootcamp.",
       "userId": 101,
@@ -32,7 +32,7 @@
       "price": 1199
     },
     {
-      "id": 5,
+      "id": "5",
       "title": "Responsive Web Design",
       "body": "Create mobile-friendly websites using CSS Flexbox, Grid, and responsive design techniques.",
       "userId": 104,
@@ -40,7 +40,7 @@
       "price": 0
     },
     {
-      "id": 6,
+      "id": "6",
       "title": "React for Beginners",
       "body": "Get started with React, learning components, hooks, and state management for modern UIs.",
       "userId": 102,
@@ -48,7 +48,7 @@
       "price": 1059
     },
     {
-      "id": 7,
+      "id": "7",
       "title": "Node.js and Express",
       "body": "Build scalable backend APIs with Node.js and Express, including RESTful services and middleware.",
       "userId": 105,
@@ -56,7 +56,7 @@
       "price": 1089
     },
     {
-      "id": 8,
+      "id": "8",
       "title": "Python for Data Science",
       "body": "Learn Python for data analysis, visualization, and machine learning with libraries like Pandas and NumPy.",
       "userId": 106,
@@ -64,7 +64,7 @@
       "price": 0
     },
     {
-      "id": 9,
+      "id": "9",
       "title": "UI/UX Design Fundamentals",
       "body": "Understand user-centered design principles, wireframing, and prototyping for intuitive interfaces.",
       "userId": 104,
@@ -72,7 +72,7 @@
       "price": 1069
     },
     {
-      "id": 10,
+      "id": "10",
       "title": "Cloud Computing with AWS",
       "body": "Explore AWS services like EC2, S3, and Lambda to build and deploy cloud-based applications.",
       "userId": 107,
@@ -80,7 +80,7 @@
       "price": 1149
     },
     {
-      "id": 11,
+      "id": "11",
       "title": "SQL and Database Management",
       "body": "Master SQL queries, database design, and management with relational databases like MySQL.",
       "userId": 103,
@@ -88,7 +88,7 @@
       "price": 0
     },
     {
-      "id": 12,
+      "id": "12",
       "title": "Cybersecurity Basics",
       "body": "Learn key cybersecurity concepts, including encryption, network security, and ethical hacking.",
       "userId": 108,
@@ -96,7 +96,7 @@
       "price": 1099
     },
     {
-      "id": 13,
+      "id": "13",
       "title": "Machine Learning Fundamentals",
       "body": "Dive into machine learning with algorithms, model training, and tools like TensorFlow and Scikit-learn.",
       "userId": 106,
@@ -104,7 +104,7 @@
       "price": 1129
     },
     {
-      "id": 14,
+      "id": "14",
       "title": "Vue.js for Web Development",
       "body": "Build interactive web apps with Vue.js, focusing on components, directives, and Vue Router.",
       "userId": 102,
@@ -112,7 +112,7 @@
       "price": 0
     },
     {
-      "id": 15,
+      "id": "15",
       "title": "DevOps with Docker and Kubernetes",
       "body": "Learn containerization and orchestration with Docker and Kubernetes for efficient app deployment.",
       "userId": 107,
