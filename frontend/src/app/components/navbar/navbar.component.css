@@ -19,10 +19,7 @@ mat-toolbar span[routerLink] {
   border-radius: 4px;
 }
 
-mat-toolbar span[routerLink]:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
-}
+
 
 /* Navigation Buttons Container */
 .nav-buttons {

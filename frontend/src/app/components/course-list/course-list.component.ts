@@ -42,10 +42,12 @@ export class CourseListComponent implements OnInit {
     this.courses$.subscribe(courses => {
       console.log('Courses:', courses);
       this.rawCourses = [...courses];
-      // Log courses with missing title or price
+      // Log courses with missing properties
       this.rawCourses.forEach(course => {
         if (!course.title) console.warn('Course missing title:', course);
         if (course.price == null) console.warn('Course missing price:', course);
+        if (!course.body) console.warn('Course missing body:', course);
+        if (!course.imageUrl) console.warn('Course missing imageUrl:', course);
       });
       this.sortCourses();
     });
@@ -54,7 +56,14 @@ export class CourseListComponent implements OnInit {
   }
 
   sortCourses(): void {
-    this.sortedCourses = [...this.rawCourses];
+    // Filter out courses with missing title, body, or imageUrl
+    const validCourses = this.rawCourses.filter(course => 
+      course.title && 
+      course.price != null && 
+      course.body && 
+      course.imageUrl
+    );
+    this.sortedCourses = [...validCourses];
     const [field, direction] = this.sortCriteria.split('-');
 
     this.sortedCourses.sort((a, b) => {
