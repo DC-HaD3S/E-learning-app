@@ -6,10 +6,10 @@
     <mat-card-content>
       <form [formGroup]="feedbackForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="fill">
-          <mat-label>Course ID</mat-label>
-          <input matInput formControlName="courseId" type="number" required>
-          <mat-error *ngIf="feedbackForm.get('courseId')?.touched && feedbackForm.get('courseId')?.invalid">
-            Course ID is required and must be a positive number.
+          <mat-label>Course Name</mat-label>
+          <input matInput formControlName="courseName" type="text" required>
+          <mat-error *ngIf="feedbackForm.get('courseName')?.touched && feedbackForm.get('courseName')?.invalid">
+            Course Name is required (min 3 characters).
           </mat-error>
         </mat-form-field>
         <mat-form-field appearance="fill">

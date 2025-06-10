@@ -17,7 +17,7 @@ export class FeedbackComponent {
     private router: Router
   ) {
     this.feedbackForm = this.fb.group({
-      courseId: ['', [Validators.required, Validators.min(1)]],
+      courseName: ['', [Validators.required, Validators.minLength(3)]],
       rating: [0, [Validators.required, Validators.min(1), Validators.max(5)]],
       comments: ['', [Validators.required, Validators.minLength(10)]]
     });

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from 'src/app/services/auth.services';
+import { AuthService } from 'src/app/services/auth.services'; 
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -22,6 +22,7 @@ export class ApplyInstructorComponent {
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       qualifications: ['', [Validators.required, Validators.minLength(10)]],
+      courses: ['', [Validators.required, Validators.minLength(10)]], // Added courses control
       yearsOfExperience: [0, [Validators.required, Validators.min(0)]],
       confirmation: [false, Validators.requiredTrue]
     });

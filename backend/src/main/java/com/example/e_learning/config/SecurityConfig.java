@@ -1,3 +1,4 @@
+
 package com.example.e_learning.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,9 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/auth/signup", "/swagger-ui/**", "/v3/api-docs/**","/api/auth/signup", "/api/user/signup","/api/courses","/api/user/courses").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/user/**").hasRole("USER")
+                .requestMatchers("/auth/login", "/auth/signup", "/auth/check-username", "/auth/check-email", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/user/**").hasRole("USER")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

@@ -1,13 +1,15 @@
 import { createReducer, on } from '@ngrx/store';
-import { AuthState } from './app.state';
 import { setRole, clearRole } from './auth.actions';
+import { UserRole } from '../enums/user-role.enum';
 
-export const initialAuthState: AuthState = {
-  role: null
-};
+export interface AuthState {
+  role: UserRole | null;
+}
+
+export const initialState: AuthState = { role: null };
 
 export const authReducer = createReducer(
-  initialAuthState,
+  initialState,
   on(setRole, (state, { role }) => ({ ...state, role })),
   on(clearRole, state => ({ ...state, role: null }))
 );

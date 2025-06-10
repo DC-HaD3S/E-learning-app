@@ -18,59 +18,95 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
-	private final UserRepository userRepository;
-	private final BCryptPasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-	public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-	@Transactional
-	public void registerUser(SignupRequest signupRequest) {
-		if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
-			throw new IllegalArgumentException("Username is already taken");
-		}
-		if (signupRequest.getUsername() == null || signupRequest.getUsername().trim().isEmpty()) {
-			throw new IllegalArgumentException("Username cannot be empty");
-		}
-		if (signupRequest.getPassword() == null || signupRequest.getPassword().trim().isEmpty()) {
-			throw new IllegalArgumentException("Password cannot be empty");
-		}
-		if (signupRequest.getEmail() == null || signupRequest.getEmail().trim().isEmpty()) {
-			throw new IllegalArgumentException("Email cannot be empty");
-		}
-		User user = new User();
-		user.setName(signupRequest.getName());
-		user.setEmail(signupRequest.getEmail());
-		user.setUsername(signupRequest.getUsername());
-		user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-		user.setRole("USER"); // Default role
-		userRepository.save(user);
-	}
+    @Transactional
+    public void registerUser(SignupRequest signupRequest) {
+        // Check for existing username
+        if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username already registered");
+        }
+        // Check for existing email
+        if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already registered");
+        }
+        // Validate input fields
+        if (signupRequest.getUsername() == null || signupRequest.getUsername().trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty");
+        }
+        if (signupRequest.getPassword() == null || signupRequest.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+        if (signupRequest.getEmail() == null || signupRequest.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        // Restrict role: only allow "USER" for signup; admins must be created separately
+        String role = signupRequest.getRole();
+        if (role == null || role.trim().isEmpty()) {
+            role = "USER"; // Default role if not provided
+        } else if (!role.equals("USER") && !role.equals("ADMIN")) {
+            throw new IllegalArgumentException("Invalid role: must be 'USER' or 'ADMIN'");
+        } else if (role.equals("ADMIN")) {
+            // Security: Prevent unauthorized admin registration
+            throw new IllegalArgumentException("Admin registration is not allowed via this endpoint");
+        }
 
-	public List<UserDTO> getAllUsers() {
-		return userRepository.findAll().stream().map(user -> {
-			UserDTO dto = new UserDTO();
-			dto.setName(user.getName());
-			dto.setEmail(user.getEmail());
-			dto.setUsername(user.getUsername());
-			return dto;
-		}).collect(Collectors.toList());
-	}
+        // Create and save new user
+        User user = new User();
+        user.setName(signupRequest.getName());
+        user.setEmail(signupRequest.getEmail());
+        user.setUsername(signupRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        user.setRole(role);
+        try {
+            userRepository.save(user);
+        } catch (Exception e) {
+            if (e.getCause() instanceof org.springframework.dao.DataIntegrityViolationException) {
+                if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
+                    throw new IllegalArgumentException("Username already registered");
+                }
+                if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
+                    throw new IllegalArgumentException("Email already registered");
+                }
+            }
+            throw new IllegalArgumentException("Registration failed: " + e.getMessage());
+        }
+    }
 
-	public Optional<User> findByUsername(String username) {
-		return userRepository.findByUsername(username);
-	}
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream().map(user -> {
+            UserDTO dto = new UserDTO();
+            dto.setName(user.getName());
+            dto.setEmail(user.getEmail());
+            dto.setUsername(user.getUsername());
+            return dto;
+        }).collect(Collectors.toList());
+    }
 
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-		if (user.getRole() == null || user.getRole().trim().isEmpty()) {
-			throw new IllegalStateException("User role cannot be empty for username: " + username);
-		}
-		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-				Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase())));
-	}
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        if (user.getRole() == null || user.getRole().trim().isEmpty()) {
+            throw new IllegalStateException("User role cannot be empty for username: " + username);
+        }
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase())));
+    }
 }

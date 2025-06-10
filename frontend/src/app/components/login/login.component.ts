@@ -3,8 +3,6 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from 'src/app/services/auth.services';
-import { UserRole } from '../../enums/user-role.enum';
-import { setRole } from '../../state/auth.actions';
 import { ForgotPasswordComponent } from '../forgot-password/forgot-password.component';
 
 @Component({
@@ -21,7 +19,7 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private store: Store,
+    private store: Store<{ auth: { role: string | null } }>,
     private dialog: MatDialog
   ) {}
 
@@ -30,20 +28,19 @@ export class LoginComponent {
     this.error = '';
     
     this.authService.login(this.username, this.password).subscribe({
-      next: (success) => {
+      next: (token) => {
         this.loading = false;
-        if (success) {
-          const role = this.username === 'admin' ? UserRole.Admin : UserRole.User;
-          this.store.dispatch(setRole({ role }));
-          localStorage.setItem('role', role);
-          this.router.navigate([`/${role.toLowerCase()}/home`]);
-        } else {
-          this.error = 'Invalid username or password';
-        }
+        this.store.select(state => state.auth.role).subscribe(role => {
+          if (role) {
+            this.router.navigate([`/${role}/home`]);
+          } else {
+            this.error = 'Role not found. Please try again.';
+          }
+        });
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.error = 'Login failed. Please try again.';
+        this.error = err.message || 'Login failed. Please try again.';
       }
     });
   }

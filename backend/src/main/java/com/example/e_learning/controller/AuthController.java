@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.e_learning.dto.JwtRequest;
 import com.example.e_learning.dto.JwtResponse;
@@ -45,8 +47,27 @@ public class AuthController {
         try {
             userService.registerUser(signupRequest);
             return ResponseEntity.ok("User registered successfully");
+        } catch (IllegalArgumentException e) {
+            // Return the custom message from UserService (e.g., "Username already registered" or "Email already registered")
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Registration failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/check-username")
+    public ResponseEntity<String> checkUsername(@RequestParam String username) {
+        if (userService.findByUsername(username).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already registered");
+        }
+        return ResponseEntity.ok("Username is available");
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<String> checkEmail(@RequestParam String email) {
+        if (userService.findByEmail(email).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already registered");
+        }
+        return ResponseEntity.ok("Email is available");
     }
 }

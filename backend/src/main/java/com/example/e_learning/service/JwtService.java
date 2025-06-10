@@ -13,6 +13,8 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import java.security.Key;
+import com.example.e_learning.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class JwtService {
@@ -22,14 +24,26 @@ public class JwtService {
     @Value("${jwt.expiration:86400000}")
     private long expiration;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private Key getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8); 
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String username) {
+        // Fetch user from database to get the role
+        var user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + username));
+        String role = user.getRole();
+        if (role == null || role.trim().isEmpty()) {
+            role = "USER"; // Fallback default
+        }
+
         return Jwts.builder()
             .setSubject(username)
+            .claim("role", "ROLE_" + role.toUpperCase()) // Include database role in JWT
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + expiration))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)

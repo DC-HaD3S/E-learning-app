@@ -1,27 +1,46 @@
 import { Injectable } from '@angular/core';
-import {  ActivatedRouteSnapshot, Router } from '@angular/router';
+import { CanActivate, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, take, catchError } from 'rxjs/operators';
+import { AuthService } from '../services/auth.services';
+import { UserRole } from '../enums/user-role.enum';
+import { AppState } from '../state/app.state';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthGuard {
+@Injectable({ providedIn: 'root' })
+export class AuthGuard implements CanActivate {
   constructor(
-    private store: Store<{ auth: { role: string | null } }>,
-    private router: Router
+    private authService: AuthService,
+    private router: Router,
+    private store: Store<AppState>
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
+    const expectedRole = route.data?.['role'] as UserRole | undefined;
+    if (!expectedRole) {
+      console.error('No role specified in route data');
+      this.router.navigate(['/login']);
+      return of(false);
+    }
+
     return this.store.select(state => state.auth.role).pipe(
+      take(1),
       map(role => {
-        const expectedRole = route.data['role'];
-        if (role === expectedRole) {
-          return true;
+        if (!this.authService.isLoggedIn()) {
+          this.router.navigate(['/login']);
+          return false;
         }
+        if (role !== expectedRole) {
+          console.warn(`Role mismatch: expected ${expectedRole}, got ${role}`);
+          this.router.navigate(['/login']);
+          return false;
+        }
+        return true;
+      }),
+      catchError(err => {
+        console.error('Error in AuthGuard:', err);
         this.router.navigate(['/login']);
-        return false;
+        return of(false);
       })
     );
   }

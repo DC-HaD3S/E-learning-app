@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { AuthService } from 'src/app/services/auth.services';
 
 @Component({
   selector: 'app-signup',
@@ -12,34 +12,75 @@ export class SignupComponent {
   email: string = '';
   username: string = '';
   password: string = '';
+  role: string = 'USER'; // Default to USER for security
   error: string = '';
   loading: boolean = false;
+  usernameAvailable: boolean | null = null;
+  emailAvailable: boolean | null = null;
 
   constructor(
-    private http: HttpClient,
+    private authService: AuthService,
     private router: Router
   ) {}
+
+  checkUsername(): void {
+    if (this.username) {
+      this.authService.checkUsername(this.username).subscribe({
+        next: (available) => {
+          this.usernameAvailable = available;
+          this.error = available ? '' : 'Username already registered';
+        },
+        error: (err) => {
+          this.usernameAvailable = null;
+          this.error = err.message || 'Error checking username';
+        }
+      });
+    }
+  }
+
+  checkEmail(): void {
+    if (this.email) {
+      this.authService.checkEmail(this.email).subscribe({
+        next: (available) => {
+          this.emailAvailable = available;
+          this.error = available ? '' : 'Email already registered';
+        },
+        error: (err) => {
+          this.emailAvailable = null;
+          this.error = err.message || 'Error checking email';
+        }
+      });
+    }
+  }
 
   onSubmit(): void {
     this.loading = true;
     this.error = '';
 
-    const newUser = {
-      name: this.name,
-      email: this.email,
-      username: this.username,
-      password: this.password,
-      role: 'user' // Default role for new users
-    };
+    if (this.usernameAvailable === false) {
+      this.error = 'Username already registered';
+      this.loading = false;
+      return;
+    }
+    if (this.emailAvailable === false) {
+      this.error = 'Email already registered';
+      this.loading = false;
+      return;
+    }
+    if (this.role !== 'USER') {
+      this.error = 'Only USER role is allowed for signup';
+      this.loading = false;
+      return;
+    }
 
-    this.http.post('http://localhost:8000/users', newUser).subscribe({
+    this.authService.signup(this.name, this.email, this.username, this.password, this.role).subscribe({
       next: () => {
         this.loading = false;
         this.router.navigate(['/login']);
       },
       error: (err) => {
         this.loading = false;
-        this.error = 'Signup failed. Please try again.';
+        this.error = err.message || 'Signup failed. Please try again.';
         console.error('Signup error:', err);
       }
     });
