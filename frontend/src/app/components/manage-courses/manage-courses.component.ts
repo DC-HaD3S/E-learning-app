@@ -1,3 +1,4 @@
+
 import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/state/app.state';
@@ -36,7 +37,7 @@ export class ManageCoursesComponent implements OnInit {
     this.error$ = this.store.select(selectCourseError);
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.store.dispatch(loadCourses());
     this.courses$.subscribe(courses => {
       this.dataSource.data = courses;
@@ -44,7 +45,7 @@ export class ManageCoursesComponent implements OnInit {
     });
   }
 
-  openAddCourseDialog() {
+  openAddCourseDialog(): void {
     this.newCourse = { id: 0, title: '', body: '', imageUrl: '', price: 0, enrolledUsers: [] };
     this.dialog.open(this.addCourseDialog, {
       width: '800px',
@@ -53,7 +54,7 @@ export class ManageCoursesComponent implements OnInit {
     });
   }
 
-  addCourse() {
+  addCourse(): void {
     this.courseService.addCourse(this.newCourse).subscribe({
       next: () => {
         this.store.dispatch(loadCourses());
@@ -64,7 +65,7 @@ export class ManageCoursesComponent implements OnInit {
     });
   }
 
-  openEditCourseDialog(course: Course) {
+  openEditCourseDialog(course: Course): void {
     this.editingCourse = { ...course };
     this.dialog.open(this.editCourseDialog, {
       width: '800px',
@@ -73,7 +74,7 @@ export class ManageCoursesComponent implements OnInit {
     });
   }
 
-  updateCourse() {
+  updateCourse(): void {
     if (this.editingCourse) {
       this.courseService.updateCourse(this.editingCourse).subscribe({
         next: () => {
@@ -86,12 +87,12 @@ export class ManageCoursesComponent implements OnInit {
     }
   }
 
-  cancelEdit() {
+  cancelEdit(): void {
     this.editingCourse = null;
     this.dialog.closeAll();
   }
 
-  deleteCourse(courseId: number) {
+  deleteCourse(courseId: number): void {
     this.courseService.deleteCourse(courseId).subscribe({
       next: () => this.store.dispatch(loadCourses()),
       error: (err) => this.store.dispatch(loadCoursesFailure({ error: err.message }))

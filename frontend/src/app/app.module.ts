@@ -28,10 +28,10 @@ import { SignupComponent } from './components/signup/signup.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { HomeComponent } from './components/home/home.component';
 import { CourseListComponent } from './components/course-list/course-list.component';
-import { ManageCoursesComponent } from './components/manage-courses/manage-courses.component';
 import { CourseDetailsDialogComponent } from './components/course-details-dialog/course-details-dialog.component';
 import { AuthGuard } from './guards/auth.guards';
 import { AuthService } from './services/auth.services';
+
 
 export function appInitializer(authService: AuthService) {
   return () => authService.initializeApp();
@@ -46,7 +46,6 @@ export function appInitializer(authService: AuthService) {
     ForgotPasswordComponent,
     HomeComponent,
     CourseListComponent,
-    ManageCoursesComponent,
     CourseDetailsDialogComponent,
   ],
   imports: [

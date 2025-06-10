@@ -17,7 +17,7 @@ const routes: Routes = [
       { path: 'home', component: HomeComponent },
       { path: 'feedbacks', component: FeedbackListComponent },
       { path: 'instructors', component: InstructorListComponent },
-      {path : 'manage-houses', component: ManageCoursesComponent},
+      {path : 'manage-courses', component: ManageCoursesComponent},
       { path: 'enrolled', component: EnrolledUsersComponent },
       { path: 'registered-users', component: RegisteredUsersComponent }, 
 
