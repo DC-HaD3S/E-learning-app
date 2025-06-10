@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.services';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-signup',
@@ -20,6 +21,7 @@ export class SignupComponent {
 
   constructor(
     private authService: AuthService,
+        private snackBar: MatSnackBar,
     private router: Router
   ) {}
 
@@ -76,6 +78,11 @@ export class SignupComponent {
     this.authService.signup(this.name, this.email, this.username, this.password, this.role).subscribe({
       next: () => {
         this.loading = false;
+        this.snackBar.open('User successfully registered!', 'Close', {
+        duration: 3000, // Display for 3 seconds
+        horizontalPosition: 'center',
+        verticalPosition: 'top'
+        });
         this.router.navigate(['/login']);
       },
       error: (err) => {

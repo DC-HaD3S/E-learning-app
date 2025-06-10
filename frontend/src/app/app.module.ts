@@ -52,10 +52,12 @@ export function appInitializer(authService: AuthService) {
   imports: [
     BrowserModule,
     AppRoutingModule,
-    BrowserAnimationsModule,
+    
     FormsModule,
-    ReactiveFormsModule, // Added for reactive forms
+    ReactiveFormsModule, 
     HttpClientModule,
+    BrowserAnimationsModule,
+    
     MatTableModule,
     MatSortModule,
     MatToolbarModule,

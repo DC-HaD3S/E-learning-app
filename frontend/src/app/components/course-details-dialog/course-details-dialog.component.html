@@ -11,6 +11,6 @@
 <div mat-dialog-actions>
   <div class="button-center">
     <button mat-button mat-dialog-close>Close</button>
-    <button mat-raised-button color="primary" (click)="applyForCourse()">Apply</button>
+    <button mat-raised-button color="primary" (click)="applyForCourse() " *ngIf="!(isAdmin$ | async)">Apply</button>
   </div>
 </div>

@@ -36,8 +36,9 @@ export class CourseApplyDialogComponent {
       this.courseService.enrollUser(this.data.course.id, 1).subscribe(success => {
         this.dialogRef.close()
         if (success) {
-          this.openSnackBar(`Successfully enrolled in "${this.data.course.title}"${this.data.course.price === 0 ? ' for free!' : ` for $${this.data.course.price}!`}`, 'Close',
-);
+          this.openSnackBar(`Successfully enrolled in "${this.data.course.title}"${this.data.course.price === 0 ? ' for free!' : ` for $${this.data.course.price}!`}`,
+             'Close');
+             this.applyForm.reset();
           
         } else {
           this.dialogRef.close({ success: false, message: 'Enrollment failed.' });

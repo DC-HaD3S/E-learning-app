@@ -10,11 +10,17 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { EnrolledCoursesComponent } from '../components/enrolled-courses/enrolled-courses.component';
 
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+
+import { MatDialogModule } from '@angular/material/dialog';
 @NgModule({
   declarations: [
     ApplyInstructorComponent,
+    EnrolledCoursesComponent,
     FeedbackComponent
   ],
   imports: [
@@ -22,6 +28,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     UserRoutingModule,
     MatCardModule,
     MatButtonModule,
+    MatDialogModule,
     MatSnackBarModule,
     MatFormFieldModule,
     MatInputModule,

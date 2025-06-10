@@ -122,12 +122,5 @@ export class CourseListComponent implements OnInit {
     });
   }
 
-  viewEnrolledUsers(courseId: number): void {
-    this.snackBar.open(`Viewing enrolled users for course ID: ${courseId}`, 'Close', {
-      duration: 5000,
-      verticalPosition: 'bottom',
-      horizontalPosition: 'center',
-      panelClass: ['custom-snackbar']
-    });
-  }
+
 }

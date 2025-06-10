@@ -26,7 +26,6 @@
       <mat-card-actions>
         <button mat-raised-button color="primary" (click)="openApplyDialog(course)" *ngIf="!(isAdmin$ | async)">Apply</button>
         <button mat-stroked-button color="primary" (click)="openDetailsDialog(course)">View Details</button>
-        <button mat-raised-button color="accent" (click)="viewEnrolledUsers(course.id)" *ngIf="isAdmin$ | async">View Enrolled</button>
       </mat-card-actions>
     </mat-card>
   </div>
