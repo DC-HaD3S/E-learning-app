@@ -14,7 +14,7 @@ import com.example.e_learning.dto.InstructorApplicationDTO;
 import com.example.e_learning.service.InstructorApplicationService;
 
 @RestController
-@RequestMapping("/api/instructor")
+@RequestMapping("/instructor")
 public class InstructorApplicationController {
     @Autowired
     private InstructorApplicationService service;

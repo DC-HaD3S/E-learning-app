@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/enrollments")
+@RequestMapping("/enrollments")
 public class EnrollmentController {
     @Autowired
     private EnrollmentService enrollmentService;

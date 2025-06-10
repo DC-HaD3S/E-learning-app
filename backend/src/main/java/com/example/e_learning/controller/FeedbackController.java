@@ -15,7 +15,7 @@ import com.example.e_learning.dto.FeedbackDTO;
 import com.example.e_learning.service.FeedbackService;
 
 @RestController
-@RequestMapping("/api/feedback")
+@RequestMapping("/feedback")
 public class FeedbackController {
     @Autowired
     private FeedbackService feedbackService;
