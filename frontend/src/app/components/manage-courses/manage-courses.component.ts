@@ -6,8 +6,17 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { Course } from 'src/app/models/course.model';
 import { CourseService } from 'src/app/services/course.service';
-import { loadAdminCourses, addCourse, updateCourse, deleteCourse, clearCourseError } from 'src/app/state/course.actions';
-import { selectCourses, selectCourseError } from 'src/app/state/course.selectors';
+import {
+  loadCourses,
+  addCourse,
+  updateCourse,
+  deleteCourse,
+  clearCourseError
+} from 'src/app/state/course.actions';
+import {
+  selectCourses,
+  selectCourseError
+} from 'src/app/state/course.selectors';
 import { Observable } from 'rxjs';
 import { AppState } from 'src/app/state/app.state';
 
@@ -28,6 +37,9 @@ export class ManageCoursesComponent implements OnInit {
   @ViewChild('addCourseDialog') addCourseDialog!: TemplateRef<any>;
   @ViewChild('editCourseDialog') editCourseDialog!: TemplateRef<any>;
 
+  lastCoursesLength = 0;
+  pendingAction: 'add' | 'update' | 'delete' | null = null;
+
   constructor(
     private store: Store<AppState>,
     private courseService: CourseService,
@@ -39,15 +51,32 @@ export class ManageCoursesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.dispatch(loadAdminCourses());
+    this.store.dispatch(loadCourses());
+
     this.courses$.subscribe(courses => {
       this.dataSource.data = courses;
       this.dataSource.sort = this.sort;
+
+      // Success Snackbar Logic
+      if (this.pendingAction) {
+        if (this.pendingAction === 'add' && courses.length > this.lastCoursesLength) {
+          this.snackBar.open('Course successfully added!', 'Close', { duration: 3000 });
+        } else if (this.pendingAction === 'delete' && courses.length < this.lastCoursesLength) {
+          this.snackBar.open('Course successfully deleted!', 'Close', { duration: 3000 });
+        } else if (this.pendingAction === 'update') {
+          this.snackBar.open('Course successfully updated!', 'Close', { duration: 3000 });
+        }
+        this.pendingAction = null;
+      }
+
+      this.lastCoursesLength = courses.length;
     });
+
     this.error$.subscribe(error => {
       if (error) {
         this.snackBar.open(`Error: ${error}`, 'Close', { duration: 5000 });
         setTimeout(() => this.store.dispatch(clearCourseError()), 5000);
+        this.pendingAction = null; 
       }
     });
   }
@@ -59,6 +88,7 @@ export class ManageCoursesComponent implements OnInit {
 
   addCourse(): void {
     if (this.newCourse.title && this.newCourse.body && this.newCourse.price != null) {
+      this.pendingAction = 'add';
       this.store.dispatch(addCourse({ course: { ...this.newCourse } }));
       this.dialog.closeAll();
     }
@@ -71,12 +101,14 @@ export class ManageCoursesComponent implements OnInit {
 
   updateCourse(): void {
     if (this.editedCourse) {
+      this.pendingAction = 'update';
       this.store.dispatch(updateCourse({ course: this.editedCourse }));
       this.dialog.closeAll();
     }
   }
 
   deleteCourse(courseId: number): void {
+    this.pendingAction = 'delete';
     this.store.dispatch(deleteCourse({ courseId }));
   }
 
@@ -84,4 +116,4 @@ export class ManageCoursesComponent implements OnInit {
     this.editedCourse = null;
     this.dialog.closeAll();
   }
-} 
+}
