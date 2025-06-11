@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { map, mergeMap, catchError } from 'rxjs/operators';
 import { CourseService } from '../services/course.service';
-import * as CourseActions from '../state/course.actions';
+import * as CourseActions from './course.actions';
 
 @Injectable()
 export class CourseEffects {
@@ -41,7 +41,7 @@ export class CourseEffects {
       ofType(CourseActions.addCourse),
       mergeMap(({ course }) =>
         this.courseService.addCourse(course).pipe(
-          map(message => CourseActions.addCourseSuccess({ message })),
+          map(() => CourseActions.addCourseSuccess({ course })), // Return original course
           catchError(error => of(CourseActions.addCourseFailure({ error: error.message })))
         )
       )
@@ -53,7 +53,7 @@ export class CourseEffects {
       ofType(CourseActions.updateCourse),
       mergeMap(({ course }) =>
         this.courseService.updateCourse(course).pipe(
-          map(message => CourseActions.updateCourseSuccess({ message })),
+          map(() => CourseActions.updateCourseSuccess({ course })), // Return original course
           catchError(error => of(CourseActions.updateCourseFailure({ error: error.message })))
         )
       )
@@ -65,7 +65,7 @@ export class CourseEffects {
       ofType(CourseActions.deleteCourse),
       mergeMap(({ courseId }) =>
         this.courseService.deleteCourse(courseId).pipe(
-          map(message => CourseActions.deleteCourseSuccess({ message })),
+          map(() => CourseActions.deleteCourseSuccess({ courseId })),
           catchError(error => of(CourseActions.deleteCourseFailure({ error: error.message })))
         )
       )
@@ -77,7 +77,7 @@ export class CourseEffects {
       ofType(CourseActions.enrollUser),
       mergeMap(({ username, courseId, courseName }) =>
         this.courseService.enrollUser(username, courseId, courseName).pipe(
-          map(message => CourseActions.enrollUserSuccess({ message })),
+          map(() => CourseActions.enrollUserSuccess({ enrollment: { username, courseId, courseName } })),
           catchError(error => of(CourseActions.enrollUserFailure({ error: error.message })))
         )
       )

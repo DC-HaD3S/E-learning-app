@@ -28,7 +28,7 @@ export const addCourse = createAction(
 );
 export const addCourseSuccess = createAction(
   '[Course] Add Course Success',
-  props<{ message: string }>()
+  props<{ course: Course }>()
 );
 export const addCourseFailure = createAction(
   '[Course] Add Course Failure',
@@ -41,7 +41,7 @@ export const updateCourse = createAction(
 );
 export const updateCourseSuccess = createAction(
   '[Course] Update Course Success',
-  props<{ message: string }>()
+  props<{ course: Course }>()
 );
 export const updateCourseFailure = createAction(
   '[Course] Update Course Failure',
@@ -54,7 +54,7 @@ export const deleteCourse = createAction(
 );
 export const deleteCourseSuccess = createAction(
   '[Course] Delete Course Success',
-  props<{ message: string }>()
+  props<{ courseId: number }>()
 );
 export const deleteCourseFailure = createAction(
   '[Course] Delete Course Failure',
@@ -62,27 +62,29 @@ export const deleteCourseFailure = createAction(
 );
 
 export const enrollUser = createAction(
-  '[Enrollment] Enroll User',
+  '[Course] Enroll User',
   props<{ username: string; courseId: number; courseName: string }>()
 );
 export const enrollUserSuccess = createAction(
-  '[Enrollment] Enroll User Success',
-  props<{ message: string }>()
+  '[Course] Enroll User Success',
+  props<{ enrollment: Enrollment }>()
 );
 export const enrollUserFailure = createAction(
-  '[Enrollment] Enroll User Failure',
+  '[Course] Enroll User Failure',
   props<{ error: string }>()
 );
 
 export const loadEnrollments = createAction(
-  '[Enrollment] Load Enrollments',
-  props<{ userId: number }>()
+  '[Course] Load Enrollments',
+  props<{ userId: string }>()
 );
 export const loadEnrollmentsSuccess = createAction(
-  '[Enrollment] Load Enrollments Success',
+  '[Course] Load Enrollments Success',
   props<{ enrollments: Enrollment[] }>()
 );
 export const loadEnrollmentsFailure = createAction(
-  '[Enrollment] Load Enrollments Failure',
+  '[Course] Load Enrollments Failure',
   props<{ error: string }>()
 );
+
+export const clearCourseError = createAction('[Course] Clear Course Error');

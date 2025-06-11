@@ -9,6 +9,7 @@ import { UserRole } from '../enums/user-role.enum';
 export interface UserDetails {
   id: number;
   email: string;
+  username: string;
 }
 
 @Injectable({
@@ -25,11 +26,13 @@ export class AuthService {
   initializeApp(): void {
     const token = this.getToken();
     if (token && this.isValidToken(token)) {
-      const decoded = this.decodeToken(token);
+      const decoded = this.decodeToken(token); // Ensure decoded is defined
+      console.log('Decoded token in initializeApp:', decoded); // Debug
       const role = decoded?.role?.replace('ROLE_', '').toLowerCase() || 'user';
       const userDetails = {
         id: Number(decoded?.userId) || 0,
-        email: decoded?.email || ''
+        email: decoded?.email || '',
+        username: decoded?.username || decoded?.sub || ''
       };
       this.store.dispatch(setRole({ role: role as UserRole }));
       this.store.dispatch(setUserDetails({ userDetails }));
@@ -40,7 +43,7 @@ export class AuthService {
     const body = { username, password };
     return this.http.post<any>(`${this.apiUrl}/login`, body).pipe(
       map(response => {
-        console.log('Login response:', response); // Debug response
+        console.log('Login response:', response);
         const token = response?.token || response?.jwt || (typeof response === 'string' ? response : null);
         if (!token) {
           throw new Error('Invalid login response: no token found');
@@ -49,11 +52,13 @@ export class AuthService {
           throw new Error('Invalid JWT token format');
         }
         localStorage.setItem('token', token);
-        const decoded = this.decodeToken(token);
+        const decoded = this.decodeToken(token); // Ensure decoded is defined
+        console.log('Decoded token in login:', decoded); // Debug
         const role = decoded?.role?.replace('ROLE_', '').toLowerCase() || 'user';
         const userDetails = {
           id: Number(decoded?.userId) || 0,
-          email: decoded?.email || ''
+          email: decoded?.email || '',
+          username: decoded?.username || decoded?.sub || ''
         };
         this.store.dispatch(setRole({ role: role as UserRole }));
         this.store.dispatch(setUserDetails({ userDetails }));
