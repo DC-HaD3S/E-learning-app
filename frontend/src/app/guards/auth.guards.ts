@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const expectedRole = route.data?.['role'] as UserRole | undefined;
-    console.log('AuthGuard: Expected role:', expectedRole); // Debug log
+    console.log('AuthGuard: Expected role:', expectedRole);
 
     if (!expectedRole) {
       console.error('AuthGuard: No role specified in route data');
@@ -29,7 +29,7 @@ export class AuthGuard implements CanActivate {
     return this.store.select(state => state.auth?.role).pipe(
       take(1),
       map(role => {
-        console.log('AuthGuard: User role:', role, 'Logged in:', this.authService.isLoggedIn()); // Debug log
+        console.log('AuthGuard: User role:', role, 'Logged in:', this.authService.isLoggedIn()); 
         if (!this.authService.isLoggedIn()) {
           console.warn('AuthGuard: User not logged in');
           this.router.navigate(['/login']);
@@ -37,7 +37,7 @@ export class AuthGuard implements CanActivate {
         }
         if (role !== expectedRole) {
           console.warn(`AuthGuard: Role mismatch: expected ${expectedRole}, got ${role}`);
-          this.router.navigate(['/home']); // Redirect to home instead of login for role mismatch
+          this.router.navigate(['/home']); 
           return false;
         }
         console.log('AuthGuard: Access granted');

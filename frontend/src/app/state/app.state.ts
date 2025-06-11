@@ -1,6 +1,7 @@
 
-import { Course } from '../models/course.model';
+import { UserDetails } from '../services/auth.services';
 import { UserRole } from '../enums/user-role.enum';
+import { Course } from '../models/course.model';
 
 export interface AppState {
   courses: CourseState;
@@ -14,4 +15,5 @@ export interface CourseState {
 
 export interface AuthState {
   role: UserRole | null;
+  user: UserDetails | null;
 }

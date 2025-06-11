@@ -3,8 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
-import { setRole, clearRole } from '../state/auth.actions';
+import { setRole, clearRole, setUserDetails } from '../state/auth.actions';
 import { UserRole } from '../enums/user-role.enum';
+
+export interface UserDetails {
+  id: number;
+  email: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +27,12 @@ export class AuthService {
     if (token) {
       const decoded = this.decodeToken(token);
       const role = decoded.role ? decoded.role.replace('ROLE_', '').toLowerCase() : 'user';
+      const userDetails = {
+        id: decoded.sub ? parseInt(decoded.sub, 10) : 0,
+        email: decoded.email || ''
+      };
       this.store.dispatch(setRole({ role: role as UserRole }));
+      this.store.dispatch(setUserDetails({ userDetails }));
     }
   }
 
@@ -33,7 +43,12 @@ export class AuthService {
         localStorage.setItem('token', response.jwt);
         const decoded = this.decodeToken(response.jwt);
         const role = decoded.role ? decoded.role.replace('ROLE_', '').toLowerCase() : 'user';
+        const userDetails = {
+          id: decoded.sub ? parseInt(decoded.sub, 10) : 0,
+          email: decoded.email || ''
+        };
         this.store.dispatch(setRole({ role: role as UserRole }));
+        this.store.dispatch(setUserDetails({ userDetails }));
         return response.jwt;
       }),
       catchError(err => {
@@ -46,7 +61,10 @@ export class AuthService {
   signup(name: string, email: string, username: string, password: string, role: string = 'USER'): Observable<string> {
     const body = { name, email, username, password, role };
     return this.http.post<string>(`${this.apiUrl}/signup`, body, { responseType: 'text' as 'json' }).pipe(
-      tap(() => this.store.dispatch(clearRole())),
+      tap(() => {
+        this.store.dispatch(clearRole());
+        this.store.dispatch(setUserDetails({ userDetails: null }));
+      }),
       catchError(err => {
         console.error('Signup error:', err);
         const errorMessage = err.error || 'Signup failed. Please try again.';
@@ -78,6 +96,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     this.store.dispatch(clearRole());
+    this.store.dispatch(setUserDetails({ userDetails: null }));
   }
 
   getToken(): string | null {

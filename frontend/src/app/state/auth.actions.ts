@@ -1,5 +1,18 @@
+
 import { createAction, props } from '@ngrx/store';
 import { UserRole } from '../enums/user-role.enum';
+import { UserDetails } from '../services/auth.services';
 
-export const setRole = createAction('[Auth] Set role]', props<{ role: UserRole }>());
-export const clearRole = createAction('[Auth] Clear role');
+export const setRole = createAction(
+  '[Auth] Set Role',
+  props<{ role: UserRole }>()
+);
+
+export const clearRole = createAction(
+  '[Auth] Clear Role'
+);
+
+export const setUserDetails = createAction(
+  '[Auth] Set User Details',
+  props<{ userDetails: UserDetails | null }>()
+);
