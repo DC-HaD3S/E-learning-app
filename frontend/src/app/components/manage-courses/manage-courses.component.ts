@@ -1,9 +1,8 @@
-
 import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/state/app.state';
 import { Course } from 'src/app/models/course.model';
-import { loadCourses, loadCoursesFailure } from 'src/app/state/course.actions';
+import { loadCourses, loadCoursesFailure, addCourse, updateCourse, deleteCourse } from 'src/app/state/course.actions';
 import { Observable } from 'rxjs';
 import { CourseService } from 'src/app/services/course.service';
 import { selectCourses, selectCourseError } from 'src/app/state/course.selectors';
@@ -21,7 +20,7 @@ export class ManageCoursesComponent implements OnInit {
   error$: Observable<string | null>;
   dataSource = new MatTableDataSource<Course>();
   displayedColumns: string[] = ['title', 'body', 'imageUrl', 'price', 'actions'];
-  newCourse: Course = { id: 0, title: '', body: '', imageUrl: '', price: 0, enrolledUsers: [] };
+  newCourse: Course = { id: 0, title: '', body: '', imageUrl: '', price: 0 };
   editingCourse: Course | null = null;
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -46,7 +45,7 @@ export class ManageCoursesComponent implements OnInit {
   }
 
   openAddCourseDialog(): void {
-    this.newCourse = { id: 0, title: '', body: '', imageUrl: '', price: 0, enrolledUsers: [] };
+    this.newCourse = { id: 0, title: '', body: '', imageUrl: '', price: 0 };
     this.dialog.open(this.addCourseDialog, {
       width: '800px',
       maxWidth: '95vw',
@@ -55,10 +54,11 @@ export class ManageCoursesComponent implements OnInit {
   }
 
   addCourse(): void {
+    this.store.dispatch(addCourse({ course: this.newCourse }));
     this.courseService.addCourse(this.newCourse).subscribe({
       next: () => {
         this.store.dispatch(loadCourses());
-        this.newCourse = { id: 0, title: '', body: '', imageUrl: '', price: 0, enrolledUsers: [] };
+        this.newCourse = { id: 0, title: '', body: '', imageUrl: '', price: 0 };
         this.dialog.closeAll();
       },
       error: (err) => this.store.dispatch(loadCoursesFailure({ error: err.message }))
@@ -76,6 +76,7 @@ export class ManageCoursesComponent implements OnInit {
 
   updateCourse(): void {
     if (this.editingCourse) {
+      this.store.dispatch(updateCourse({ course: this.editingCourse }));
       this.courseService.updateCourse(this.editingCourse).subscribe({
         next: () => {
           this.store.dispatch(loadCourses());
@@ -93,6 +94,7 @@ export class ManageCoursesComponent implements OnInit {
   }
 
   deleteCourse(courseId: number): void {
+    this.store.dispatch(deleteCourse({ courseId }));
     this.courseService.deleteCourse(courseId).subscribe({
       next: () => this.store.dispatch(loadCourses()),
       error: (err) => this.store.dispatch(loadCoursesFailure({ error: err.message }))

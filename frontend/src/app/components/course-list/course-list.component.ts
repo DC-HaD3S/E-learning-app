@@ -6,10 +6,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CourseApplyDialogComponent } from '../course-apply-dialog/course-apply-dialog.component';
 import { loadCourses } from 'src/app/state/course.actions';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
-import { take } from 'rxjs/operators';
+import { take, catchError } from 'rxjs/operators';
 import { CourseDetailsDialogComponent } from '../course-details-dialog/course-details-dialog.component';
+import { selectCourses, selectCourseError, selectCourseState } from 'src/app/state/course.selectors';
+import { AppState } from 'src/app/state/app.state';
 
 @Component({
   selector: 'app-course-list',
@@ -17,46 +19,83 @@ import { CourseDetailsDialogComponent } from '../course-details-dialog/course-de
   styleUrls: ['./course-list.component.css']
 })
 export class CourseListComponent implements OnInit {
-  courses$: Observable<Course[]>;
+  courses$: Observable<Course[] | undefined>;
   error$: Observable<string | null>;
   isAdmin$: Observable<boolean>;
   role$: Observable<UserRole | null>;
   sortedCourses: Course[] = [];
   sortCriteria: string = 'title-asc';
   private rawCourses: Course[] = [];
+  hasCourses: boolean = false;
+  isLoading: boolean = true;
 
   constructor(
-    private store: Store<{ courses: { courses: Course[], error: string | null }, auth: { role: UserRole | null } }>,
+    private store: Store<AppState>,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router
   ) {
-    this.courses$ = this.store.select(state => state.courses.courses);
-    this.error$ = this.store.select(state => state.courses.error);
-    this.isAdmin$ = this.store.select(state => state.auth.role === UserRole.Admin);
-    this.role$ = this.store.select(state => state.auth.role);
+    this.courses$ = this.store.select(selectCourses).pipe(
+      catchError(() => {
+        console.error('Selector error: returning empty array');
+        return of([]);
+      })
+    );
+    this.error$ = this.store.select(selectCourseError);
+    this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.Admin);
+    this.role$ = this.store.select(state => state.auth?.role);
   }
 
   ngOnInit(): void {
     this.store.dispatch(loadCourses());
-    this.courses$.subscribe(courses => {
-      console.log('Courses:', courses);
-      this.rawCourses = [...courses];
-      // Log courses with missing properties
-      this.rawCourses.forEach(course => {
-        if (!course.title) console.warn('Course missing title:', course);
-        if (course.price == null) console.warn('Course missing price:', course);
-        if (!course.body) console.warn('Course missing body:', course);
-        if (!course.imageUrl) console.warn('Course missing imageUrl:', course);
-      });
-      this.sortCourses();
+    this.store.select(state => state).subscribe(state => {
+      console.log('Full Store State:', state);
+      if (!state.courses) {
+        console.warn('Courses state not initialized, re-dispatching loadCourses');
+        this.store.dispatch(loadCourses());
+      }
     });
-    this.error$.subscribe(error => console.log('Error:', error));
-    this.isAdmin$.subscribe(isAdmin => console.log('Is Admin:', isAdmin));
+    this.store.select(selectCourseState).subscribe(state => {
+      console.log('Course State:', state);
+    });
+    this.courses$.subscribe({
+      next: (courses) => {
+        this.isLoading = false;
+        console.log('Courses:', courses);
+        if (Array.isArray(courses)) {
+          this.rawCourses = [...courses];
+          this.hasCourses = courses.length > 0;
+          console.log('Valid Courses:', this.rawCourses);
+          this.rawCourses.forEach(course => {
+            if (!course.title) console.warn('Missing title:', course);
+            if (course.price == null) console.warn('Missing price:', course);
+            if (!course.body) console.warn('Missing body:', course);
+            if (!course.imageUrl) console.warn('Missing imageUrl:', course);
+          });
+          this.sortCourses();
+        } else {
+          console.error('Invalid courses:', courses);
+          this.rawCourses = [];
+          this.sortedCourses = [];
+          this.hasCourses = false;
+        }
+      },
+      error: (err) => {
+        console.error('Courses$ error:', err);
+        this.isLoading = false;
+      }
+    });
+    this.error$.subscribe(error => {
+      if (error) {
+        console.error('Store error:', error);
+        this.snackBar.open(`Error: ${error}`, 'Close', { duration: 5000 });
+        this.isLoading = false;
+      }
+    });
+    this.isAdmin$.subscribe(isAdmin => console.log('isAdmin:', isAdmin));
   }
 
   sortCourses(): void {
-    // Filter out courses with missing title, body, or imageUrl
     const validCourses = this.rawCourses.filter(course => 
       course.title && 
       course.price != null && 
@@ -64,18 +103,19 @@ export class CourseListComponent implements OnInit {
       course.imageUrl
     );
     this.sortedCourses = [...validCourses];
+    console.log('Sorted Courses:', this.sortedCourses);
     const [field, direction] = this.sortCriteria.split('-');
 
     this.sortedCourses.sort((a, b) => {
       if (field === 'title') {
-        const valueA = a.title ? a.title.toLowerCase() : '';
-        const valueB = b.title ? b.title.toLowerCase() : '';
+        const valueA = a.title?.toLowerCase() || '';
+        const valueB = b.title?.toLowerCase() || '';
         return direction === 'asc'
           ? valueA.localeCompare(valueB)
           : valueB.localeCompare(valueA);
       } else if (field === 'price') {
-        const valueA = a.price != null ? a.price : 0;
-        const valueB = b.price != null ? b.price : 0;
+        const valueA = a.price ?? 0;
+        const valueB = b.price ?? 0;
         return direction === 'asc'
           ? valueA - valueB
           : valueB - valueA;
@@ -87,15 +127,15 @@ export class CourseListComponent implements OnInit {
   openApplyDialog(course: Course): void {
     this.role$.pipe(take(1)).subscribe(role => {
       if (!role) {
-        this.snackBar.open('Please log in first', 'Close', { duration: 3000 });
-        this.router.navigate(['/login']);
+        this.snackBar.open('Please log in', 'Close', { duration: 3000 });
+        this.router.navigate(['']);
       } else {
         const dialogRef = this.dialog.open(CourseApplyDialogComponent, {
           width: '500px',
           data: { course }
         });
         dialogRef.afterClosed().subscribe(result => {
-          if (result && result.message) {
+          if (result?.message) {
             this.snackBar.open(`✅ ${result.message}`, 'Close', {
               duration: 5000,
               verticalPosition: 'bottom',
@@ -108,19 +148,16 @@ export class CourseListComponent implements OnInit {
     });
   }
 
-  openDetailsDialog(course: any): void {
+  openDetailsDialog(course: Course): void {
     const dialogRef = this.dialog.open(CourseDetailsDialogComponent, {
       width: '600px',
-      maxWidth: '90vw',
+      maxWidth: '100%',
       data: course
     });
-
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'apply') {
         this.openApplyDialog(course);
       }
     });
   }
-
-
 }

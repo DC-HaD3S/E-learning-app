@@ -24,12 +24,12 @@ export class AuthService {
 
   initializeApp(): void {
     const token = this.getToken();
-    if (token) {
+    if (token && this.isValidToken(token)) {
       const decoded = this.decodeToken(token);
-      const role = decoded.role ? decoded.role.replace('ROLE_', '').toLowerCase() : 'user';
+      const role = decoded?.role?.replace('ROLE_', '').toLowerCase() || 'user';
       const userDetails = {
-        id: decoded.sub ? parseInt(decoded.sub, 10) : 0,
-        email: decoded.email || ''
+        id: Number(decoded?.userId) || 0,
+        email: decoded?.email || ''
       };
       this.store.dispatch(setRole({ role: role as UserRole }));
       this.store.dispatch(setUserDetails({ userDetails }));
@@ -38,21 +38,29 @@ export class AuthService {
 
   login(username: string, password: string): Observable<string> {
     const body = { username, password };
-    return this.http.post<{ jwt: string }>(`${this.apiUrl}/login`, body).pipe(
+    return this.http.post<any>(`${this.apiUrl}/login`, body).pipe(
       map(response => {
-        localStorage.setItem('token', response.jwt);
-        const decoded = this.decodeToken(response.jwt);
-        const role = decoded.role ? decoded.role.replace('ROLE_', '').toLowerCase() : 'user';
+        console.log('Login response:', response); // Debug response
+        const token = response?.token || response?.jwt || (typeof response === 'string' ? response : null);
+        if (!token) {
+          throw new Error('Invalid login response: no token found');
+        }
+        if (!this.isValidToken(token)) {
+          throw new Error('Invalid JWT token format');
+        }
+        localStorage.setItem('token', token);
+        const decoded = this.decodeToken(token);
+        const role = decoded?.role?.replace('ROLE_', '').toLowerCase() || 'user';
         const userDetails = {
-          id: decoded.sub ? parseInt(decoded.sub, 10) : 0,
-          email: decoded.email || ''
+          id: Number(decoded?.userId) || 0,
+          email: decoded?.email || ''
         };
         this.store.dispatch(setRole({ role: role as UserRole }));
         this.store.dispatch(setUserDetails({ userDetails }));
-        return response.jwt;
+        return token;
       }),
       catchError(err => {
-        console.error('Login error:', err);
+        console.error('Login error:', err.status, err.message, err.error);
         return throwError(() => new Error('Login failed. Please check your credentials.'));
       })
     );
@@ -67,14 +75,13 @@ export class AuthService {
       }),
       catchError(err => {
         console.error('Signup error:', err);
-        const errorMessage = err.error || 'Signup failed. Please try again.';
-        return throwError(() => new Error(errorMessage));
+        return throwError(() => new Error(err.error || 'Signup failed. Please try again.'));
       })
     );
   }
 
   checkUsername(username: string): Observable<boolean> {
-    return this.http.get<string>(`${this.apiUrl}/check-username?username=${username}`).pipe(
+    return this.http.get<string>(`${this.apiUrl}/check-username?username=${encodeURIComponent(username)}`).pipe(
       map(response => response === 'Username is available'),
       catchError(err => {
         console.error('Check username error:', err);
@@ -84,7 +91,7 @@ export class AuthService {
   }
 
   checkEmail(email: string): Observable<boolean> {
-    return this.http.get<string>(`${this.apiUrl}/check-email?email=${email}`).pipe(
+    return this.http.get<string>(`${this.apiUrl}/check-email?email=${encodeURIComponent(email)}`).pipe(
       map(response => response === 'Email is available'),
       catchError(err => {
         console.error('Check email error:', err);
@@ -103,11 +110,29 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
+  getUsername(): string {
+    const token = this.getToken();
+    if (!token || !this.isValidToken(token)) return '';
+    const decoded = this.decodeToken(token);
+    return decoded?.username || decoded?.sub || '';
+  }
+
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    return !!token && this.isValidToken(token);
+  }
+
+  private isValidToken(token: string): boolean {
+    if (!token || typeof token !== 'string') return false;
+    const parts = token.split('.');
+    return parts.length === 3;
   }
 
   private decodeToken(token: string): any {
+    if (!this.isValidToken(token)) {
+      console.error('Invalid token format');
+      return {};
+    }
     try {
       const payload = token.split('.')[1];
       const decoded = atob(payload);

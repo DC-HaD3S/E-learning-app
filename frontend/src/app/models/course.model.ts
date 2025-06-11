@@ -1,9 +1,7 @@
 export interface Course {
-  id: number;
+  id?: number;
   title: string;
-  body: string;
-  userId?: number;
+  body?: string;
   imageUrl?: string;
-  enrolledUsers?: number[];
-  price?: number; 
+  price?: number;
 }

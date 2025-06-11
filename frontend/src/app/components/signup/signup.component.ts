@@ -81,7 +81,7 @@ export class SignupComponent {
         this.snackBar.open('User successfully registered!', 'Close', {
         duration: 3000, // Display for 3 seconds
         horizontalPosition: 'center',
-        verticalPosition: 'top'
+        verticalPosition: 'bottom'
         });
         this.router.navigate(['/login']);
       },

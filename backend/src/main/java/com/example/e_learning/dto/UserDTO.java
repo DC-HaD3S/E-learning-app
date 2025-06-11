@@ -2,6 +2,7 @@
 package com.example.e_learning.dto;
 
 public class UserDTO {
+	private long id;
     private String name;
     private String email;
     private String username;
@@ -23,4 +24,12 @@ public class UserDTO {
     public void setUsername(String username) {
         this.username = username;
     }
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+
+
 }
