@@ -1,12 +1,10 @@
 <div class="registered-users-container">
   <h1>Registered Users</h1>
 
-  <!-- Error Display -->
   <div *ngIf="error" class="error-message">
     {{ error }}
   </div>
 
-  <!-- Users Grid -->
   <div class="users-grid" *ngIf="!error && users.length > 0">
     <app-details-card
       *ngFor="let user of users"
@@ -18,7 +16,6 @@
     </app-details-card>
   </div>
 
-  <!-- No Users Message -->
   <div *ngIf="!error && users.length === 0" class="no-users-message">
     No users found.
   </div>
