@@ -21,7 +21,7 @@ export class CourseDetailsDialogComponent {
     private store: Store<AppState>
   ) {
     this.course = data; // Assign to course property
-    this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.Admin);
+    this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.ADMIN);
   }
 
   applyForCourse(): void {

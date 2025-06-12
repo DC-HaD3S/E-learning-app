@@ -42,7 +42,7 @@ export class CourseListComponent implements OnInit {
       })
     );
     this.error$ = this.store.select(selectCourseError);
-    this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.Admin);
+    this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.ADMIN);
     this.role$ = this.store.select(state => state.auth?.role);
   }
 
