@@ -1,60 +1,53 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Course } from '../../models/course.model';
-import { CourseService } from '../../services/course.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AuthService } from 'src/app/services/auth.services';
+import { CourseService } from '../../services/course.service';
+import { Course } from '../../models/course.model';
 
 @Component({
-  selector: 'app-course-apply-dialog',
-  templateUrl: './course-apply-dialog.component.html',
-  styleUrls: ['./course-apply-dialog.component.css']
+    selector: 'app-course-apply-dialog',
+    templateUrl: './course-apply-dialog.component.html',
+    styleUrls: ['./course-apply-dialog.component.css']
 })
-export class CourseApplyDialogComponent {
-  applyForm: FormGroup;
+export class CourseApplyDialogComponent implements OnInit {
+    applyForm: FormGroup;
 
-  constructor(
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar,
-    private courseService: CourseService,
-    private authService: AuthService, // Inject AuthService
-    public dialogRef: MatDialogRef<CourseApplyDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { course: Course }
-  ) {
-    this.applyForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      confirmation: [false, Validators.requiredTrue]
-    });
-  }
-
-  openSnackBar(message: string, action: string) {
-    this.snackBar.open(message, action, { duration: 3000 });
-  }
-
-  onSubmit(): void {
-    if (this.applyForm.valid) {
-      const username = this.authService.getUsername(); // Get username from AuthService
-      this.courseService.enrollUser(username, this.data.course.id!, this.data.course.title).subscribe({
-        next: (message) => {
-          this.openSnackBar(
-            `Successfully enrolled in "${this.data.course.title}"${this.data.course.price === 0 ? ' for free!' : ` for $${this.data.course.price}!`}`,
-            'Close'
-          );
-          this.applyForm.reset();
-          this.dialogRef.close({ success: true });
-        },
-        error: (err) => {
-          this.openSnackBar(`Enrollment failed for "${this.data.course.title}": ${err.message}`, 'Close');
-          this.dialogRef.close({ success: false, message: 'Enrollment failed.' });
-        }
-      });
+    constructor(
+        public dialogRef: MatDialogRef<CourseApplyDialogComponent>,
+        @Inject(MAT_DIALOG_DATA) public data: { course: Course },
+        private formBuilder: FormBuilder,
+        private courseService: CourseService,
+        private snackBar: MatSnackBar
+    ) {
+        this.applyForm = this.formBuilder.group({
+            username: ['', [Validators.required, Validators.minLength(3)]],
+            confirmation: [false, Validators.requiredTrue]
+        });
     }
-  }
 
-  onCancel(): void {
-    this.openSnackBar(`Canceled enrollment of "${this.data.course.title}"`, 'Close');
-    this.dialogRef.close({ success: false, message: null });
-  }
+    ngOnInit(): void {}
+
+    onSubmit(): void {
+        if (this.applyForm.valid && this.data.course.id) {
+            const { username } = this.applyForm.value;
+            this.courseService.enrollUser(username, this.data.course.id, this.data.course.title).subscribe({
+                next: (response) => {
+                    this.snackBar.open(response.message, 'Close', { duration: 3000 });
+                    this.dialogRef.close(true);
+                },
+                error: (error) => {
+                    console.error('Enrollment failed:', error);
+                    this.snackBar.open('Enrollment failed: ' + (error.error?.message || 'Unknown error'), 'Close', { duration: 5000 });
+                    this.dialogRef.close(false);
+                }
+            });
+        } else {
+            this.snackBar.open('Invalid form or course data', 'Close', { duration: 3000 });
+        }
+    }
+
+    onCancel(): void {
+        this.dialogRef.close(false);
+    }
 }

@@ -5,58 +5,58 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "course") 
 public class Course {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private String title;
-	private String body;
-	@Column(name = "imageUrl", columnDefinition = "TEXT")
-	private String imageUrl;
-	
-	
-	private Integer price;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String title;
+    private String body;
+    @Column(name = "imageUrl", columnDefinition = "TEXT")
+    private String imageUrl;
+    private Integer price;
 
-	// Getters and setters
-	public Long getId() {
-		return id;
-	}
+    // Getters and setters
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public String getBody() {
-		return body;
-	}
+    public String getBody() {
+        return body;
+    }
 
-	public void setBody(String body) {
-		this.body = body;
-	}
+    public void setBody(String body) {
+        this.body = body;
+    }
 
-	public String getImageUrl() {
-		return imageUrl;
-	}
+    public String getImageUrl() {
+        return imageUrl;
+    }
 
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
-	}
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
-	public Integer getPrice() {
-		return price;
-	}
+    public Integer getPrice() {
+        return price;
+    }
 
-	public void setPrice(Integer price) {
-		this.price = price;
-	}
+    public void setPrice(Integer price) {
+        this.price = price;
+    }
 }

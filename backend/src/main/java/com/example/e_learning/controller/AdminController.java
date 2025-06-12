@@ -7,11 +7,14 @@ import org.springframework.web.bind.annotation.*;
 import com.example.e_learning.dto.CourseDTO;
 import com.example.e_learning.dto.EnrollmentDTO;
 import com.example.e_learning.dto.UserDTO;
+import com.example.e_learning.entity.Course;
 import com.example.e_learning.service.CourseService;
 import com.example.e_learning.service.EnrollmentService;
 import com.example.e_learning.service.UserService;
 import jakarta.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -38,14 +41,18 @@ public class AdminController {
         }
     }
 
-
     @PostMapping("/courses")
-    public ResponseEntity<String> createCourse(@Valid @RequestBody CourseDTO courseDTO) {
+    public ResponseEntity<Map<String, Object>> createCourse(@Valid @RequestBody CourseDTO courseDTO) {
         try {
-            courseService.createCourse(courseDTO);
-            return ResponseEntity.ok("Course created successfully");
+            Course course = courseService.createCourse(courseDTO);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Course created successfully");
+            response.put("data", courseService.convertToDTO(course));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Course creation failed: " + e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Course creation failed: " + e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
@@ -59,22 +66,34 @@ public class AdminController {
     }
 
     @PutMapping("/courses/{courseId}")
-    public ResponseEntity<String> updateCourse(@PathVariable Long courseId, @Valid @RequestBody CourseDTO courseDTO) {
+    public ResponseEntity<Map<String, String>> updateCourse(@PathVariable Long courseId, @Valid @RequestBody CourseDTO courseDTO) {
         try {
             courseService.updateCourse(courseId, courseDTO);
-            return ResponseEntity.ok("Course updated successfully");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Course updated successfully");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Course update failed: " + e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Course update failed: " + e.getMessage());
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Course update failed: " + e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
     @DeleteMapping("/courses/{courseId}")
-    public ResponseEntity<String> deleteCourse(@PathVariable Long courseId) {
+    public ResponseEntity<Map<String, String>> deleteCourse(@PathVariable Long courseId) {
         try {
             courseService.deleteCourse(courseId);
-            return ResponseEntity.ok("Course deleted successfully");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Course deleted successfully");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Course deletion failed: " + e.getMessage());
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Course deletion failed: " + e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 }

@@ -5,26 +5,34 @@ import org.springframework.stereotype.Service;
 import com.example.e_learning.dto.CourseDTO;
 import com.example.e_learning.entity.Course;
 import com.example.e_learning.repository.CourseRepository;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class CourseService {
-
     @Autowired
     private CourseRepository courseRepository;
 
-    // Get all courses
+    public Course createCourse(CourseDTO courseDTO) {
+        Course course = new Course();
+        course.setTitle(courseDTO.getTitle());
+        course.setBody(courseDTO.getBody());
+        course.setImageUrl(courseDTO.getImageUrl());
+        course.setPrice(courseDTO.getPrice());
+        // Explicitly ensure id is null to let database generate it
+        course.setId(null);
+        return courseRepository.save(course);
+    }
+
     public List<CourseDTO> getAllCourses() {
         return courseRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    // Create a new course
-    public void createCourse(@Valid CourseDTO courseDTO) {
-        Course course = new Course();
+    public void updateCourse(Long courseId, CourseDTO courseDTO) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
         course.setTitle(courseDTO.getTitle());
         course.setBody(courseDTO.getBody());
         course.setImageUrl(courseDTO.getImageUrl());
@@ -32,35 +40,14 @@ public class CourseService {
         courseRepository.save(course);
     }
 
-    // Update an existing course
-    public void updateCourse(Long courseId, @Valid CourseDTO courseDTO) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + courseId));
-        if (courseDTO.getTitle() != null) {
-            course.setTitle(courseDTO.getTitle());
-        }
-        if (courseDTO.getBody() != null) {
-            course.setBody(courseDTO.getBody());
-        }
-        if (courseDTO.getImageUrl() != null) {
-            course.setImageUrl(courseDTO.getImageUrl());
-        }
-        if (courseDTO.getPrice() != null) {
-            course.setPrice(courseDTO.getPrice());
-        }
-        courseRepository.save(course);
-    }
-
-    // Delete a course
     public void deleteCourse(Long courseId) {
         if (!courseRepository.existsById(courseId)) {
-            throw new IllegalArgumentException("Course not found with ID: " + courseId);
+            throw new IllegalArgumentException("Course not found: " + courseId);
         }
         courseRepository.deleteById(courseId);
     }
 
-    // Convert Course entity to CourseDTO
-    private CourseDTO convertToDTO(Course course) {
+    public CourseDTO convertToDTO(Course course) {
         CourseDTO dto = new CourseDTO();
         dto.setId(course.getId());
         dto.setTitle(course.getTitle());

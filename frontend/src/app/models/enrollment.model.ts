@@ -1,5 +1,7 @@
 export interface Enrollment {
-  username: string;
-  courseId: number;
-  courseName: string;
+    id?: number;
+    username: string;
+    courseId: number;
+    courseName: string;
+ 
 }
