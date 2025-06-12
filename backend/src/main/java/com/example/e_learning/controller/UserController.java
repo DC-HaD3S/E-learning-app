@@ -9,42 +9,49 @@ import com.example.e_learning.service.EnrollmentService;
 import com.example.e_learning.service.UserService;
 import jakarta.validation.Valid;
 import java.security.Principal;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
     @Autowired private UserService userService;
     @Autowired private EnrollmentService enrollmentService;
 
     @PostMapping("/apply-course")
-    public ResponseEntity<String> enroll(@Valid @RequestBody EnrollmentDTO enrollmentDTO, Principal principal) {
+    public ResponseEntity<Map<String, String>> enroll(@Valid @RequestBody EnrollmentDTO enrollmentDTO, Principal principal) {
+        Map<String, String> response = new HashMap<>();
         try {
             if (enrollmentDTO.getCourseId() == null) {
-                return ResponseEntity.badRequest().body("Course ID is required");
+                response.put("message", "Course ID is required");
+                return ResponseEntity.badRequest().body(response);
             }
             enrollmentService.enrollUserToCourse(principal.getName(), enrollmentDTO.getCourseId());
-            return ResponseEntity.ok("User enrolled successfully");
+            response.put("message", "User enrolled successfully");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Enrollment failed: " + e.getMessage());
+            response.put("message", "Enrollment failed: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
     @GetMapping("/enrolled-courses")
-    public ResponseEntity<List<EnrollmentDTO>> getEnrolled(Principal principal) {
+    public ResponseEntity<?> getEnrolled(Principal principal) {
         try {
-            // Get the authenticated user
-            User currentUser = userService.findByUsername(principal.getName())
-                    .orElse(null);
+            User currentUser = userService.findByUsername(principal.getName()).orElse(null);
             if (currentUser == null) {
-                return ResponseEntity.status(404).body(Collections.emptyList());
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "User not found");
+                return ResponseEntity.status(404).body(error);
             }
-            // Fetch enrolled courses for the logged-in user
             List<EnrollmentDTO> enrollments = enrollmentService.getEnrollmentsByUserId(currentUser.getId());
             return ResponseEntity.ok(enrollments);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Collections.emptyList());
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Failed to fetch enrolled courses");
+            return ResponseEntity.badRequest().body(error);
         }
     }
 }

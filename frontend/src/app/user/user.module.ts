@@ -13,7 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { EnrolledCoursesComponent } from '../components/enrolled-courses/enrolled-courses.component';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatOptionModule } from '@angular/material/core';
 
 
 import { MatDialogModule } from '@angular/material/dialog';
@@ -28,6 +28,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     UserRoutingModule,
     MatCardModule,
     MatButtonModule,
+    MatOptionModule,
     MatDialogModule,
     MatSnackBarModule,
     MatFormFieldModule,

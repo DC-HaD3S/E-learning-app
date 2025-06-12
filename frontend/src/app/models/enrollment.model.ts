@@ -1,7 +1,8 @@
 export interface Enrollment {
-    id?: number;
-    username: string;
-    courseId: number;
-    courseName: string;
- 
+username: string;
+  courseId: number;
+  courseName: string;
+  body?: string; 
+  imageUrl?: string;
+  price?: number;
 }

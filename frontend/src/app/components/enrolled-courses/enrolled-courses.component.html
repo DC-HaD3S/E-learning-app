@@ -1,18 +1,62 @@
 <div class="course-grid-container">
-  <div *ngIf="error$ | async as error" class="error">{{ error }}</div>
-  <div class="course-grid">
-    <mat-card *ngFor="let course of sortedCourses" class="course-card">
+
+  <!-- Error Message -->
+  <div *ngIf="error$ | async as error" class="error">
+    {{ error }}
+  </div>
+
+  <!-- Loading Spinner or Message -->
+  <div *ngIf="isLoading" class="loading">
+    Loading courses...
+  </div>
+
+  <!-- No Courses -->
+  <div *ngIf="!isLoading && !hasCourses && !(error$ | async)" class="no-courses">
+    No courses available at the moment.
+  </div>
+
+  <!-- Course Grid -->
+  <div class="course-grid" *ngIf="hasCourses">
+    <mat-card *ngFor="let course of sortedEnrollments" class="course-card">
       <mat-card-header>
-        <mat-card-title>{{ course.title }}</mat-card-title>
+        <mat-card-title>{{ course.courseName }}</mat-card-title>
       </mat-card-header>
-      <img mat-card-image [src]="course.imageUrl" [alt]="course.title" *ngIf="course.imageUrl">
+
+      <img mat-card-image [src]="course.imageUrl" [alt]="course.courseName" *ngIf="course.imageUrl">
+
       <mat-card-content>
-        <p>{{ truncateBody(course.body, 50) }}</p>
-        <p class="price">Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}</p>
+        <p>{{ truncateBody(course.body, 100) }}</p>
+        <p class="price">
+          Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}
+        </p>
       </mat-card-content>
+
       <mat-card-actions>
-        <button mat-stroked-button color="primary" (click)="openDetailsDialog(course)">View Details</button>
+        <button mat-stroked-button color="primary" (click)="openDetailsDialog(course)">
+          View Details
+        </button>
       </mat-card-actions>
     </mat-card>
   </div>
+
 </div>
+
+<!-- Inline Dialog Template -->
+<ng-template #courseDialogTemplate>
+  <div class="dialog-container">
+    <h2 mat-dialog-title>{{ selectedCourse?.courseName || 'Untitled Course' }}</h2>
+    <div mat-dialog-content class="dialog-content">
+      <p class="description">{{ selectedCourse?.body || 'No description available.' }}</p>
+      <p class="price">
+        Price:
+        {{ selectedCourse?.price != null
+          ? (selectedCourse.price === 0 ? 'Free' : 'Rs.' + selectedCourse.price)
+          : 'N/A' }}
+      </p>
+    </div>
+    <div mat-dialog-actions class="dialog-actions">
+      <button mat-button mat-dialog-close>Close</button>
+    </div>
+  </div>
+</ng-template>
+

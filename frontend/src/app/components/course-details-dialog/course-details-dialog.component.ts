@@ -6,21 +6,24 @@ import { AppState } from '../../state/app.state';
 import { UserRole } from '../../enums/user-role.enum';
 import { Course } from '../../models/course.model'; // Import Course model
 
+export interface CourseDialogData extends Course {
+  allowApply: boolean;
+}
+
 @Component({
   selector: 'app-course-details-dialog',
   templateUrl: './course-details-dialog.component.html',
   styleUrls: ['./course-details-dialog.component.css']
-})
-export class CourseDetailsDialogComponent {
+})export class CourseDetailsDialogComponent {
   isAdmin$: Observable<boolean>;
-  course: Course; // Strongly typed course
+  course: Course;
 
   constructor(
     public dialogRef: MatDialogRef<CourseDetailsDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: Course, // Type as Course
+    @Inject(MAT_DIALOG_DATA) public data: CourseDialogData,  
     private store: Store<AppState>
   ) {
-    this.course = data; // Assign to course property
+    this.course = data;  
     this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.ADMIN);
   }
 
@@ -30,5 +33,4 @@ export class CourseDetailsDialogComponent {
 
   closeDialog(): void {
     this.dialogRef.close();
-  }
-}
+  }}

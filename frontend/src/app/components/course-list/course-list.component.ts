@@ -152,8 +152,11 @@ export class CourseListComponent implements OnInit {
     const dialogRef = this.dialog.open(CourseDetailsDialogComponent, {
       width: '600px',
       maxWidth: '100%',
-      data: course
-    });
+    data: {
+      ...course,       
+      allowApply: true
+    }
+      });
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'apply') {
         this.openApplyDialog(course);
