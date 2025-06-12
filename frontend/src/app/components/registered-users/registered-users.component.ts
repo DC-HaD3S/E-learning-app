@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-
-interface User {
-  name: string;
-  email: string;
-  username: string;
-  password: string; // Hashed password (simulated bcrypt hash)
-}
+import { UserService } from '../../services/user.service';
+import { AuthService } from 'src/app/services/auth.services';
+import { User } from '../../models/user.model';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-registered-users',
@@ -14,27 +12,38 @@ interface User {
 })
 export class RegisteredUsersComponent implements OnInit {
   users: User[] = [];
+  error: string | null = null;
+
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+    private router: Router,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
-    this.users = [
-      {
-        name: 'Raj',
-        email: 'Raj@gmail.com',
-        username: 'rajendra',
-        password: '$2b$10$XURPShQNCsLjp1ESc2laoObo9QZD0zG6ZISZ5TjG1fT5eYb8Z.x2G' 
+    if (!this.authService.isLoggedIn()) {
+      this.error = 'Please log in as an admin to view users.';
+      this.snackBar.open(this.error, 'Close', { duration: 5000 });
+      this.router.navigate(['/login']);
+      return;
+    }
+    this.loadUsers();
+  }
+
+  loadUsers(): void {
+    this.userService.getAllUsers().subscribe({
+      next: (users) => {
+        this.users = users;
+        this.error = null;
       },
-      {
-        name: 'Raje',
-        email: 'Rajes@gmail.com',
-        username: 'rajendra',
-        password: '$2b$10$XURPShQNCsLjp1ESc2laoObo9QZD0zG6ZISZ5TjG1fT5eYb8Z.x2G' 
-      },
-      {
-        name: 'Raja',
-        email: 'Raja@gmail.com',
-        username: 'rajendra',
-        password: '$2b$10$XURPShQNCsLjp1ESc2laoObo9QZD0zG6ZISZ5TjG1fT5eYb8Z.x2G' 
+      error: (err) => {
+        this.error = err.message;
+        if (err.message.includes('Unauthorized')) {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }
       }
-    ];
+    });
   }
 }
