@@ -13,42 +13,40 @@
     {{ error }}
   </div>
 
-  <!-- Course Table -->
-  <mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 table-style">
-    <ng-container matColumnDef="title">
-      <mat-header-cell *matHeaderCellDef mat-sort-header class="header-cell">Title</mat-header-cell>
-      <mat-cell *matCellDef="let course" class="cell"> {{ course.title }} </mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="body">
-      <mat-header-cell *matHeaderCellDef mat-sort-header class="header-cell">Description</mat-header-cell>
-      <mat-cell *matCellDef="let course" class="cell"> {{ course.body | slice:0:100 }}{{ course.body.length > 100 ? '...' : '' }} </mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="imageUrl">
-      <mat-header-cell *matHeaderCellDef mat-sort-header class="header-cell">Image</mat-header-cell>
-      <mat-cell *matCellDef="let course" class="cell">
-        <img *ngIf="course.imageUrl" [src]="course.imageUrl" alt="Course Image" class="course-image">
-      </mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="price">
-      <mat-header-cell *matHeaderCellDef mat-sort-header class="header-cell">Price</mat-header-cell>
-      <mat-cell *matCellDef="let course" class="cell"> Rs.{{ course.price | number:'1.2-2' }} </mat-cell>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <mat-header-cell *matHeaderCellDef class="header-cell">Actions</mat-header-cell>
-      <mat-cell *matCellDef="let course" class="cell">
-        <button mat-icon-button color="accent" (click)="openEditCourseDialog(course)" class="action-button">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="openDeleteConfirmDialog(course)" class="action-button">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </mat-cell>
-    </ng-container>
-    <mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></mat-row>
-  </mat-table>
-</div>
-
+  <!-- Course Table --><!-- Course Table -->
+<mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 table-style">
+  <ng-container matColumnDef="title">
+    <mat-header-cell *matHeaderCellDef mat-sort-header class="header-cell">Title</mat-header-cell>
+    <mat-cell *matCellDef="let course" class="cell"> {{ course.title }} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="body">
+    <mat-header-cell *matHeaderCellDef class="header-cell">Description</mat-header-cell>
+    <mat-cell *matCellDef="let course" class="cell"> {{ course.body | slice:0:100 }}{{ course.body.length > 100 ? '...' : '' }} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="imageUrl">
+    <mat-header-cell *matHeaderCellDef class="header-cell">Image</mat-header-cell>
+    <mat-cell *matCellDef="let course" class="cell">
+      <img *ngIf="course.imageUrl" [src]="course.imageUrl" alt="Course Image" class="course-image">
+    </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="price">
+    <mat-header-cell *matHeaderCellDef mat-sort-header class="header-cell">Price</mat-header-cell>
+    <mat-cell *matCellDef="let course" class="cell"> Rs.{{ course.price | number:'1.2-2' }} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="actions">
+    <mat-header-cell *matHeaderCellDef class="header-cell">Actions</mat-header-cell>
+    <mat-cell *matCellDef="let course" class="cell">
+      <button mat-icon-button color="accent" (click)="openEditCourseDialog(course)" class="action-button">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="openDeleteConfirmDialog(course)" class="action-button">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-cell>
+  </ng-container>
+  <mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></mat-row>
+</mat-table>
 <!-- Add Course Dialog -->
 <ng-template #addCourseDialog>
   <div class="dialog-container">
