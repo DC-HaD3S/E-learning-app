@@ -26,8 +26,8 @@ export class CourseService {
     }
 
     getCourses(): Observable<Course[]> {
-        console.log('Fetching courses from:', `${this.apiUrl}/admin/courses`);
-        return this.http.get<Course[]>(`${this.apiUrl}/admin/courses`, { headers: this.getHeaders() })
+        console.log('Fetching courses from:', `${this.apiUrl}/courses`);
+        return this.http.get<Course[]>(`${this.apiUrl}/courses`, { headers: this.getHeaders() })
             .pipe(
                 map(courses => {
                     console.log('Courses API Response:', courses);
