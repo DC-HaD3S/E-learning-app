@@ -31,6 +31,8 @@ import { CourseListComponent } from './components/course-list/course-list.compon
 import { CourseDetailsDialogComponent } from './components/course-details-dialog/course-details-dialog.component';
 import { AuthGuard } from './guards/auth.guards';
 import { AuthService } from './services/auth.services';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './services/auth.interceptor';
 
 
 export function appInitializer(authService: AuthService) {
@@ -72,9 +74,20 @@ export function appInitializer(authService: AuthService) {
     StoreModule.forRoot({ auth: authReducer, courses: courseReducer }),
     EffectsModule.forRoot([CourseEffects])
   ],
+  
   providers: [
     AuthGuard,
-    { provide: APP_INITIALIZER, useFactory: appInitializer, deps: [AuthService], multi: true }
+    {
+      provide: APP_INITIALIZER,
+      useFactory: appInitializer,
+      deps: [AuthService],
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

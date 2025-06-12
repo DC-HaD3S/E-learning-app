@@ -1,4 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+interface RawEnrollment {
+  username: string;
+  courseId: number;
+  courseName: string;
+}
 
 interface EnrolledUser {
   name: string;
@@ -15,47 +22,41 @@ interface EnrolledUser {
 export class EnrolledUsersComponent implements OnInit {
   enrolledUsers: EnrolledUser[] = [];
 
+  constructor(private http: HttpClient) {}
+
   ngOnInit(): void {
-      this.enrolledUsers = [
-      {
-        name: 'Rohit',
-        email: 'rohit@gmail.com',
-        username: 'rohitz',
-        enrolledCourses: [
-          { courseId: 1, courseName: 'Introduction to Angular' },
-          { courseId: 5, courseName: 'Responsive Web Design' }
-        ]
+    this.http.get<RawEnrollment[]>('http://localhost:8084/admin/enrolled').subscribe({
+      next: (data) => {
+        this.enrolledUsers = this.groupEnrollmentsByUser(data);
       },
-      {
-        name: 'Rohit',
-        email: 'rohit@gmail.com',
-        username: 'rohitz',
-        enrolledCourses: [
-          { courseId: 1, courseName: 'Introduction to Angular' },
-          { courseId: 5, courseName: 'Responsive Web Design' }
-        ]
-      },
-      {
-        name: 'Rohit',
-        email: 'rohit@gmail.com',
-        username: 'rohitz',
-        enrolledCourses: [
-          { courseId: 1, courseName: 'Introduction to Angular' },
-          { courseId: 5, courseName: 'Responsive Web Design' }
-        ]
-      },
-      {
-        name: 'Rohit',
-        email: 'rohit@gmail.com',
-        username: 'rohitz',
-        enrolledCourses: [
-          { courseId: 1, courseName: 'Introduction to Angular' },
-          { courseId: 5, courseName: 'Responsive Web Design' }
-        ]
+      error: () => {
+        console.error('Failed to load enrolled users');
       }
-    ];
+    });
   }
-    getUserDetails(user: EnrolledUser): string[] {
+
+  groupEnrollmentsByUser(data: RawEnrollment[]): EnrolledUser[] {
+    const userMap: { [username: string]: EnrolledUser } = {};
+
+    data.forEach((enrollment) => {
+      if (!userMap[enrollment.username]) {
+        userMap[enrollment.username] = {
+          name: enrollment.username, // fallback if no full name
+          email: `${enrollment.username}@example.com`, // dummy email format
+          username: enrollment.username,
+          enrolledCourses: []
+        };
+      }
+      userMap[enrollment.username].enrolledCourses.push({
+        courseId: enrollment.courseId,
+        courseName: enrollment.courseName
+      });
+    });
+
+    return Object.values(userMap);
+  }
+
+  getUserDetails(user: EnrolledUser): string[] {
     const baseDetails = [
       'Email: ' + user.email,
       'Username: ' + user.username,
