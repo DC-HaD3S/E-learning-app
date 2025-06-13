@@ -3,15 +3,19 @@
     <mat-card-header>
       <mat-card-title>Submit Feedback</mat-card-title>
     </mat-card-header>
+
     <mat-card-content>
       <form [formGroup]="feedbackForm" (ngSubmit)="onSubmit()">
+
         <mat-form-field appearance="fill">
-          <mat-label>Course Name</mat-label>
-          <input matInput formControlName="courseName" type="text" required>
-          <mat-error *ngIf="feedbackForm.get('courseName')?.touched && feedbackForm.get('courseName')?.invalid">
-            Course Name is required (min 3 characters).
-          </mat-error>
+          <mat-label>Select Course</mat-label>
+          <mat-select formControlName="courseId" required>
+            <mat-option *ngFor="let course of enrolledCourses" [value]="course.courseId">
+              {{ course.courseName }}
+            </mat-option>
+          </mat-select>
         </mat-form-field>
+
         <mat-form-field appearance="fill">
           <mat-label>Rating (1-5)</mat-label>
           <input matInput formControlName="rating" type="number" required>
@@ -19,6 +23,7 @@
             Rating must be between 1 and 5.
           </mat-error>
         </mat-form-field>
+
         <mat-form-field appearance="fill">
           <mat-label>Comments</mat-label>
           <textarea matInput formControlName="comments" rows="3" required></textarea>
@@ -26,9 +31,13 @@
             Comments are required (min 10 characters).
           </mat-error>
         </mat-form-field>
+
         <mat-card-actions>
-          <button mat-raised-button color="primary" type="submit" [disabled]="feedbackForm.invalid">Submit</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="feedbackForm.invalid">
+            Submit
+          </button>
         </mat-card-actions>
+
       </form>
     </mat-card-content>
   </mat-card>

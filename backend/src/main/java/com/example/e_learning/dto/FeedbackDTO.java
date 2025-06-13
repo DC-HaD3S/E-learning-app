@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
 public class FeedbackDTO {
+    private Long id; // Add this
+
+
 	@NotBlank(message = "Username cannot be empty")
 	private String username;
 	@NotBlank(message = "Course name cannot be empty")
@@ -47,4 +50,12 @@ public class FeedbackDTO {
 	public void setComments(String comments) {
 		this.comments = comments;
 	}
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 }

@@ -1,33 +1,39 @@
 package com.example.e_learning.controller;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.example.e_learning.dto.FeedbackDTO;
 import com.example.e_learning.service.FeedbackService;
 
+import jakarta.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/feedback")
 public class FeedbackController {
+
     @Autowired
     private FeedbackService feedbackService;
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/submit")
-    public ResponseEntity<String> submitFeedback( @RequestBody FeedbackDTO dto, Principal principal) {
+    public ResponseEntity<Map<String, String>> submitFeedback(@Valid @RequestBody FeedbackDTO dto, Principal principal) {
+        Map<String, String> response = new HashMap<>();
         try {
-            feedbackService.submitFeedback(dto, principal.getName());
-            return ResponseEntity.ok("Feedback submitted successfully");
+            dto.setUsername(principal.getName()); 
+            feedbackService.submitFeedback(dto);  
+            response.put("message", "Feedback submitted successfully");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Feedback submission failed: " + e.getMessage());
+            response.put("error", "Feedback submission failed: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
@@ -37,6 +43,7 @@ public class FeedbackController {
         try {
             return ResponseEntity.ok(feedbackService.getAllFeedbacks());
         } catch (Exception e) {
+            e.printStackTrace(); // Optional logging
             return ResponseEntity.badRequest().body(null);
         }
     }

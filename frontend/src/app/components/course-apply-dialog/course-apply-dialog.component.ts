@@ -56,7 +56,7 @@ export class CourseApplyDialogComponent implements OnInit {
     if (this.applyForm.valid && this.data.course.id && this.username) {
       this.store.dispatch(enrollUser({ courseId: this.data.course.id, courseName: this.data.course.title }));
     } else {
-      this.snackBar.open('Invalid form or course data', 'Close', { duration: 3000 });
+      this.snackBar.open('successfully cancelled', 'Close', { duration: 3000 });
     }
   }
 

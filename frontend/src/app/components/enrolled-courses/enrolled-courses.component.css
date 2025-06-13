@@ -1,46 +1,32 @@
 .course-grid-container {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
-}
+  overflow-x: auto; /* Allow horizontal scroll if needed */
+  justify-content: center;
 
-.sort-container {
-  display: flex;
-  justify-content: flex-start;
-  margin-top: 10px; /* Added to move the dropdown down */
-}
-
-.sort-field {
-  width: 200px;
-}
-
-.sort-field mat-label {
-  font-size: 0.9rem;
-  color: #555;
-}
-
-.sort-field mat-select {
-  font-size: 0.9rem;
-  color: #333;
 }
 
 .course-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 29px;
+  grid-template-columns: repeat(auto-fill, 400px); /* Each card is 400px wide */
+  gap: 24px;
+  justify-content: center; /* Center the grid content */
   padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-bottom: 80px;
+  min-width: fit-content;
 }
 
 .course-card {
+  width: 400px; /* Fixed width */
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+
+
+
 
 .course-card:nth-child(odd) {
   background: #f0fdf4;
