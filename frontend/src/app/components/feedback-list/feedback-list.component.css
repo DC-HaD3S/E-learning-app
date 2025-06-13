@@ -13,3 +13,10 @@ h2 {
 .feedback-item {
   margin-bottom: 16px;
 }
+
+.sort-controls {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
