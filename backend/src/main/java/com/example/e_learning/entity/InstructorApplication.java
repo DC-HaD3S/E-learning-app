@@ -16,8 +16,10 @@ public class InstructorApplication {
     private String email;
     private String qualifications;
     private int experience;
+    private String courses;
+    
 
-    @ManyToOne
+	@ManyToOne
     @jakarta.persistence.JoinColumn(name = "user_id")
     private User user;
 
@@ -69,4 +71,12 @@ public class InstructorApplication {
     public void setUser(User user) {
         this.user = user;
     }
+    public void setCourses(String courses) {
+		this.courses = courses;
+	}
+
+	public String getCourses() {
+		// TODO Auto-generated method stub
+		return courses;
+	}
 }

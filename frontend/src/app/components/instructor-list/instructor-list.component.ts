@@ -1,15 +1,28 @@
 import { Component, OnInit } from '@angular/core';
+import { InstructorService, InstructorApplication } from 'src/app/services/instructor.service';
 
 @Component({
   selector: 'app-instructor-list',
   templateUrl: './instructor-list.component.html',
   styleUrls: ['./instructor-list.component.css']
 })
-export class InstructorListComponent  {
-  instructors = [
-    { id: 1, name: 'Rajendra', email: 'Rajendra@gmail.com', qualifications: 'Bsc in CS', yearsOfExperience: 5 },
-    { id: 2, name: 'Rajendra', email: 'Rajendra@gmail.com', qualifications: 'Bsc in CS', yearsOfExperience: 5 }
-  ]; 
+export class InstructorListComponent implements OnInit {
+  instructors: InstructorApplication[] = [];
 
+  constructor(private instructorService: InstructorService) {}
 
+  ngOnInit(): void {
+    this.fetchApplications();
+  }
+
+  fetchApplications(): void {
+    this.instructorService.getAllApplications().subscribe({
+      next: (data) => {
+        this.instructors = data;
+      },
+      error: (err) => {
+        console.error('Failed to fetch instructor applications:', err);
+      }
+    });
+  }
 }

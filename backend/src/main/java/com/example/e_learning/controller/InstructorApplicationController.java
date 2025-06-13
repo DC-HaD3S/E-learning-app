@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.e_learning.dto.InstructorApplicationDTO;
 import com.example.e_learning.service.InstructorApplicationService;
-
+import java.util.Map;
 @RestController
 @RequestMapping("/instructor")
 public class InstructorApplicationController {
@@ -20,9 +20,9 @@ public class InstructorApplicationController {
     private InstructorApplicationService service;
 
     @PostMapping("/apply")
-    public ResponseEntity<String> apply(@RequestBody InstructorApplicationDTO dto, @RequestParam String username) {
+    public ResponseEntity<Map<String, String>> apply(@RequestBody InstructorApplicationDTO dto, @RequestParam String username) {
         service.submitApplication(dto, username);
-        return ResponseEntity.ok("Application submitted");
+        return ResponseEntity.ok(Map.of("message", "Application submitted"));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

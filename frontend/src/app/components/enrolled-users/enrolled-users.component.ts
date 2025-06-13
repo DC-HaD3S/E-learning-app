@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort'; // <-- Add this
 
 interface RawEnrollment {
   username: string;
@@ -20,14 +22,18 @@ interface EnrolledUser {
   styleUrls: ['./enrolled-users.component.css']
 })
 export class EnrolledUsersComponent implements OnInit {
-  enrolledUsers: EnrolledUser[] = [];
+  displayedColumns: string[] = ['username', 'email', 'courses'];
+  dataSource = new MatTableDataSource<EnrolledUser>();
+
+  @ViewChild(MatSort) sort!: MatSort; // <-- ViewChild for sorting
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.http.get<RawEnrollment[]>('http://localhost:8084/admin/enrolled').subscribe({
       next: (data) => {
-        this.enrolledUsers = this.groupEnrollmentsByUser(data);
+        this.dataSource.data = this.groupEnrollmentsByUser(data);
+        this.dataSource.sort = this.sort; // <-- Connect sort after data is set
       },
       error: () => {
         console.error('Failed to load enrolled users');
@@ -41,8 +47,8 @@ export class EnrolledUsersComponent implements OnInit {
     data.forEach((enrollment) => {
       if (!userMap[enrollment.username]) {
         userMap[enrollment.username] = {
-          name: enrollment.username, // fallback if no full name
-          email: `${enrollment.username}@example.com`, // dummy email format
+          name: enrollment.username,
+          email: `${enrollment.username}@example.com`,
           username: enrollment.username,
           enrolledCourses: []
         };
@@ -54,17 +60,5 @@ export class EnrolledUsersComponent implements OnInit {
     });
 
     return Object.values(userMap);
-  }
-
-  getUserDetails(user: EnrolledUser): string[] {
-    const baseDetails = [
-      'Email: ' + user.email,
-      'Username: ' + user.username,
-      user.enrolledCourses.length > 0 ? 'Enrolled Courses:' : 'No courses enrolled'
-    ];
-    const courseDetails = user.enrolledCourses.map(
-      course =>  course.courseName
-    );
-    return [...baseDetails, ...courseDetails]; 
   }
 }

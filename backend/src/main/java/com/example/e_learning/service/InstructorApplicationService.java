@@ -33,6 +33,7 @@ public class InstructorApplicationService {
         application.setQualifications(dto.getQualifications());
         application.setExperience(dto.getExperience());
         application.setUser(user);
+        application.setCourses(dto.getCourses());
 
         instructorRepo.save(application);
     }
@@ -45,10 +46,13 @@ public class InstructorApplicationService {
 
     private InstructorApplicationDTO toDTO(InstructorApplication application) {
         InstructorApplicationDTO dto = new InstructorApplicationDTO();
+        dto.setId(application.getId());
         dto.setName(application.getName());
         dto.setEmail(application.getEmail());
         dto.setQualifications(application.getQualifications());
         dto.setExperience(application.getExperience());
+        dto.setCourses(application.getCourses()); // ✅ Add this line
+
         return dto;
     }
 }
