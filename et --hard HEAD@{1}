@@ -1,0 +1,26 @@
+[33m664768b[m[33m ([m[1;36mHEAD[m[33m)[m HEAD@{0}: checkout: moving from main to HEAD^
+[33mf876dd0[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{1}: commit: enrolledusers apis connected
+[33m664768b[m[33m ([m[1;36mHEAD[m[33m)[m HEAD@{2}: commit: connected apis of enrolled-courses.components.
+[33m797dbbd[m HEAD@{3}: commit: some changes
+[33m0a5895f[m HEAD@{4}: commit: registered users added
+[33m0b75da9[m HEAD@{5}: commit: connected registeredusercomponent
+[33m9b0672a[m HEAD@{6}: commit: changes on api
+[33m7d67606[m HEAD@{7}: commit: some changes
+[33m8c417da[m HEAD@{8}: commit: added sort for managecomponents, done crud in manage components
+[33ma4aac82[m HEAD@{9}: commit: added snackbar
+[33me5c31c1[m HEAD@{10}: commit: some changes
+[33m69373e2[m HEAD@{11}: commit: loaded courses from db to frontend
+[33m6abb330[m HEAD@{12}: commit: extracted userid, username from token
+[33mdc85afb[m HEAD@{13}: commit: rectified the pathings
+[33me650331[m HEAD@{14}: commit: added enrolled course component
+[33mcd93c62[m HEAD@{15}: commit: added authentication with frontend and backend
+[33m9c12bb2[m HEAD@{16}: commit: api standards followed
+[33m37578ba[m HEAD@{17}: commit: Added css to navbar
+[33mcbd5ecd[m HEAD@{18}: commit: some changes
+[33m70dba1b[m HEAD@{19}: commit: Added sortby to courselist
+[33me59152f[m HEAD@{20}: commit: added managecourses component
+[33mb185509[m HEAD@{21}: commit: maintained file structure
+[33m1c72765[m HEAD@{22}: commit: Added all apis
+[33m209c881[m HEAD@{23}: commit (merge): added all apis
+[33m1b8d893[m HEAD@{24}: commit: some changes
+[33m539c144[m HEAD@{25}: commit (initial): elearning platform backend

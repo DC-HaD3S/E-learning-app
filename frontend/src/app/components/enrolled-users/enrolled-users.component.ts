@@ -63,7 +63,7 @@ export class EnrolledUsersComponent implements OnInit {
       user.enrolledCourses.length > 0 ? 'Enrolled Courses:' : 'No courses enrolled'
     ];
     const courseDetails = user.enrolledCourses.map(
-      course => 'Course ID: ' + course.courseId + ' - ' + course.courseName
+      course =>  course.courseName
     );
     return [...baseDetails, ...courseDetails]; 
   }
