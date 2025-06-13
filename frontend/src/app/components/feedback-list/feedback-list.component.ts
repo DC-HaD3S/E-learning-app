@@ -9,13 +9,20 @@ import { Feedback } from 'src/app/models/feedback.model';
 })
 export class FeedbackListComponent implements OnInit {
   feedbacks: Feedback[] = [];
+  sortField: string = 'courseName';
+  sortOrder: 'asc' | 'desc' = 'asc';
 
   constructor(private feedbackService: FeedbackService) {}
 
   ngOnInit(): void {
+    this.loadFeedbacks();
+  }
+
+  loadFeedbacks(): void {
     this.feedbackService.getAllFeedbacks().subscribe({
       next: (data) => {
         this.feedbacks = data;
+        this.sortFeedbacks(); // Initial sort
       },
       error: (err) => {
         console.error('Failed to fetch feedbacks:', err);
@@ -23,37 +30,32 @@ export class FeedbackListComponent implements OnInit {
     });
   }
 
-  sortFeedbacksFromEvent(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    const selectedValue = selectElement.value;
-
-    if (!selectedValue) return;
-
-    const [field, direction] = selectedValue.split(':');
-
-    if (!field || !direction) {
-      console.warn('Invalid sort option selected');
-      return;
-    }
-
-    this.sortFeedbacks(field, direction as 'asc' | 'desc');
+  toggleSortOrder(): void {
+    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    this.sortFeedbacks();
   }
 
-  sortFeedbacks(field: string, direction: 'asc' | 'desc'): void {
+  sortFeedbacks(): void {
     this.feedbacks.sort((a, b) => {
-      const aValue = a[field as keyof Feedback];
-      const bValue = b[field as keyof Feedback];
+      let fieldA = (a as any)[this.sortField];
+      let fieldB = (b as any)[this.sortField];
 
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        const comparison = aValue.localeCompare(bValue);
-        return direction === 'asc' ? comparison : -comparison;
+      // Handle null or undefined values
+      fieldA = fieldA ?? '';
+      fieldB = fieldB ?? '';
+
+      // Convert to string for string fields or number for rating
+      if (this.sortField === 'rating') {
+        fieldA = Number(fieldA);
+        fieldB = Number(fieldB);
+        return this.sortOrder === 'asc' ? fieldA - fieldB : fieldB - fieldA;
+      } else {
+        fieldA = fieldA.toString().toLowerCase();
+        fieldB = fieldB.toString().toLowerCase();
+        if (fieldA < fieldB) return this.sortOrder === 'asc' ? -1 : 1;
+        if (fieldA > fieldB) return this.sortOrder === 'asc' ? 1 : -1;
+        return 0;
       }
-
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        return direction === 'asc' ? aValue - bValue : bValue - aValue;
-      }
-
-      return 0;
     });
   }
 }

@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from 'src/app/services/auth.services';
-import { ForgotPasswordComponent } from '../forgot-password/forgot-password.component';
 
 @Component({
   selector: 'app-login',
@@ -45,12 +44,7 @@ export class LoginComponent {
     });
   }
 
-  onForgotPassword(event: Event): void {
-    event.preventDefault();
-    this.dialog.open(ForgotPasswordComponent, {
-      width: '400px'
-    });
-  }
+
 
   onSignup(event: Event): void {
     event.preventDefault();

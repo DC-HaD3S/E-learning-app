@@ -1,3 +1,19 @@
+
+
+<div class="sort-controls">
+  <label>Sort By:</label>
+  <select [(ngModel)]="sortField" (change)="sortInstructors()">
+    <option value="name">Name</option>
+    <option value="experience">Experience</option>
+    <option value="courses">Course</option>
+  </select>
+
+  <button (click)="toggleSortOrder()">
+    {{ sortOrder === 'asc' ? '⬆️ Ascending' : '⬇️ Descending' }}
+  </button>
+</div>
+
+
 <div class="instructor-list-container">
   <h2>Instructor Applications</h2>
   <div *ngFor="let instructor of instructors" class="instructor-item">

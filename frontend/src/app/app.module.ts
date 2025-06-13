@@ -25,7 +25,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { LoginComponent } from './components/login/login.component';
 import { SignupComponent } from './components/signup/signup.component';
-import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { HomeComponent } from './components/home/home.component';
 import { CourseListComponent } from './components/course-list/course-list.component';
 import { CourseDetailsDialogComponent } from './components/course-details-dialog/course-details-dialog.component';
@@ -45,7 +44,6 @@ export function appInitializer(authService: AuthService) {
     NavbarComponent,
     LoginComponent,
     SignupComponent,
-    ForgotPasswordComponent,
     HomeComponent,
     CourseListComponent,
     CourseDetailsDialogComponent,
