@@ -1,7 +1,5 @@
 package com.example.e_learning.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 
 public class EnrollmentDTO {
 	 private String username;
