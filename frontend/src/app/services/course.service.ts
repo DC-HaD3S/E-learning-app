@@ -22,10 +22,7 @@ export class CourseService {
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
-    console.log('JWT Token:', token);
-    if (!token) {
-      console.warn('No JWT token found for authenticated request');
-    }
+    
     return new HttpHeaders({
       'Authorization': `Bearer ${token || ''}`,
       'Content-Type': 'application/json'
@@ -33,10 +30,8 @@ export class CourseService {
   }
 
   getCourses(): Observable<Course[]> {
-    console.log('Fetching courses from:', `${this.apiUrl}/courses`);
     return this.http.get<Course[]>(`${this.apiUrl}/courses`, { headers: this.getHeaders() }).pipe(
       map(courses => {
-        console.log('Courses API Response:', courses);
         return courses || [];
       }),
       catchError(error => {
@@ -48,10 +43,8 @@ export class CourseService {
   }
 
   addCourse(course: Course): Observable<{ message: string, data: Course }> {
-    console.log('Adding course:', course);
     return this.http.post<{ message: string, data: Course }>(`${this.apiUrl}/admin/courses`, course, { headers: this.getHeaders() }).pipe(
       map(response => {
-        console.log('Add Course API Response:', response);
         return response;
       }),
       catchError(error => {
@@ -63,10 +56,8 @@ export class CourseService {
   }
 
   updateCourse(course: Course): Observable<{ message: string, data: Course }> {
-    console.log('Updating course:', { url: `${this.apiUrl}/admin/courses/${course.id}`, course });
     return this.http.put<{ message: string, data: Course }>(`${this.apiUrl}/admin/courses/${course.id}`, course, { headers: this.getHeaders() }).pipe(
       map(response => {
-        console.log('Update Course API Response:', response);
         return response;
       }),
       catchError(error => {
@@ -78,10 +69,8 @@ export class CourseService {
   }
 
   deleteCourse(courseId: number): Observable<{ message: string, data: null }> {
-    console.log('Deleting course ID:', courseId);
     return this.http.delete<{ message: string, data: null }>(`${this.apiUrl}/admin/courses/${courseId}`, { headers: this.getHeaders() }).pipe(
       map(response => {
-        console.log('Delete Course API Response:', response);
         return response;
       }),
       catchError(error => {
@@ -99,10 +88,8 @@ export class CourseService {
       return throwError(() => new Error('User not authenticated'));
     }
     const enrollmentDTO = { username, courseId, courseName };
-    console.log('Enrolling user for course:', enrollmentDTO);
     return this.http.post<{ message: string }>(`${this.apiUrl}/user/apply-course`, enrollmentDTO, { headers: this.getHeaders() }).pipe(
       map(response => {
-        console.log('Enroll User API Response:', response);
         return response;
       }),
       catchError(error => {
@@ -125,10 +112,8 @@ export class CourseService {
   }
 
   getEnrolledCourses(): Observable<Enrollment[]> {
-    console.log('Fetching enrolled courses from:', `${this.apiUrl}/user/enrolled-courses`);
     return this.http.get<Enrollment[]>(`${this.apiUrl}/user/enrolled-courses`, { headers: this.getHeaders() }).pipe(
       map(enrollments => {
-        console.log('Raw Enrolled Courses Response:', enrollments);
         return enrollments.map(enrollment => ({
           username: enrollment.username || '',
           courseId: Number(enrollment.courseId) || 0,
@@ -136,7 +121,6 @@ export class CourseService {
         }));
       }),
       map(enrollments => {
-        console.log('Mapped Enrollments:', enrollments);
         return enrollments || [];
       }),
       catchError(error => {

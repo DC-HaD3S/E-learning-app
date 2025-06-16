@@ -49,23 +49,19 @@ export class CourseListComponent implements OnInit {
   ngOnInit(): void {
     this.store.dispatch(loadCourses());
     this.store.select(state => state).subscribe(state => {
-      console.log('Full Store State:', state);
       if (!state.courses) {
         console.warn('Courses state not initialized, re-dispatching loadCourses');
         this.store.dispatch(loadCourses());
       }
     });
     this.store.select(selectCourseState).subscribe(state => {
-      console.log('Course State:', state);
     });
     this.courses$.subscribe({
       next: (courses) => {
         this.isLoading = false;
-        console.log('Courses:', courses);
         if (Array.isArray(courses)) {
           this.rawCourses = [...courses];
           this.hasCourses = courses.length > 0;
-          console.log('Valid Courses:', this.rawCourses);
           this.rawCourses.forEach(course => {
             if (!course.title) console.warn('Missing title:', course);
             if (course.price == null) console.warn('Missing price:', course);
@@ -92,7 +88,6 @@ export class CourseListComponent implements OnInit {
         this.isLoading = false;
       }
     });
-    this.isAdmin$.subscribe(isAdmin => console.log('isAdmin:', isAdmin));
   }
 
   sortCourses(): void {
@@ -103,7 +98,6 @@ export class CourseListComponent implements OnInit {
       course.imageUrl
     );
     this.sortedCourses = [...validCourses];
-    console.log('Sorted Courses:', this.sortedCourses);
     const [field, direction] = this.sortCriteria.split('-');
 
     this.sortedCourses.sort((a, b) => {

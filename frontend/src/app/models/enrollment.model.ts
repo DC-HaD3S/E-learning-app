@@ -1,5 +1,5 @@
 export interface Enrollment {
-username: string;
+  username: string;
   courseId: number;
   courseName: string;
   body?: string; 

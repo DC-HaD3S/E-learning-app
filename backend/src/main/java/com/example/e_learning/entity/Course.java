@@ -19,7 +19,6 @@ public class Course {
     private String imageUrl;
     private Integer price;
 
-    // Getters and setters
     public Long getId() {
         return id;
     }

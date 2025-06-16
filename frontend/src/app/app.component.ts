@@ -27,7 +27,6 @@ export class AppComponent implements OnInit {
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
-        console.log('Navigating to:', event.url);
       }
     });
 
@@ -39,7 +38,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('AppComponent initialized');
     this.role$.subscribe((role: string | null) => {
       if (!role && !localStorage.getItem('role')) {
         this.router.navigate(['/']);

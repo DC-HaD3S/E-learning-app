@@ -21,7 +21,7 @@ constructor(
   private authService: AuthService
 ) {
 this.feedbackForm = this.fb.group({
-  courseId: ['', Validators.required], // ✅ this stays
+  courseId: ['', Validators.required], 
   rating: [0, [Validators.required, Validators.min(1), Validators.max(5)]],
   comments: ['', [Validators.required, Validators.minLength(10)]]
 });
@@ -41,9 +41,8 @@ this.feedbackForm = this.fb.group({
     });
   }onSubmit(): void {
   if (this.feedbackForm.valid) {
-    const username = this.authService.getUsername(); // from JWT
+    const username = this.authService.getUsername(); 
 
-    // ✅ Find the selected course based on courseId
     const selectedCourse = this.enrolledCourses.find(
       course => course.courseId === this.feedbackForm.value.courseId
     );
@@ -51,7 +50,7 @@ this.feedbackForm = this.fb.group({
     const payload = {
       username,
       courseId: this.feedbackForm.value.courseId,
-      courseName: selectedCourse?.courseName || '', // ✅ Include courseName if required
+      courseName: selectedCourse?.courseName || '',
       rating: this.feedbackForm.value.rating,
       comments: this.feedbackForm.value.comments
     };

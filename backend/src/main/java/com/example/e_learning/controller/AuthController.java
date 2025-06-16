@@ -48,7 +48,6 @@ public class AuthController {
             userService.registerUser(signupRequest);
             return ResponseEntity.ok("User registered successfully");
         } catch (IllegalArgumentException e) {
-            // Return the custom message from UserService (e.g., "Username already registered" or "Email already registered")
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed: " + e.getMessage());

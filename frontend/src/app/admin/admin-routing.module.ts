@@ -9,17 +9,17 @@ import { ManageCoursesComponent } from '../components/manage-courses/manage-cour
 import { RegisteredUsersComponent } from '../components/registered-users/registered-users.component';
 
 const routes: Routes = [
-  { 
-    path: '', 
-    canActivate: [AuthGuard], 
+  {
+    path: '',
+    canActivate: [AuthGuard],
     data: { role: 'admin' },
     children: [
       { path: 'home', component: HomeComponent },
       { path: 'feedbacks', component: FeedbackListComponent },
       { path: 'instructors', component: InstructorListComponent },
-      {path : 'manage-courses', component: ManageCoursesComponent},
+      { path: 'manage-courses', component: ManageCoursesComponent },
       { path: 'enrolled', component: EnrolledUsersComponent },
-      { path: 'registered-users', component: RegisteredUsersComponent }, 
+      { path: 'registered-users', component: RegisteredUsersComponent },
 
     ]
   }

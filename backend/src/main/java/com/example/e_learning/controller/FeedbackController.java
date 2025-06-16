@@ -43,7 +43,7 @@ public class FeedbackController {
         try {
             return ResponseEntity.ok(feedbackService.getAllFeedbacks());
         } catch (Exception e) {
-            e.printStackTrace(); // Optional logging
+            e.printStackTrace(); 
             return ResponseEntity.badRequest().body(null);
         }
     }

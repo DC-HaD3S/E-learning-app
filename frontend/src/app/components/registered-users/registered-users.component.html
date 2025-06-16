@@ -1,22 +1,35 @@
 <div class="registered-users-container">
   <h1>Registered Users</h1>
 
+  <div class="sort-controls">
+    <label>Sort By:</label>
+    <select [(ngModel)]="sortField" (change)="sortUsers()">
+      <option value="name">Name</option>
+      <option value="username">Username</option>
+      <option value="email">Email</option>
+    </select>
+
+    <button (click)="toggleSortOrder()">
+      {{ sortOrder === 'asc' ? '⬆️ Ascending' : '⬇️ Descending' }}
+    </button>
+  </div>
+
   <div *ngIf="error" class="error-message">
     {{ error }}
   </div>
 
-  <div class="users-grid" *ngIf="!error && users.length > 0">
+  <div class="users-grid" *ngIf="!error && sortedUsers.length > 0">
     <app-details-card
-      *ngFor="let user of users"
+      *ngFor="let user of sortedUsers"
       [title]="user.name || user.username"
       [details]="[
         'Email: ' + (user.email || 'N/A'),
         'Username: ' + user.username
-              ]">
+      ]">
     </app-details-card>
   </div>
 
-  <div *ngIf="!error && users.length === 0" class="no-users-message">
+  <div *ngIf="!error && sortedUsers.length === 0" class="no-users-message">
     No users found.
   </div>
 </div>

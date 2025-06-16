@@ -22,12 +22,11 @@ public class FeedbackService {
     @Autowired private CourseRepository courseRepository;
 
     public void submitFeedback(FeedbackDTO feedbackDTO) {
-        // Username is already injected by controller from Principal
     	    User user = userRepository.findByUsername(feedbackDTO.getUsername())
     	        .orElseThrow(() -> new IllegalArgumentException("User not found: " + feedbackDTO.getUsername()));
 
         Course course = courseRepository.findByTitle(feedbackDTO.getCourseName())
-                .orElseThrow(() -> new IllegalArgumentException("❌ Course not found: " + feedbackDTO.getCourseName()));
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + feedbackDTO.getCourseName()));
 
         Feedback feedback = new Feedback();
         feedback.setUser(user);

@@ -19,7 +19,6 @@ public class CourseService {
         course.setBody(courseDTO.getBody());
         course.setImageUrl(courseDTO.getImageUrl());
         course.setPrice(courseDTO.getPrice());
-        // Explicitly ensure id is null to let database generate it
         course.setId(null);
         return courseRepository.save(course);
     }

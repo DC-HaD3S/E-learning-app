@@ -87,7 +87,6 @@ private compare(a: number | string, b: number | string, isAsc: boolean): number 
         if (this.isCourse(this.newCourse)) {
             const courseToAdd = { ...this.newCourse };
             delete courseToAdd.id;
-            console.log('Course payload to send:', courseToAdd);
             this.courseService.addCourse(courseToAdd).subscribe({
                 next: (response) => {
                     this.snackBar.open(response.message, 'Close', { duration: 3000 });
@@ -101,7 +100,6 @@ private compare(a: number | string, b: number | string, isAsc: boolean): number 
                 }
             });
         } else {
-            this.error = 'Please fill in all required fields';
             this.snackBar.open('Invalid course data', 'Close', { duration: 3000 });
         }
     }

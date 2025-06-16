@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
@@ -11,7 +12,6 @@ public class InstructorApplication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
     private String email;
     private String qualifications;
@@ -20,7 +20,7 @@ public class InstructorApplication {
     
 
 	@ManyToOne
-    @jakarta.persistence.JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     // Getters and setters
@@ -76,7 +76,6 @@ public class InstructorApplication {
 	}
 
 	public String getCourses() {
-		// TODO Auto-generated method stub
 		return courses;
 	}
 }

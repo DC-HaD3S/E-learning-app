@@ -22,7 +22,7 @@ export class FeedbackListComponent implements OnInit {
     this.feedbackService.getAllFeedbacks().subscribe({
       next: (data) => {
         this.feedbacks = data;
-        this.sortFeedbacks(); // Initial sort
+        this.sortFeedbacks(); 
       },
       error: (err) => {
         console.error('Failed to fetch feedbacks:', err);
@@ -40,11 +40,9 @@ export class FeedbackListComponent implements OnInit {
       let fieldA = (a as any)[this.sortField];
       let fieldB = (b as any)[this.sortField];
 
-      // Handle null or undefined values
       fieldA = fieldA ?? '';
       fieldB = fieldB ?? '';
 
-      // Convert to string for string fields or number for rating
       if (this.sortField === 'rating') {
         fieldA = Number(fieldA);
         fieldB = Number(fieldB);

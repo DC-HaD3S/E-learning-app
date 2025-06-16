@@ -25,7 +25,7 @@ export class EnrolledUsersComponent implements OnInit {
   displayedColumns: string[] = ['username', 'email', 'courses'];
   dataSource = new MatTableDataSource<EnrolledUser>();
 
-  @ViewChild(MatSort) sort!: MatSort; // <-- ViewChild for sorting
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private http: HttpClient) {}
 
@@ -33,7 +33,7 @@ export class EnrolledUsersComponent implements OnInit {
     this.http.get<RawEnrollment[]>('http://localhost:8084/admin/enrolled').subscribe({
       next: (data) => {
         this.dataSource.data = this.groupEnrollmentsByUser(data);
-        this.dataSource.sort = this.sort; // <-- Connect sort after data is set
+        this.dataSource.sort = this.sort; 
       },
       error: () => {
         console.error('Failed to load enrolled users');

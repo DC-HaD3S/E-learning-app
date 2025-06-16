@@ -19,6 +19,7 @@ public class InstructorApplicationController {
     @Autowired
     private InstructorApplicationService service;
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/apply")
     public ResponseEntity<Map<String, String>> apply(@RequestBody InstructorApplicationDTO dto, @RequestParam String username) {
         service.submitApplication(dto, username);

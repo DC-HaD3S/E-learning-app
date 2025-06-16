@@ -24,7 +24,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws ServletException, IOException {
-        // Bypass OPTIONS requests for CORS preflight
         if ("OPTIONS".equalsIgnoreCase(req.getMethod())) {
             res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
             res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");

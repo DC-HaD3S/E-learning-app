@@ -12,7 +12,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class RegisteredUsersComponent implements OnInit {
   users: User[] = [];
+  sortedUsers: User[] = []; 
   error: string | null = null;
+  sortField: string = 'name'; 
+  sortOrder: 'asc' | 'desc' = 'asc';
 
   constructor(
     private userService: UserService,
@@ -35,6 +38,8 @@ export class RegisteredUsersComponent implements OnInit {
     this.userService.getAllUsers().subscribe({
       next: (users) => {
         this.users = users;
+        this.sortedUsers = [...users]; 
+        this.sortUsers(); 
         this.error = null;
       },
       error: (err) => {
@@ -45,5 +50,38 @@ export class RegisteredUsersComponent implements OnInit {
         }
       }
     });
+  }
+
+  sortUsers(): void {
+    this.sortedUsers = [...this.users]; 
+    this.sortedUsers.sort((a, b) => {
+      let valueA: string | undefined;
+      let valueB: string | undefined;
+
+      switch (this.sortField) {
+        case 'name':
+          valueA = a.name || a.username || ''; 
+          valueB = b.name || b.username || '';
+          break;
+        case 'username':
+          valueA = a.username || '';
+          valueB = b.username || '';
+          break;
+        case 'email':
+          valueA = a.email || '';
+          valueB = b.email || '';
+          break;
+        default:
+          return 0;
+      }
+
+      const isAsc = this.sortOrder === 'asc';
+      return valueA.localeCompare(valueB) * (isAsc ? 1 : -1);
+    });
+  }
+
+  toggleSortOrder(): void {
+    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    this.sortUsers();
   }
 }

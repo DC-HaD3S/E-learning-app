@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../state/app.state';
 import { UserRole } from '../../enums/user-role.enum';
-import { Course } from '../../models/course.model'; // Import Course model
+import { Course } from '../../models/course.model'; 
 
 export interface CourseDialogData extends Course {
   allowApply: boolean;

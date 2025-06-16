@@ -13,7 +13,7 @@ export class SignupComponent {
   email: string = '';
   username: string = '';
   password: string = '';
-  role: string = 'USER'; // Default to USER for security
+  role: string = 'USER'; 
   error: string = '';
   loading: boolean = false;
   usernameAvailable: boolean | null = null;
@@ -79,7 +79,7 @@ export class SignupComponent {
       next: () => {
         this.loading = false;
         this.snackBar.open('User successfully registered!', 'Close', {
-        duration: 3000, // Display for 3 seconds
+        duration: 3000, 
         horizontalPosition: 'center',
         verticalPosition: 'bottom'
         });

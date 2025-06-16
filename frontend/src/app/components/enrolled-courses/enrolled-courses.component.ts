@@ -20,8 +20,8 @@ export class EnrolledCoursesComponent implements OnInit {
   sortedEnrollments: Enrollment[] = [];
   isLoading: boolean = false;
 
-  selectedCourse: any = null; // ✅ declare this
-  @ViewChild('courseDialogTemplate') courseDialogTemplate!: TemplateRef<any>; // ✅ declare this
+  selectedCourse: any = null; 
+  @ViewChild('courseDialogTemplate') courseDialogTemplate!: TemplateRef<any>; 
 
   constructor(
     private store: Store<AppState>,
@@ -52,7 +52,6 @@ export class EnrolledCoursesComponent implements OnInit {
                   price: course?.price
                 };
               });
-              console.log("Enriched Enrollments:", this.sortedEnrollments);
               this.isLoading = false;
             },
             error: () => {

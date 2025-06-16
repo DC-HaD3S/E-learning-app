@@ -51,7 +51,7 @@ public class InstructorApplicationService {
         dto.setEmail(application.getEmail());
         dto.setQualifications(application.getQualifications());
         dto.setExperience(application.getExperience());
-        dto.setCourses(application.getCourses()); // ✅ Add this line
+        dto.setCourses(application.getCourses()); 
 
         return dto;
     }

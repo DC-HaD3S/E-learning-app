@@ -1,7 +1,9 @@
 package com.example.e_learning.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,15 +30,12 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void registerUser(SignupRequest signupRequest) {
-        // Check for existing username
         if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Username already registered");
         }
-        // Check for existing email
         if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email already registered");
         }
-        // Validate input fields
         if (signupRequest.getUsername() == null || signupRequest.getUsername().trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be empty");
         }
@@ -46,18 +45,15 @@ public class UserService implements UserDetailsService {
         if (signupRequest.getEmail() == null || signupRequest.getEmail().trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be empty");
         }
-        // Restrict role: only allow "USER" for signup; admins must be created separately
         String role = signupRequest.getRole();
         if (role == null || role.trim().isEmpty()) {
-            role = "USER"; // Default role if not provided
+            role = "USER"; 
         } else if (!role.equals("USER") && !role.equals("ADMIN")) {
             throw new IllegalArgumentException("Invalid role: must be 'USER' or 'ADMIN'");
         } else if (role.equals("ADMIN")) {
-            // Security: Prevent unauthorized admin registration
             throw new IllegalArgumentException("Admin registration is not allowed via this endpoint");
         }
 
-        // Create and save new user
         User user = new User();
         user.setName(signupRequest.getName());
         user.setEmail(signupRequest.getEmail());
@@ -67,7 +63,7 @@ public class UserService implements UserDetailsService {
         try {
             userRepository.save(user);
         } catch (Exception e) {
-            if (e.getCause() instanceof org.springframework.dao.DataIntegrityViolationException) {
+            if (e.getCause() instanceof DataIntegrityViolationException) {
                 if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
                     throw new IllegalArgumentException("Username already registered");
                 }

@@ -10,13 +10,12 @@ import { UserRole } from '../enums/user-role.enum';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8084/admin/users'; // Match your backend port
+  private apiUrl = 'http://localhost:8084/admin/users'; 
 
   constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
-    console.log('JWT Token for Users API:', token);
     if (!token) {
       console.warn('No JWT token found for authenticated request');
     }
@@ -27,7 +26,6 @@ export class UserService {
   }
 
 getAllUsers(): Observable<User[]> {
-  console.log('Fetching users from:', this.apiUrl);
   return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() }).pipe(
     map(users => users.map(user => ({
       id: user.id,
@@ -38,7 +36,6 @@ getAllUsers(): Observable<User[]> {
       password: user.password || ''
     }))),
     map(users => {
-      console.log('Mapped Users:', users);
       return users || [];
     }),
     catchError(error => {

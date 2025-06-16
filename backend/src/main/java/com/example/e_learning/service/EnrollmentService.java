@@ -20,7 +20,6 @@ public class EnrollmentService {
     @Autowired private CourseRepository courseRepository;
 
     public void enrollUserToCourse(String username, Long courseId) {
-        // Validate courseId
         if (courseId == null || courseId <= 0) {
             throw new IllegalArgumentException("Valid course ID is required");
         }
@@ -30,7 +29,6 @@ public class EnrollmentService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
 
-        // Check for duplicate enrollment
         boolean alreadyEnrolled = enrollmentRepository.findByUserIdAndCourseId(user.getId(), course.getId()).isPresent();
         if (alreadyEnrolled) {
             throw new IllegalStateException("User is already enrolled in course: " + course.getTitle());

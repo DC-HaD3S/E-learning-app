@@ -21,7 +21,7 @@ export class InstructorListComponent implements OnInit {
     this.instructorService.getAllApplications().subscribe({
       next: (data) => {
         this.instructors = data;
-        this.sortInstructors(); // initial sort
+        this.sortInstructors(); 
       },
       error: (err) => {
         console.error('Failed to fetch instructor applications:', err);

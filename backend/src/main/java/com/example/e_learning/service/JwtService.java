@@ -33,17 +33,16 @@ public class JwtService {
     }
 
     public String generateToken(String username) {
-        // Fetch user from database to get the role
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + username));
         String role = user.getRole();
         if (role == null || role.trim().isEmpty()) {
-            role = "USER"; // Fallback default
+            role = "USER"; 
         }
 
         return Jwts.builder()
             .setSubject(username)
-            .claim("role", "ROLE_" + role.toUpperCase()) // Include database role in JWT
+            .claim("role", "ROLE_" + role.toUpperCase()) 
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + expiration))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)

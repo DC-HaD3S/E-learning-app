@@ -24,7 +24,7 @@ export class ApplyInstructorComponent {
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       qualifications: ['', [Validators.required, Validators.minLength(5)]],
-      courses: ['', [Validators.required, Validators.minLength(3)]], 
+      courses: ['', [Validators.required, Validators.minLength(3)]],
       yearsOfExperience: [0, [Validators.required, Validators.min(0)]],
       confirmation: [false, Validators.requiredTrue]
     });
@@ -34,17 +34,14 @@ export class ApplyInstructorComponent {
     if (this.instructorForm.valid) {
       const formData = this.instructorForm.value;
 
- const application: InstructorApplication = {
-  name: formData.name,
-  email: formData.email,
-  qualifications: formData.qualifications,
-  experience: formData.yearsOfExperience,
-  courses: formData.courses
-};
-
-
-      const username = this.authService.getUsername(); // Replace with actual implementation
-
+      const application: InstructorApplication = {
+        name: formData.name,
+        email: formData.email,
+        qualifications: formData.qualifications,
+        experience: formData.yearsOfExperience,
+        courses: formData.courses
+      };
+      const username = this.authService.getUsername();
       this.instructorService.applyAsInstructor(application, username).subscribe({
         next: () => {
           this.snackBar.open('✅ Application submitted successfully!', 'Close', {
@@ -58,8 +55,7 @@ export class ApplyInstructorComponent {
             this.router.navigate(['/user/home']);
           }, 2000);
         },
-        error: (err) => {
-          console.error('Application submission failed:', err);
+        error: () => {
           this.snackBar.open('❌ Submission failed. Please try again.', 'Close', {
             duration: 4000,
             verticalPosition: 'bottom',

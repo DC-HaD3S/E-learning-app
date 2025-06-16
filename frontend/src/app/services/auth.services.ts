@@ -37,7 +37,6 @@ export class AuthService {
       const payload = token.split('.')[1];
       const decoded = atob(payload);
       const parsed = JSON.parse(decoded);
-      console.log('Full decoded JWT payload:', parsed);
       return parsed;
     } catch (e) {
       console.error('Error decoding JWT token:', e);
@@ -98,13 +97,11 @@ export class AuthService {
     const token = this.getToken();
     if (token && this.isValidToken(token)) {
       const decoded = this.decodeToken(token);
-      console.log('Decoded token in initializeApp:', decoded);
       const rawRole = decoded?.role || decoded?.authorities || 'USER';
       const normalizedRole = (typeof rawRole === 'string' ? rawRole : rawRole[0] || 'USER')
         .replace('ROLE_', '')
         .toLowerCase();
       const role = normalizedRole.includes('admin') ? UserRole.ADMIN : UserRole.USER;
-      console.log('Raw role:', rawRole, 'Mapped role:', role);
       const userDetails: UserDetails = {
         id: 0,
         email: decoded?.email || '',
@@ -119,7 +116,6 @@ export class AuthService {
     const body = { username, password };
     return this.http.post<any>(`${this.apiUrl}/auth/login`, body).pipe(
       map(response => {
-        console.log('Login response:', response);
         const token = response?.token || response?.jwt || (typeof response === 'string' ? response : null);
         if (!token) {
           throw new Error('Invalid login response: no token found');
@@ -129,13 +125,11 @@ export class AuthService {
         }
         localStorage.setItem('token', token);
         const decoded = this.decodeToken(token);
-        console.log('Decoded token in login:', decoded);
         const rawRole = decoded?.role || decoded?.authorities || 'USER';
         const normalizedRole = (typeof rawRole === 'string' ? rawRole : rawRole[0] || 'USER')
           .replace('ROLE_', '')
           .toLowerCase();
         const role = normalizedRole.includes('admin') ? UserRole.ADMIN : UserRole.USER;
-        console.log('Raw role:', rawRole, 'Mapped role:', role);
         const userDetails = {
           id: Number(decoded?.userId) || 0,
           email: decoded?.email || '',
