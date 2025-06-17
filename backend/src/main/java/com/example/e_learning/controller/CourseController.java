@@ -17,7 +17,6 @@ public class CourseController {
     @Autowired CourseService courseService;
 
     @GetMapping
-    ("/courses")
     public ResponseEntity<List<CourseDTO>> getAllCourses() {
         try {
             return ResponseEntity.ok(courseService.getAllCourses());

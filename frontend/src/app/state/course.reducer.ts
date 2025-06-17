@@ -9,6 +9,7 @@ import {
 } from './course.actions';
 
 export interface CourseState {
+  
   courses: Course[];
   enrollments: Enrollment[];
   error: string | null;

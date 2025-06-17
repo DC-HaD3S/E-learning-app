@@ -33,9 +33,9 @@ export class NavbarComponent {
     this.router.navigate(['/admin/feedbacks']);
   }
 
-  goToAdminInstructors(): void {
-    this.router.navigate(['/admin/instructors']);
-  }
+goToAboutUs():void{
+  this.router.navigate(['/user/about-us'])
+}
 
   goToAdminEnrolled(): void {
     this.router.navigate(['/admin/enrolled']);
@@ -45,9 +45,6 @@ export class NavbarComponent {
     this.router.navigate(['/admin/manage-courses']);
   }
 
-  goToUserApplyInstructor(): void {
-    this.router.navigate(['/user/apply-instructor']);
-  }
 
   goToUserFeedback(): void {
     this.router.navigate(['/user/feedback']);

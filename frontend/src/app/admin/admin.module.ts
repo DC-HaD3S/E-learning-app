@@ -11,7 +11,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { AdminRoutingModule } from './admin-routing.module';
 import { SharedModule } from '../shared/shared.module';
 import { FeedbackListComponent } from '../components/feedback-list/feedback-list.component';
-import { InstructorListComponent } from '../components/instructor-list/instructor-list.component';
 import { RegisteredUsersComponent } from '../components/registered-users/registered-users.component';
 import { EnrolledUsersComponent } from '../components/enrolled-users/enrolled-users.component';
 import { ManageCoursesComponent } from '../components/manage-courses/manage-courses.component';
@@ -19,7 +18,6 @@ import { ManageCoursesComponent } from '../components/manage-courses/manage-cour
 @NgModule({
   declarations: [
     FeedbackListComponent,
-    InstructorListComponent,
     RegisteredUsersComponent,
     EnrolledUsersComponent,
     ManageCoursesComponent

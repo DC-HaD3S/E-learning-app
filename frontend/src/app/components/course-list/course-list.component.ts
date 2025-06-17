@@ -141,20 +141,8 @@ export class CourseListComponent implements OnInit {
       }
     });
   }
-
-  openDetailsDialog(course: Course): void {
-    const dialogRef = this.dialog.open(CourseDetailsDialogComponent, {
-      width: '600px',
-      maxWidth: '100%',
-    data: {
-      ...course,       
-      allowApply: true
-    }
-      });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'apply') {
-        this.openApplyDialog(course);
-      }
-    });
-  }
-}
+openDetailsDialog(course: Course): void {
+  this.router.navigate(['/course-details-dialog', course.id], {
+    state: { course: course, allowApply: true } // Pass course data via state
+  });
+}}

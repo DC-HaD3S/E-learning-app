@@ -46,7 +46,7 @@ export function appInitializer(authService: AuthService) {
     SignupComponent,
     HomeComponent,
     CourseListComponent,
-    CourseDetailsDialogComponent,
+    CourseDetailsDialogComponent
   ],
   imports: [
     BrowserModule,
