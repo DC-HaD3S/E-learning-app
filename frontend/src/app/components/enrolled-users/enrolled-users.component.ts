@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort'; // <-- Add this
 
+
 interface RawEnrollment {
   username: string;
   courseId: number;
@@ -28,6 +29,7 @@ export class EnrolledUsersComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private http: HttpClient) {}
+
 
   ngOnInit(): void {
     this.http.get<RawEnrollment[]>('http://localhost:8084/admin/enrolled').subscribe({

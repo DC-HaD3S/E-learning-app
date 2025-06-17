@@ -11,11 +11,14 @@ import com.example.e_learning.entity.Course;
 import com.example.e_learning.service.CourseService;
 import com.example.e_learning.service.EnrollmentService;
 import com.example.e_learning.service.UserService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "admin")
 @RestController
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -53,15 +56,6 @@ public class AdminController {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("message", "Course creation failed: " + e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);
-        }
-    }
-
-    @GetMapping("/courses")
-    public ResponseEntity<List<CourseDTO>> getAllCourses() {
-        try {
-            return ResponseEntity.ok(courseService.getAllCourses());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
         }
     }
 

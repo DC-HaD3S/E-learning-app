@@ -79,7 +79,7 @@ export class CourseEffects {
         this.courseService.enrollUser(courseId, courseName).pipe(
           map(response => enrollUserSuccess({
             enrollment: {
-              username: '', // Set by backend
+              username: '', 
               courseId,
               courseName
             }

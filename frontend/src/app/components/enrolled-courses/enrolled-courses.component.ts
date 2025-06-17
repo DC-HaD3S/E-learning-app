@@ -1,13 +1,14 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../state/app.state';
 import { Observable } from 'rxjs';
 import { Enrollment } from '../../models/enrollment.model';
+import { Course } from '../../models/course.model';
 import { selectEnrollments, selectCourseError } from '../../state/course.selectors';
-import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from 'src/app/services/auth.services';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CourseService } from '../../services/course.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-enrolled-courses',
@@ -20,12 +21,9 @@ export class EnrolledCoursesComponent implements OnInit {
   sortedEnrollments: Enrollment[] = [];
   isLoading: boolean = false;
 
-  selectedCourse: any = null; 
-  @ViewChild('courseDialogTemplate') courseDialogTemplate!: TemplateRef<any>; 
-
   constructor(
     private store: Store<AppState>,
-    private dialog: MatDialog,
+    private router: Router,
     private authService: AuthService,
     private courseService: CourseService,
     private snackBar: MatSnackBar
@@ -38,20 +36,16 @@ export class EnrolledCoursesComponent implements OnInit {
     const username = this.authService.getUsername();
     if (username) {
       this.isLoading = true;
-
       this.courseService.getCourses().subscribe({
         next: (allCourses) => {
           this.courseService.getEnrolledCourses().subscribe({
             next: (enrollments) => {
-              this.sortedEnrollments = enrollments.map(enroll => {
-                const course = allCourses.find(c => c.id === enroll.courseId);
-                return {
-                  ...enroll,
-                  body: course?.body,
-                  imageUrl: course?.imageUrl,
-                  price: course?.price
-                };
-              });
+              this.sortedEnrollments = enrollments.map(enroll => ({
+                ...enroll,
+                body: allCourses.find(c => c.id === enroll.courseId)?.body || '',
+                imageUrl: allCourses.find(c => c.id === enroll.courseId)?.imageUrl || '',
+                price: allCourses.find(c => c.id === enroll.courseId)?.price ?? 0
+              }));
               this.isLoading = false;
             },
             error: () => {
@@ -79,10 +73,27 @@ export class EnrolledCoursesComponent implements OnInit {
     return body.length > maxLength ? body.substring(0, maxLength) + '...' : body;
   }
 
-  openDetailsDialog(course: any): void {
-    this.selectedCourse = course;
-    this.dialog.open(this.courseDialogTemplate, {
-      width: '400px'
+  openDetailsDialog(enrollment: Enrollment): void {
+    if (!enrollment.courseId) {
+      console.error('Course ID is missing:', enrollment);
+      this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
+      return;
+    }
+
+    const course: Course = {
+      id: enrollment.courseId,
+      title: enrollment.courseName,
+      body: enrollment.body || '',
+      price: enrollment.price ?? 0,
+      imageUrl: enrollment.imageUrl || ''
+    };
+
+    this.router.navigate(['/course-details', enrollment.courseId.toString()], {
+      state: { course, allowApply: false }
+    }).then(success => {
+      console.log('Navigation success:', success);
+    }).catch(err => {
+      console.error('Navigation error:', err);
     });
   }
 }

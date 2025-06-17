@@ -1,5 +1,5 @@
+<!-- src/app/components/enrolled-courses/enrolled-courses.component.html -->
 <div class="course-grid-container">
-
   <!-- Error Message -->
   <div *ngIf="error$ | async as error" class="error">
     {{ error }}
@@ -38,25 +38,4 @@
       </mat-card-actions>
     </mat-card>
   </div>
-
 </div>
-
-<!-- Inline Dialog Template -->
-<ng-template #courseDialogTemplate>
-  <div class="dialog-container">
-    <h2 mat-dialog-title>{{ selectedCourse?.courseName || 'Untitled Course' }}</h2>
-    <div mat-dialog-content class="dialog-content">
-      <p class="description">{{ selectedCourse?.body || 'No description available.' }}</p>
-      <p class="price">
-        Price:
-        {{ selectedCourse?.price != null
-          ? (selectedCourse.price === 0 ? 'Free' : 'Rs.' + selectedCourse.price)
-          : 'N/A' }}
-      </p>
-    </div>
-    <div mat-dialog-actions class="dialog-actions">
-      <button mat-button mat-dialog-close>Close</button>
-    </div>
-  </div>
-</ng-template>
-

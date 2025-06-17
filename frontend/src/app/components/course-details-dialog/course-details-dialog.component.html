@@ -14,9 +14,19 @@
   </div>
   <div class="actions-container">
     <button mat-button (click)="goBack()">Back to Courses</button>
-    <button mat-raised-button color="primary" (click)="applyForCourse()"
-            *ngIf="course && allowApply && !(isAdmin$ | async)">
-      Apply
-    </button>
+    <ng-container *ngIf="course">
+      <button mat-raised-button color="primary" (click)="applyForCourse()" 
+              *ngIf="allowApply && !(isAdmin$ | async) && !(isEnrolled$ | async)">
+        Apply
+      </button>
+      <button mat-raised-button color="primary" disabled 
+              *ngIf="(isAdmin$ | async)">
+        Admin
+      </button>
+      <button mat-raised-button color="primary" disabled 
+              *ngIf="!(isAdmin$ | async) && (isEnrolled$ | async)">
+        Already Enrolled
+      </button>
+    </ng-container>
   </div>
 </div>

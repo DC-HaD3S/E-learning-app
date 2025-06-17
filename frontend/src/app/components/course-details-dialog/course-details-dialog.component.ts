@@ -1,15 +1,15 @@
-// src/app/components/course-details-dialog/course-details-dialog.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../state/app.state';
 import { UserRole } from '../../enums/user-role.enum';
 import { Course } from '../../models/course.model';
-import { selectCourseById } from '../../state/course.selectors';
+import { selectCourseById, selectEnrollments } from '../../state/course.selectors';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { CourseApplyDialogComponent } from '../course-apply-dialog/course-apply-dialog.component';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-course-details',
@@ -19,6 +19,8 @@ import { CourseApplyDialogComponent } from '../course-apply-dialog/course-apply-
 export class CourseDetailsComponent implements OnInit {
   course: Course | null = null;
   isAdmin$: Observable<boolean>;
+  isEnrolled$: Observable<boolean>;
+  username$: Observable<string | null>;
   allowApply: boolean = false;
 
   constructor(
@@ -29,10 +31,22 @@ export class CourseDetailsComponent implements OnInit {
     private snackBar: MatSnackBar
   ) {
     this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.ADMIN);
+    this.username$ = this.store.select(state => state.auth?.user?.username || null);
+    this.isEnrolled$ = combineLatest([
+      this.store.select(selectEnrollments),
+      this.username$
+    ]).pipe(
+      map(([enrollments, username]) => {
+        const courseId = this.route.snapshot.paramMap.get('id');
+        const numericId = courseId ? parseInt(courseId, 10) : null;
+        return numericId != null && username != null && enrollments.some(enrollment =>
+          enrollment.courseId === numericId && enrollment.username === username
+        );
+      })
+    );
   }
 
   ngOnInit(): void {
-    // Get course ID from route parameter (string)
     const id = this.route.snapshot.paramMap.get('id');
     const numericId = id ? parseInt(id, 10) : null;
 
@@ -43,14 +57,12 @@ export class CourseDetailsComponent implements OnInit {
       return;
     }
 
-    // Get course data from navigation state
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state) {
       this.course = navigation.extras.state['course'] as Course;
       this.allowApply = navigation.extras.state['allowApply'] || false;
     }
 
-    // Fallback: Fetch course by ID from store if state is unavailable
     if (!this.course) {
       this.store.select(selectCourseById(numericId)).subscribe(course => {
         if (course) {

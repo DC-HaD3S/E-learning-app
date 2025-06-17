@@ -69,7 +69,7 @@ export class CourseListComponent implements OnInit {
             if (!course.imageUrl) console.warn('Missing imageUrl:', course);
           });
           this.sortCourses();
- 
+
         } else {
           console.error('Invalid courses:', courses);
           this.rawCourses = [];
@@ -92,11 +92,11 @@ export class CourseListComponent implements OnInit {
   }
 
   sortCourses(): void {
-    const validCourses = this.rawCourses.filter(course => 
+    const validCourses = this.rawCourses.filter(course =>
       course.id &&
-      course.title && 
-      course.price != null && 
-      course.body && 
+      course.title &&
+      course.price != null &&
+      course.body &&
       course.imageUrl
     );
     this.sortedCourses = [...validCourses];
@@ -144,14 +144,14 @@ export class CourseListComponent implements OnInit {
     });
   }
 
-openDetailsDialog(course: Course): void {
-  if (!course.id) {
-    console.error('Course ID is missing:', course);
-    this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
-    return;
+  openDetailsDialog(course: Course): void {
+    if (!course.id) {
+      console.error('Course ID is missing:', course);
+      this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
+      return;
+    }
+    this.router.navigate(['/course-details', course.id.toString()], {
+      state: { course: course, allowApply: true }
+    });
   }
-  this.router.navigate(['/course-details', course.id.toString()], {
-    state: { course: course, allowApply: true }
-  });
-}
 }

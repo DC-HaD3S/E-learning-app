@@ -22,6 +22,7 @@ export const selectCourseById = (id: number) => createSelector(
   selectCourseState,
   (state) => state.courses?.find(course => course.id === id)
 );
+
 export const selectCourseMessage = createSelector(
   selectCourseState,
   (state: CourseState) => state.message
