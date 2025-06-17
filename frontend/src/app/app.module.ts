@@ -27,11 +27,11 @@ import { LoginComponent } from './components/login/login.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { HomeComponent } from './components/home/home.component';
 import { CourseListComponent } from './components/course-list/course-list.component';
-import { CourseDetailsDialogComponent } from './components/course-details-dialog/course-details-dialog.component';
 import { AuthGuard } from './guards/auth.guards';
 import { AuthService } from './services/auth.services';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './services/auth.interceptor';
+import { CourseDetailsComponent } from './components/course-details-dialog/course-details-dialog.component';
 
 
 export function appInitializer(authService: AuthService) {
@@ -46,7 +46,7 @@ export function appInitializer(authService: AuthService) {
     SignupComponent,
     HomeComponent,
     CourseListComponent,
-    CourseDetailsDialogComponent
+    CourseDetailsComponent
   ],
   imports: [
     BrowserModule,

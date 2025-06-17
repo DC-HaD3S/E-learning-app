@@ -9,7 +9,6 @@ import { loadCourses } from 'src/app/state/course.actions';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { take, catchError } from 'rxjs/operators';
-import { CourseDetailsDialogComponent } from '../course-details-dialog/course-details-dialog.component';
 import { selectCourses, selectCourseError, selectCourseState } from 'src/app/state/course.selectors';
 import { AppState } from 'src/app/state/app.state';
 
@@ -63,12 +62,14 @@ export class CourseListComponent implements OnInit {
           this.rawCourses = [...courses];
           this.hasCourses = courses.length > 0;
           this.rawCourses.forEach(course => {
+            if (!course.id) console.warn('Missing id:', course);
             if (!course.title) console.warn('Missing title:', course);
             if (course.price == null) console.warn('Missing price:', course);
             if (!course.body) console.warn('Missing body:', course);
             if (!course.imageUrl) console.warn('Missing imageUrl:', course);
           });
           this.sortCourses();
+ 
         } else {
           console.error('Invalid courses:', courses);
           this.rawCourses = [];
@@ -92,6 +93,7 @@ export class CourseListComponent implements OnInit {
 
   sortCourses(): void {
     const validCourses = this.rawCourses.filter(course => 
+      course.id &&
       course.title && 
       course.price != null && 
       course.body && 
@@ -141,8 +143,15 @@ export class CourseListComponent implements OnInit {
       }
     });
   }
+
 openDetailsDialog(course: Course): void {
-  this.router.navigate(['/course-details-dialog', course.id], {
-    state: { course: course, allowApply: true } // Pass course data via state
+  if (!course.id) {
+    console.error('Course ID is missing:', course);
+    this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
+    return;
+  }
+  this.router.navigate(['/course-details', course.id.toString()], {
+    state: { course: course, allowApply: true }
   });
-}}
+}
+}

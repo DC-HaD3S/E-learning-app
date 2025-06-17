@@ -4,10 +4,12 @@ import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { CourseListComponent } from './components/course-list/course-list.component';
+import { CourseDetailsComponent } from './components/course-details-dialog/course-details-dialog.component';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent }, // Load HomeComponent first
+  { path: '', component: HomeComponent }, 
   { path: 'login', component: LoginComponent },
+  { path: 'course-details/:id', component: CourseDetailsComponent }, 
   { path: 'signup', component: SignupComponent },
   { path: 'courses', component: CourseListComponent },
   { path: 'admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule) },

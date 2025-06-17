@@ -1,22 +1,22 @@
-<div class="dialog-container">
-  <h1 mat-dialog-title>{{ course.title || 'No Title' }}</h1>
-  <div mat-dialog-content class="dialog-content">
-    <div class="dialog-image-container" *ngIf="course.imageUrl; else noImage">
-      <img [src]="course.imageUrl" [alt]="course.title || 'Course Image'" class="course-image" />
+<div class="page-container">
+  <h1>{{ course?.title || 'No Title' }}</h1>
+  <div class="content-container">
+    <div class="image-container" *ngIf="course?.imageUrl; else noImage">
+      <img [src]="course?.imageUrl" [alt]="course?.title || 'Course Image'" class="course-image" />
     </div>
     <ng-template #noImage>
       <div class="no-image-placeholder">No Image Available</div>
     </ng-template>
-    <div class="dialog-text">
-      <p class="description">{{ course.body || 'No description available.' }}</p>
-      <p class="price">Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}</p>
+    <div class="text-container">
+      <p class="description">{{ course?.body || 'No description available.' }}</p>
+      <p class="price">Price: {{ course?.price != null ? (course?.price === 0 ? 'Free' : 'Rs.' + course?.price) : 'N/A' }}</p>
     </div>
   </div>
-  <div mat-dialog-actions class="dialog-actions">
-    <button mat-button (click)="closeDialog()">Close</button>
-<button mat-raised-button color="primary" (click)="applyForCourse()"
-        *ngIf="data.allowApply && !(isAdmin$ | async)">
-  Apply
-</button>
+  <div class="actions-container">
+    <button mat-button (click)="goBack()">Back to Courses</button>
+    <button mat-raised-button color="primary" (click)="applyForCourse()"
+            *ngIf="course && allowApply && !(isAdmin$ | async)">
+      Apply
+    </button>
   </div>
 </div>
