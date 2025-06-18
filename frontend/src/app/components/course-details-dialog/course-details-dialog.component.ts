@@ -101,7 +101,7 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
   }
 
   loadFeedbacks(courseId: number): void {
-    this.feedbackService.getAllFeedbacksByCourseId(courseId).subscribe({
+    this.feedbackService.getFeedbacksByCourseId(courseId).subscribe({
       next: (feedbacks: Feedback[]) => {
         this.feedbacks = feedbacks;
         this.dataSource.data = [...feedbacks]; // Immutable update

@@ -87,13 +87,5 @@ public class FeedbackController {
         }
     }
 
-    @GetMapping("/allByCourseId")
-    public ResponseEntity<List<FeedbackDTO>> getAllFeedbacksByCourseId(@RequestParam Long courseId) {
-        try {
-            return ResponseEntity.ok(feedbackService.getAllFeedbacksByCourseId(courseId));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
+
 }

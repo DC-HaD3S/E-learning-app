@@ -23,7 +23,5 @@ export class FeedbackService {
     return this.http.get<Feedback[]>(`${this.baseUrl}/course/${courseId}`);
   }
 
-  getAllFeedbacksByCourseId(courseId: number): Observable<Feedback[]> {
-    return this.http.get<Feedback[]>(`${this.baseUrl}/allByCourseId?courseId=${courseId}`);
-  }
+
 }
