@@ -6,20 +6,20 @@
 
       <!-- Username Column -->
       <ng-container matColumnDef="username">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Username</th>
-        <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header >Username</th>
+        <td mat-cell *matCellDef="let user" style="border-top: 1px rgb(142, 137, 137) solid;">{{ user.username }}</td>
       </ng-container>
 
       <!-- Email Column -->
       <ng-container matColumnDef="email">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
-        <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+        <td mat-cell *matCellDef="let user" style="border-top: 1px rgb(142, 137, 137) solid;">{{ user.email }}</td>
       </ng-container>
 
       <!-- Courses Column -->
       <ng-container matColumnDef="courses">
         <th mat-header-cell *matHeaderCellDef>Enrolled Courses</th>
-        <td mat-cell *matCellDef="let user">
+        <td mat-cell *matCellDef="let user" style="border-top: 1px rgb(142, 137, 137) solid;">
           <div *ngFor="let course of user.enrolledCourses" class="course-item">
             {{ course.courseName }}
           </div>

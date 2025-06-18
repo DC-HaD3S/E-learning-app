@@ -1,13 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, combineLatest } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../state/app.state';
 import { UserRole } from '../../enums/user-role.enum';
 import { Course } from '../../models/course.model';
+import { Feedback } from '../../models/feedback.model';
+import { FeedbackService } from '../../services/feedback.service';
 import { selectCourseById, selectEnrollments } from '../../state/course.selectors';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { CourseApplyDialogComponent } from '../course-apply-dialog/course-apply-dialog.component';
 import { map } from 'rxjs/operators';
 
@@ -16,19 +21,27 @@ import { map } from 'rxjs/operators';
   templateUrl: './course-details-dialog.component.html',
   styleUrls: ['./course-details-dialog.component.css']
 })
-export class CourseDetailsComponent implements OnInit {
+export class CourseDetailsComponent implements OnInit, AfterViewInit {
   course: Course | null = null;
+  feedbacks: Feedback[] = [];
+  dataSource: MatTableDataSource<Feedback> = new MatTableDataSource<Feedback>([]);
+  displayedColumns: string[] = ['username', 'rating', 'comments'];
+  sortField: string = 'rating';
+  sortOrder: 'asc' | 'desc' = 'desc';
   isAdmin$: Observable<boolean>;
   isEnrolled$: Observable<boolean>;
   username$: Observable<string | null>;
   allowApply: boolean = false;
+
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private store: Store<AppState>,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private feedbackService: FeedbackService
   ) {
     this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.ADMIN);
     this.username$ = this.store.select(state => state.auth?.user?.username || null);
@@ -75,6 +88,41 @@ export class CourseDetailsComponent implements OnInit {
         }
       });
     }
+
+    this.loadFeedbacks(numericId);
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.sort = this.sort;
+    // Initialize sort
+    this.sort.active = this.sortField;
+    this.sort.direction = this.sortOrder;
+    this.sort.sortChange.emit({ active: this.sortField, direction: this.sortOrder });
+  }
+
+  loadFeedbacks(courseId: number): void {
+    this.feedbackService.getAllFeedbacksByCourseId(courseId).subscribe({
+      next: (feedbacks: Feedback[]) => {
+        this.feedbacks = feedbacks;
+        this.dataSource.data = [...feedbacks]; // Immutable update
+      },
+      error: (err: any) => {
+        console.error('Failed to load feedbacks:', err);
+        this.snackBar.open('Failed to load feedbacks', 'Close', { duration: 5000 });
+      }
+    });
+  }
+
+  toggleSortOrder(): void {
+    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    this.sortFeedbacks();
+  }
+
+  sortFeedbacks(): void {
+    this.sort.active = this.sortField;
+    this.sort.direction = this.sortOrder;
+    this.sort.sortChange.emit({ active: this.sortField, direction: this.sortOrder });
+    this.dataSource.sort = this.sort;
   }
 
   applyForCourse(): void {

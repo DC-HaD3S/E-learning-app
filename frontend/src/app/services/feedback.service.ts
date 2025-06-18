@@ -18,4 +18,12 @@ export class FeedbackService {
   submitFeedback(feedback: Feedback): Observable<string> {
     return this.http.post(`${this.baseUrl}/submit`, feedback, { responseType: 'text' });
   }
+
+  getFeedbacksByCourseId(courseId: number): Observable<Feedback[]> {
+    return this.http.get<Feedback[]>(`${this.baseUrl}/course/${courseId}`);
+  }
+
+  getAllFeedbacksByCourseId(courseId: number): Observable<Feedback[]> {
+    return this.http.get<Feedback[]>(`${this.baseUrl}/allByCourseId?courseId=${courseId}`);
+  }
 }

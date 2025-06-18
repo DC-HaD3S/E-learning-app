@@ -1,32 +1,64 @@
-<div class="page-container">
-  <h1>{{ course?.title || 'No Title' }}</h1>
+<div class="page-container" *ngIf="course">
+  <h1>{{ course.title || 'No Title' }}</h1>
   <div class="content-container">
-    <div class="image-container" *ngIf="course?.imageUrl; else noImage">
-      <img [src]="course?.imageUrl" [alt]="course?.title || 'Course Image'" class="course-image" />
+    <div class="image-container" *ngIf="course.imageUrl; else noImage">
+      <img [src]="course.imageUrl" [alt]="course.title || 'Course Image'" class="course-image" loading="lazy" />
     </div>
     <ng-template #noImage>
       <div class="no-image-placeholder">No Image Available</div>
     </ng-template>
     <div class="text-container">
-      <p class="description">{{ course?.body || 'No description available.' }}</p>
-      <p class="price">Price: {{ course?.price != null ? (course?.price === 0 ? 'Free' : 'Rs.' + course?.price) : 'N/A' }}</p>
+      <p class="description">{{ course.body || 'No description available.' }}</p>
+      <p class="price">Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}</p>
     </div>
   </div>
   <div class="actions-container">
-    <button mat-button (click)="goBack()">Back to Courses</button>
-    <ng-container *ngIf="course">
-      <button mat-raised-button color="primary" (click)="applyForCourse()" 
-              *ngIf="allowApply && !(isAdmin$ | async) && !(isEnrolled$ | async)">
-        Apply
-      </button>
-      <button mat-raised-button color="primary" disabled 
-              *ngIf="(isAdmin$ | async)">
-        Admin
-      </button>
-      <button mat-raised-button color="primary" disabled 
-              *ngIf="!(isAdmin$ | async) && (isEnrolled$ | async)">
-        Already Enrolled
-      </button>
-    </ng-container>
+
+       <button mat-raised-button class= "back-button" (click)="goBack()">
+      Back to Courses
+    </button>
+    <button mat-raised-button color="primary" (click)="applyForCourse()"
+            *ngIf="course && allowApply && !(isEnrolled$ | async)">
+      Apply
+    </button>
   </div>
+</div>
+
+<div class="feedback-table-container">
+  <h2>Feedbacks</h2>
+  <div class="sort-controls">
+    <mat-form-field appearance="outline">
+      <mat-label>Sort By</mat-label>
+      <mat-select [(value)]="sortField" (selectionChange)="sortFeedbacks()">
+        <mat-option value="username">Username</mat-option>
+        <mat-option value="rating">Rating</mat-option>
+        <mat-option value="comments">Comments</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-icon-button (click)="toggleSortOrder()" matTooltip="{{ sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending' }}" aria-label="Toggle sort order">
+      <mat-icon>{{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+    </button>
+  </div>
+  <table mat-table [dataSource]="dataSource" matSort class="mat-table" aria-label="Feedback table">
+    <!-- Username Column -->
+    <ng-container matColumnDef="username">
+      <th mat-header-cell *matHeaderCellDef >Username</th>
+      <td mat-cell *matCellDef="let feedback">{{ feedback.username }}</td>
+    </ng-container>
+
+    <!-- Rating Column -->
+    <ng-container matColumnDef="rating">
+      <th mat-header-cell *matHeaderCellDef>Rating</th>
+      <td mat-cell *matCellDef="let feedback">{{ feedback.rating }}/5</td>
+    </ng-container>
+
+    <!-- Comments Column -->
+    <ng-container matColumnDef="comments">
+      <th mat-header-cell *matHeaderCellDef >Comments</th>
+      <td mat-cell *matCellDef="let feedback">{{ feedback.comments }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" tabindex="0"></tr>
+  </table>
 </div>

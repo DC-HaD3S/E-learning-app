@@ -32,7 +32,7 @@ import { AuthService } from './services/auth.services';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './services/auth.interceptor';
 import { CourseDetailsComponent } from './components/course-details-dialog/course-details-dialog.component';
-
+import { MatTooltipModule } from '@angular/material/tooltip'; 
 
 export function appInitializer(authService: AuthService) {
   return () => authService.initializeApp();
@@ -56,6 +56,7 @@ export function appInitializer(authService: AuthService) {
     ReactiveFormsModule, 
     HttpClientModule,
     BrowserAnimationsModule,
+    MatTooltipModule,
     
     MatTableModule,
     MatSortModule,

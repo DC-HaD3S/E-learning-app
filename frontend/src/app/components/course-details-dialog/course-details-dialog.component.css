@@ -1,11 +1,28 @@
 /* Course Details Page Styles */
+:root {
+  --primary-color: #667eea;
+  --primary-light: #e8eaf6;
+  --primary-dark: #5a67d8;
+  --accent-color: #ff4081;
+  --text-dark: #2d3748;
+  --text-medium: #3c434f;
+  --text-light: #718096;
+  --white: #ffffff;
+  --light-gray: #f8fafc;
+  --success-color: #48bb78;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
 .page-container {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 2rem;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -16,11 +33,18 @@
 
 h1 {
   font-size: 2.5rem;
-  color: #2d3748;
+  color: var(--text-dark);
   margin-bottom: 1.5rem;
   font-weight: 700;
   border-bottom: 2px solid #e2e8f0;
   padding-bottom: 0.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
 }
 
 .content-container {
@@ -35,10 +59,10 @@ h1 {
   min-width: 300px;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   transition: transform 0.3s ease;
   aspect-ratio: 16/9;
-  background: #f8fafc;
+  background: var(--light-gray);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,7 +90,7 @@ h1 {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #edf2f7, #e2e8f0);
-  color: #4a5568;
+  color: var(--text-medium);
   font-size: 1.2rem;
   font-weight: 500;
 }
@@ -79,76 +103,145 @@ h1 {
 .description {
   font-size: 1.1rem;
   line-height: 1.7;
-  color: #4a5568;
+  color: var(--text-medium);
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: #f8fafc;
+  background: var(--light-gray);
   border-radius: 8px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--primary-color);
 }
 
 .price {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--text-dark);
   margin: 1.5rem 0;
   padding: 0.75rem 1rem;
   background: #f0fff4;
   border-radius: 8px;
   display: inline-block;
-  border-left: 4px solid #48bb78;
+  border-left: 4px solid var(--success-color);
 }
 
 .price::before {
   content: "💰 ";
 }
 
+/* Button Styles - Specific and Forceful */
 .actions-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #606a77;
 }
 
-button[mat-button] {
-  color: #4a5568;
-  transition: all 0.3s ease;
-  padding: 0.5rem 1.5rem;
+/* Back to Courses button */
+.actions-container button.mat-button {
+  color: var(--text-medium) !important;
+  background-color: transparent !important;
+  padding: 0.5rem 1.5rem !important;
+  border-radius: 4px !important;
+  transition: var(--transition) !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-button[mat-button]:hover {
+.actions-container button.mat-button:hover {
+  color: var(--text-dark) !important;
+  background-color: #798ea3 !important;
+  transform: translateX(-3px) !important;
+}
+
+/* Apply button - Force override of Material styles */
+.actions-container button.mat-raised-button.mat-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+  color: white !important;
+  padding: 0.75rem 2rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  box-shadow: var(--shadow-md) !important;
+  border-radius: 8px !important;
+  transition: var(--transition) !important;
+  border: none !important;
+}
+
+.actions-container button.mat-raised-button.mat-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-lg) !important;
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)) !important;
+}
+
+/* Feedback Section */
+.feedback-table-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.feedback-table-container h2 {
+  font-size: 2rem;
   color: #2d3748;
-  background: #edf2f7;
-  transform: translateX(-3px);
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
 }
 
-button[mat-raised-button] {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  padding: 0.75rem 2rem;
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+mat-form-field {
+  width: 200px;
+  background: var(--light-gray);
+  border-radius: 4px;
+}
+
+.mat-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 0 auto;
+}
+
+.mat-header-cell {
+  text-align: left;
+  padding: 1rem;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: #667eea;
 }
 
-button[mat-raised-button]:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+.mat-cell {
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #4a5568;
 }
 
-/* Responsive Design */
+.mat-row:last-child .mat-cell {
+  border-bottom: none;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .page-container {
+  .page-container, .feedback-table-container {
     padding: 1.5rem;
     margin: 1rem;
   }
 
   h1 {
     font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
   }
 
   .content-container {
@@ -165,11 +258,24 @@ button[mat-raised-button]:hover {
     gap: 1rem;
     align-items: flex-start;
   }
+
+  .sort-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
   h1 {
     font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
   }
 
   .description {
@@ -180,8 +286,9 @@ button[mat-raised-button]:hover {
     font-size: 1.25rem;
   }
 
-  button[mat-raised-button] {
+  .actions-container button.mat-raised-button.mat-primary {
     width: 100%;
     text-align: center;
   }
+  
 }
