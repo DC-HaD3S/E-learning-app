@@ -94,7 +94,6 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
-    // Initialize sort
     this.sort.active = this.sortField;
     this.sort.direction = this.sortOrder;
     this.sort.sortChange.emit({ active: this.sortField, direction: this.sortOrder });
@@ -104,7 +103,7 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
     this.feedbackService.getFeedbacksByCourseId(courseId).subscribe({
       next: (feedbacks: Feedback[]) => {
         this.feedbacks = feedbacks;
-        this.dataSource.data = [...feedbacks]; // Immutable update
+        this.dataSource.data = [...feedbacks]; 
       },
       error: (err: any) => {
         console.error('Failed to load feedbacks:', err);
