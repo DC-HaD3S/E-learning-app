@@ -12,6 +12,8 @@ import { take, catchError, map, switchMap, tap, shareReplay } from 'rxjs/operato
 import { selectCourses, selectCourseError, selectCourseState, selectEnrollments, selectCourseById } from 'src/app/state/course.selectors';
 import { AppState } from 'src/app/state/app.state';
 import { CourseService } from 'src/app/services/course.service';
+import { FeedbackService } from 'src/app/services/feedback.service';
+import { Feedback } from 'src/app/models/feedback.model';
 
 @Component({
   selector: 'app-course-list',
@@ -31,13 +33,15 @@ export class CourseListComponent implements OnInit {
   username$: Observable<string | null>;
   private enrollmentCache = new Map<number, Observable<boolean>>();
   private canApplyCache = new Map<number, Observable<boolean>>();
+  private averageRatingCache = new Map<number, Observable<number>>();
 
   constructor(
     private store: Store<AppState>,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
-    private courseService: CourseService
+    private courseService: CourseService,
+    private feedbackService: FeedbackService
   ) {
     this.courses$ = this.store.select(selectCourses).pipe(
       catchError(() => {
@@ -105,6 +109,9 @@ export class CourseListComponent implements OnInit {
     this.store.select(selectCourses).subscribe(courses => {
       console.log('Store courses:', courses);
     });
+
+
+
   }
 
   getIsEnrolled$(courseId: number): Observable<boolean> {
@@ -167,6 +174,27 @@ export class CourseListComponent implements OnInit {
     return this.canApplyCache.get(courseId)!;
   }
 
+getAverageRating$(courseId: number): Observable<number> {
+  if (!this.averageRatingCache.has(courseId)) {
+    this.averageRatingCache.set(courseId, this.feedbackService.getFeedbacksByCourseId(courseId).pipe(
+      map((feedbacks: Feedback[]) => {
+        if (!feedbacks || feedbacks.length === 0) {
+          return 0; // Explicit 0 for no feedbacks
+        }
+        const sum = feedbacks.reduce((acc, feedback) => acc + Number(feedback.rating), 0);
+        const avg = sum / feedbacks.length;
+        return Math.round(avg * 2) / 2;
+      }),
+      catchError(err => {
+        console.error(`Error getting rating for course ${courseId}`, err);
+        return of(0); // Return 0 on error too
+      }),
+      shareReplay(1)
+    ));
+  }
+  return this.averageRatingCache.get(courseId)!;
+}
+
   sortCourses(): void {
     const validCourses = this.rawCourses.filter(course =>
       course.id != null &&
@@ -176,7 +204,6 @@ export class CourseListComponent implements OnInit {
       course.imageUrl
     ) as Course[];
     this.sortedCourses = [...validCourses];
-    console.log('sortedCourses:', this.sortedCourses); // Debug: Log sorted courses
     const [field, direction] = this.sortCriteria.split('-');
 
     this.sortedCourses.sort((a, b) => {

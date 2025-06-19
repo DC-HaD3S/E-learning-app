@@ -4,6 +4,45 @@
   padding: 24px;
 }
 
+/* In your component's CSS file */
+.average-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star-rating {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.star-rating i {
+  font-size: 1rem;
+  display: inline-block;
+}
+
+/* Star colors */
+.bi-star-fill {
+  color: gold;
+}
+
+.bi-star-half {
+  color: gold;
+  position: relative;
+  overflow: hidden;
+}
+
+.bi-star-half::before {
+  content: "\f586";
+  position: absolute;
+  width: 50%;
+  overflow: hidden;
+}
+
+.bi-star {
+  color: #d1d5db !important;
+}
+
 .sort-container {
   display: flex;
   justify-content: flex-start;
