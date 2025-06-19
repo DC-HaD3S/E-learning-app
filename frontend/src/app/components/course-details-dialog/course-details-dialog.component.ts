@@ -32,6 +32,7 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
   isEnrolled$: Observable<boolean>;
   username$: Observable<string | null>;
   allowApply: boolean = false;
+  averageRating: number | null = null;
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -90,6 +91,7 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
     }
 
     this.loadFeedbacks(numericId);
+    this.loadAverageRating(numericId);
   }
 
   ngAfterViewInit(): void {
@@ -102,8 +104,12 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
   loadFeedbacks(courseId: number): void {
     this.feedbackService.getFeedbacksByCourseId(courseId).subscribe({
       next: (feedbacks: Feedback[]) => {
-        this.feedbacks = feedbacks;
-        this.dataSource.data = [...feedbacks]; 
+        console.log('Feedbacks loaded:', feedbacks);
+        this.feedbacks = feedbacks.map(f => ({
+          ...f,
+          rating: Number(f.rating) // Ensure rating is a number
+        }));
+        this.dataSource.data = [...this.feedbacks];
       },
       error: (err: any) => {
         console.error('Failed to load feedbacks:', err);
@@ -111,6 +117,25 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+loadAverageRating(courseId: number): void {
+  this.feedbackService.getFeedbacksByCourseId(courseId).subscribe({
+    next: (feedbacks: Feedback[]) => {
+      if (feedbacks.length > 0) {
+        const sum = feedbacks.reduce((acc, feedback) => acc + Number(feedback.rating), 0);
+        const avg = sum / feedbacks.length;
+        this.averageRating = Math.round(avg * 2) / 2;
+      } else {
+        this.averageRating = 0;
+      }
+    },
+    error: (err: any) => {
+      console.error('Failed to load feedbacks for average rating:', err);
+      this.snackBar.open('Failed to load average rating', 'Close', { duration: 5000 });
+      this.averageRating = 0;
+    }
+  });
+}
 
   toggleSortOrder(): void {
     this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';

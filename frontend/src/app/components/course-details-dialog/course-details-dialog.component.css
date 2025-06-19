@@ -1,20 +1,42 @@
-/* Course Details Page Styles */
 :root {
-  --primary-color: #667eea;
-  --primary-light: #e8eaf6;
-  --primary-dark: #5a67d8;
-  --accent-color: #ff4081;
-  --text-dark: #2d3748;
-  --text-medium: #3c434f;
-  --text-light: #718096;
-  --white: #ffffff;
-  --light-gray: #f8fafc;
-  --success-color: #48bb78;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --star-size: 1.75rem;
+  --star-color: #FFD700; /* Gold */
+  --star-empty-color: #d1d5db; /* Light Gray */
+  --accent-color: #3b82f6;
+  --text-dark: #1f2937;
+  --text-light: #6b7280;
+  --border-radius: 0.5rem;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
+
+.average-rating {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, rgba(254, 252, 232, 0.6), rgba(254, 249, 195, 0.4));
+  border-radius: var(--border-radius);
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 4px solid var(--accent-color);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(2px);
+  transition: all 0.2s ease;
+}
+
+.average-rating .star-rating .star i {
+  font-size: var(--star-size);
+  color: var(--star-empty-color);
+}
+
+.average-rating .star-rating .star.filled i,
+.average-rating .star-rating .star.half i {
+  color: var(--star-color) !important;
+}
+
 
 .page-container {
   max-width: 1200px;
