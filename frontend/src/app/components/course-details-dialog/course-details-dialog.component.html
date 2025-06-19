@@ -9,49 +9,53 @@
     </ng-template>
     <div class="text-container">
       <p class="description">{{ course.body || 'No description available.' }}</p>
-      <p class="price">Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}
-      </p>
+      <p class="price">Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}</p>
       <p class="average-rating" *ngIf="averageRating != null">
         Average Rating:
         <span class="star-rating">
           <ng-container *ngFor="let i of [1,2,3,4,5]">
-
             <!-- Full Star -->
             <ng-container *ngIf="averageRating >= i">
               <span class="star filled text-warning">
                 <i class="bi bi-star-fill text-warning"></i>
               </span>
             </ng-container>
-
             <!-- Half Star -->
             <ng-container *ngIf="averageRating >= i - 0.5 && averageRating < i">
               <span class="star half text-warning">
                 <i class="bi bi-star-half text-warning"></i>
               </span>
             </ng-container>
-
             <!-- Empty Star -->
             <ng-container *ngIf="averageRating < i - 0.5">
               <span class="star text-warning">
                 <i class="bi bi-star text-warning"></i>
               </span>
             </ng-container>
-
           </ng-container>
         </span>
         ({{ averageRating | number:'1.1-1' }}/5)
       </p>
-
-
     </div>
   </div>
-  <div class="actions-container">
-    <button mat-raised-button class="back-button" (click)="goBack()">Back to Courses</button>
-    <button mat-raised-button color="primary" (click)="applyForCourse()"
-      *ngIf="course && allowApply && !(isEnrolled$ | async)">
+<div class="actions-container">
+  <button mat-raised-button class="back-button" (click)="goBack()">Back to Courses</button>
+  
+  <ng-container *ngIf="(isEnrolled$ | async); else notEnrolled">
+    <button mat-raised-button color="primary" disabled>Enrolled</button>
+    <button mat-raised-button color="accent" (click)="navigateToFeedback()">
+      Submit Feedback
+    </button>
+  </ng-container>
+  
+  <ng-template #notEnrolled>
+    <button *ngIf="(canApply$ | async)" 
+            mat-raised-button 
+            color="warn" 
+            (click)="applyForCourse()">
       Apply
     </button>
-  </div>
+  </ng-template>
 </div>
 
 <div class="feedback-table-container">

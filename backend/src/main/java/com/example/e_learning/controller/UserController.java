@@ -2,6 +2,7 @@ package com.example.e_learning.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.e_learning.dto.EnrollmentDTO;
 import com.example.e_learning.entity.User;
@@ -36,7 +37,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping("/enrolled-courses")
     public ResponseEntity<?> getEnrolled(Principal principal) {
         try {

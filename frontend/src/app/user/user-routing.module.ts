@@ -5,7 +5,6 @@ import { FeedbackComponent } from '../components/feedback/feedback.component';
 import { AuthGuard } from '../guards/auth.guards';
 import { EnrolledCoursesComponent } from '../components/enrolled-courses/enrolled-courses.component';
 import { AboutUsComponent } from '../components/about-us/about-us.component';
-import { CourseDetailsComponent } from '../components/course-details-dialog/course-details-dialog.component';
 const routes: Routes = [
   { 
     path: '', 

@@ -154,11 +154,16 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid #606a77;
 }
 
+.actions-container ng-container {
+  display: flex;
+  gap: 10px;
+}
 /* Back to Courses button */
 .actions-container button.mat-button {
   color: var(--text-medium) !important;
