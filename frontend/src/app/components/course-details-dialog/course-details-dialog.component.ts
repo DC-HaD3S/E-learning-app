@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit,OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, combineLatest, of } from 'rxjs';
+import { Observable, combineLatest, of, Subject } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../state/app.state';
 import { UserRole } from '../../enums/user-role.enum';
@@ -14,14 +14,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { CourseApplyDialogComponent } from '../course-apply-dialog/course-apply-dialog.component';
-import { map, tap, switchMap, catchError, take } from 'rxjs/operators'; // Added 'take'
+import { FeedbackDialogComponent } from '../feedback/feedback-dialog.component';
+import { map, tap, switchMap, catchError, take, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-course-details',
   templateUrl: './course-details-dialog.component.html',
   styleUrls: ['./course-details-dialog.component.css']
 })
-export class CourseDetailsComponent implements OnInit, AfterViewInit {
+export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   course: Course | null = null;
   feedbacks: Feedback[] = [];
   dataSource: MatTableDataSource<Feedback> = new MatTableDataSource<Feedback>([]);
@@ -34,6 +35,7 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
   username$: Observable<string | null>;
   allowApply: boolean = false;
   averageRating: number | null = null;
+  private destroy$ = new Subject<void>();
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -55,49 +57,50 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
         return id ? parseInt(id, 10) : null;
       })
     );
-this.isEnrolled$ = combineLatest([
-  this.isAdmin$,
-  this.store.select(selectEnrollments),
-  this.username$,
-  this.route.paramMap
-]).pipe(
-  switchMap(([isAdmin, enrollments, username, paramMap]) => {
-    // Skip enrollment check for admins
-    if (isAdmin) {
-      return of(false);
-    }
-    const courseId = paramMap.get('id');
-    const numericId = courseId ? parseInt(courseId, 10) : null;
-    if (numericId == null || username == null) {
-      return of(false);
-    }
-    if (enrollments.length > 0) {
-      const isEnrolled = enrollments.some(enrollment => {
-        const match = enrollment.courseId === numericId && enrollment.username === username;
-        return match;
-      });
-      return of(isEnrolled);
-    }
-    // Rely on CourseService to handle authentication
-    return this.courseService.getEnrolledCourses().pipe(
-      map(apiEnrollments => {
-        const isEnrolled = apiEnrollments.some(enrollment => {
-          const match = enrollment.courseId === numericId && enrollment.username === username;
-          return match;
-        });
-        return isEnrolled;
+
+    this.isEnrolled$ = combineLatest([
+      this.isAdmin$,
+      this.store.select(selectEnrollments),
+      this.username$,
+      this.route.paramMap
+    ]).pipe(
+      switchMap(([isAdmin, enrollments, username, paramMap]) => {
+        console.log('CourseDetailsComponent: Checking enrollment, Admin:', isAdmin, 'Username:', username); // Debug log
+        if (isAdmin) {
+          return of(false);
+        }
+        const courseId = paramMap.get('id');
+        const numericId = courseId ? parseInt(courseId, 10) : null;
+        if (numericId == null || username == null) {
+          return of(false);
+        }
+        if (enrollments.length > 0) {
+          const isEnrolled = enrollments.some(enrollment => {
+            const match = enrollment.courseId === numericId && enrollment.username === username;
+            return match;
+          });
+          return of(isEnrolled);
+        }
+        return this.courseService.getEnrolledCourses().pipe(
+          map(apiEnrollments => {
+            const isEnrolled = apiEnrollments.some(enrollment => {
+              const match = enrollment.courseId === numericId && enrollment.username === username;
+              return match;
+            });
+            return isEnrolled;
+          }),
+          catchError(err => {
+            console.error('CourseDetailsComponent: Failed to fetch enrollments:', err);
+            this.snackBar.open('Failed to check enrollment status', 'Close', { duration: 5000 });
+            return of(false);
+          })
+        );
       }),
-      catchError(err => {
-        console.error('Failed to fetch enrollments from API:', err);
-        this.snackBar.open('Failed to check enrollment status', 'Close', { duration: 5000 });
-        return of(false);
-      })
+      takeUntil(this.destroy$)
     );
-  })
-);
 
     this.canApply$ = combineLatest([
-      this.isAdmin$, // Check admin status
+      this.isAdmin$,
       this.isEnrolled$,
       this.username$,
       courseId$.pipe(
@@ -105,12 +108,10 @@ this.isEnrolled$ = combineLatest([
       )
     ]).pipe(
       map(([isAdmin, isEnrolled, username, course]) => {
-        // Admins cannot apply
-        if (isAdmin) {
-          return false;
-        }
+        if (isAdmin) return false;
         return !isEnrolled && !!username && !!course;
-      })
+      }),
+      takeUntil(this.destroy$)
     );
   }
 
@@ -132,7 +133,9 @@ this.isEnrolled$ = combineLatest([
     }
 
     if (!this.course) {
-      this.store.select(selectCourseById(numericId)).subscribe(course => {
+      this.store.select(selectCourseById(numericId)).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(course => {
         if (course) {
           this.course = course;
           this.allowApply = true;
@@ -144,8 +147,9 @@ this.isEnrolled$ = combineLatest([
       });
     }
 
-    // Check enrollment status to adjust allowApply
-    this.isEnrolled$.subscribe(isEnrolled => {
+    this.isEnrolled$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(isEnrolled => {
       if (isEnrolled) {
         this.allowApply = false;
       }
@@ -168,8 +172,16 @@ this.isEnrolled$ = combineLatest([
     }
   }
 
+  ngOnDestroy(): void {
+    console.log('CourseDetailsComponent destroyed'); // Debug log
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadFeedbacks(courseId: number): void {
-    this.feedbackService.getFeedbacksByCourseId(courseId).subscribe({
+    this.feedbackService.getFeedbacksByCourseId(courseId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (feedbacks: Feedback[]) => {
         this.feedbacks = feedbacks.map(f => ({
           ...f,
@@ -179,14 +191,16 @@ this.isEnrolled$ = combineLatest([
         this.cdr.detectChanges();
       },
       error: (err: any) => {
-        console.error('Failed to load feedbacks:', err);
+        console.error('CourseDetailsComponent: Failed to load feedbacks:', err);
         this.snackBar.open('Failed to load feedbacks', 'Close', { duration: 5000 });
       }
     });
   }
 
   loadAverageRating(courseId: number): void {
-    this.feedbackService.getFeedbacksByCourseId(courseId).subscribe({
+    this.feedbackService.getFeedbacksByCourseId(courseId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (feedbacks: Feedback[]) => {
         if (feedbacks.length > 0) {
           const sum = feedbacks.reduce((acc, feedback) => acc + Number(feedback.rating), 0);
@@ -198,7 +212,7 @@ this.isEnrolled$ = combineLatest([
         this.cdr.detectChanges();
       },
       error: (err: any) => {
-        console.error('Failed to load feedbacks for average rating:', err);
+        console.error('CourseDetailsComponent: Failed to load feedbacks for average rating:', err);
         this.snackBar.open('Failed to load average rating', 'Close', { duration: 5000 });
         this.averageRating = 0;
       }
@@ -243,18 +257,52 @@ this.isEnrolled$ = combineLatest([
     });
   }
 
-  navigateToFeedback(): void {
-    const courseId = this.route.snapshot.paramMap.get('id');
-    if (courseId) {
-      this.router.navigate(['/feedback', courseId]).then(success => {
-      }).catch(err => {
-        console.error('Navigation to /feedback failed:', err);
-        this.snackBar.open('Failed to navigate to feedback page', 'Close', { duration: 5000 });
-      });
-    } else {
-      console.error('Course ID is missing');
+  openFeedbackDialog(): void {
+    if (!this.course || !this.course.id) {
       this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
+      return;
     }
+
+    this.isAdmin$.pipe(take(1)).subscribe(isAdmin => {
+      if (isAdmin) {
+        this.snackBar.open('Admins cannot submit feedback', 'Close', { duration: 3000 });
+        return;
+      }
+
+      this.courseService.getEnrolledCourses().pipe(
+        take(1)
+      ).subscribe({
+        next: (enrollments) => {
+          const dialogRef = this.dialog.open(FeedbackDialogComponent, {
+            width: '500px',
+            data: {
+              courseId: this.course!.id,
+              courseName: this.course!.title,
+              enrolledCourses: enrollments.map(e => ({
+                courseId: e.courseId,
+                courseName: e.courseName
+              }))
+            }
+          });
+          dialogRef.afterClosed().subscribe(result => {
+            if (result?.message) {
+              this.snackBar.open(`✅ ${result.message}`, 'Close', {
+                duration: 5000,
+                verticalPosition: 'bottom',
+                horizontalPosition: 'center',
+                panelClass: ['custom-snackbar']
+              });
+              this.loadFeedbacks(this.course!.id!); // Refresh feedbacks
+              this.loadAverageRating(this.course!.id!); // Refresh average rating
+            }
+          });
+        },
+        error: (err) => {
+          console.error('CourseDetailsComponent: Failed to load enrolled courses:', err);
+          this.snackBar.open('Failed to load enrolled courses', 'Close', { duration: 5000 });
+        }
+      });
+    });
   }
 
   goBack(): void {

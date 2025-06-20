@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from '../components/home/home.component';
-import { FeedbackComponent } from '../components/feedback/feedback.component';
 import { AuthGuard } from '../guards/auth.guards';
 import { EnrolledCoursesComponent } from '../components/enrolled-courses/enrolled-courses.component';
 import { AboutUsComponent } from '../components/about-us/about-us.component';
@@ -13,7 +12,6 @@ const routes: Routes = [
     children: [
       { path: 'home', component: HomeComponent },
       { path: 'enrolled', component: EnrolledCoursesComponent },
-      { path: 'feedback', component: FeedbackComponent },
       {path : 'about-us', component: AboutUsComponent },
     ]
   }
