@@ -28,36 +28,43 @@
           <p class="average-rating">
             Average Rating:
             <span class="star-rating">
-              <ng-container *ngIf="getAverageRating$(course.id) | async as rating">
-                <!-- Always show 5 stars -->
-                <ng-container *ngFor="let i of [1,2,3,4,5]">
-                  <!-- Filled star -->
-                  <i class="bi bi-star-fill text-warning" *ngIf="rating >= i"></i>
-                  <!-- Half star -->
-                  <i class="bi bi-star-half text-warning" *ngIf="rating >= (i - 0.5) && rating < i"></i>
-                  <!-- Empty star (shown when rating is 0 or below threshold) -->
-                  <i class="bi bi-star text-warning" *ngIf="rating < (i - 0.5) || rating === 0"></i>
+              <ng-container *ngIf="getAverageRating$(course.id) | async as rating; else noRating">
+                <ng-container *ngIf="rating === 0">
+                  <ng-container *ngFor="let i of [1,2,3,4,5]">
+                    <span class="star"><i class="bi bi-star"></i></span>
+                  </ng-container>
+                  <span>(0/5)</span>
                 </ng-container>
-                <span>({{ rating | number:'1.1-1' }}/5)</span>
+                <ng-container *ngIf="rating > 0">
+                  <ng-container *ngFor="let i of [1,2,3,4,5]">
+                    <span class="star filled" *ngIf="rating >= i"><i class="bi bi-star-fill"></i></span>
+                    <span class="star half" *ngIf="rating >= (i - 0.5) && rating < i"><i class="bi bi-star-half"></i></span>
+                    <span class="star" *ngIf="rating < (i - 0.5)"><i class="bi bi-star"></i></span>
+                  </ng-container>
+                  <span>({{ rating | number:'1.1-1' }}/5)</span>
+                </ng-container>
               </ng-container>
+              <ng-template #noRating>
+                <ng-container *ngFor="let i of [1,2,3,4,5]">
+                  <span class="star"><i class="bi bi-star"></i></span>
+                </ng-container>
+                <span>(0/5)</span>
+              </ng-template>
             </span>
           </p>
         </ng-container>
-        <p class="price">Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A'
-          }}</p>
+        <p class="price">Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}</p>
       </mat-card-content>
       <mat-card-actions *ngIf="course.id != null">
-        <button mat-stroked-button color="primary" (click)="openDetailsDialog(course)">View Details</button>
-        <ng-container *ngIf="!(isAdmin$ | async)">
+                <ng-container *ngIf="!(isAdmin$ | async)">
           <ng-container *ngIf="(getIsEnrolled$(course.id) | async); else notEnrolled">
             <button mat-raised-button disabled>Enrolled</button>
-            <button mat-raised-button color="accent" (click)="navigateToFeedback(course.id)">Submit Feedback</button>
           </ng-container>
           <ng-template #notEnrolled>
-            <button mat-raised-button color="primary" (click)="openApplyDialog(course)"
-              *ngIf="(getCanApply$(course.id) | async)">Apply</button>
+            <button mat-raised-button color="primary" (click)="openApplyDialog(course)" *ngIf="(getCanApply$(course.id) | async)">Apply</button>
           </ng-template>
         </ng-container>
+        <button mat-stroked-button color="primary" (click)="openDetailsDialog(course)">View Details</button>  
       </mat-card-actions>
     </mat-card>
   </div>

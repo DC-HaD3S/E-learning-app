@@ -51,11 +51,9 @@ export class CourseListComponent implements OnInit {
     );
     this.error$ = this.store.select(selectCourseError);
     this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.ADMIN).pipe(
-      tap(isAdmin => console.log('isAdmin$:', isAdmin))
     );
     this.role$ = this.store.select(state => state.auth?.role);
     this.username$ = this.store.select(state => state.auth?.user?.username || null).pipe(
-      tap(username => console.log('username$:', username))
     );
   }
 
@@ -73,7 +71,6 @@ export class CourseListComponent implements OnInit {
         this.isLoading = false;
         if (Array.isArray(courses)) {
           this.rawCourses = [...courses];
-          console.log('rawCourses:', this.rawCourses); // Debug: Log raw courses
           this.hasCourses = courses.length > 0;
           this.rawCourses.forEach(course => {
             if (!course.id) console.warn('Missing id:', course);
@@ -102,16 +99,10 @@ export class CourseListComponent implements OnInit {
         this.isLoading = false;
       }
     });
-    // Debug: Log enrollments and courses from store
     this.store.select(selectEnrollments).subscribe(enrollments => {
-      console.log('Store enrollments:', enrollments);
     });
     this.store.select(selectCourses).subscribe(courses => {
-      console.log('Store courses:', courses);
     });
-
-
-
   }
 
   getIsEnrolled$(courseId: number): Observable<boolean> {
@@ -122,14 +113,12 @@ export class CourseListComponent implements OnInit {
       ]).pipe(
         switchMap(([enrollments, username]) => {
           if (courseId == null || username == null) {
-            console.log('getIsEnrolled$ returning false: courseId or username is null', { courseId, username });
             return of(false);
           }
           if (enrollments.length > 0) {
             const isEnrolled = enrollments.some(enrollment => {
               return enrollment.courseId === courseId && enrollment.username === username;
             });
-            console.log('getIsEnrolled$ from store:', { courseId, isEnrolled }); // Debug
             return of(isEnrolled);
           }
           return this.courseService.getEnrolledCourses().pipe(
@@ -137,7 +126,6 @@ export class CourseListComponent implements OnInit {
               const isEnrolled = apiEnrollments.some(enrollment => {
                 return enrollment.courseId === courseId && enrollment.username === username;
               });
-              console.log('getIsEnrolled$ from API:', { courseId, isEnrolled }); // Debug
               return isEnrolled;
             }),
             catchError(err => {
@@ -147,7 +135,7 @@ export class CourseListComponent implements OnInit {
             })
           );
         }),
-        shareReplay(1) // Cache the result to avoid repeated API calls
+        shareReplay(1) 
       ));
     }
     return this.enrollmentCache.get(courseId)!;
@@ -159,41 +147,41 @@ export class CourseListComponent implements OnInit {
         this.getIsEnrolled$(courseId),
         this.username$,
         this.store.select(selectCourseById(courseId)).pipe(
-          tap(course => console.log('selectCourseById:', { courseId, course })), // Debug
           map(course => course ?? this.sortedCourses.find(c => c.id === courseId) ?? null) // Fallback to sortedCourses
         )
       ]).pipe(
         map(([isEnrolled, username, course]) => {
           const canApply = !isEnrolled && !!username && !!course;
-          console.log('getCanApply$:', { courseId, isEnrolled, username, courseExists: !!course, canApply }); // Debug
           return canApply;
         }),
-        shareReplay(1) // Cache the result
+        shareReplay(1) 
       ));
     }
     return this.canApplyCache.get(courseId)!;
   }
 
-getAverageRating$(courseId: number): Observable<number> {
-  if (!this.averageRatingCache.has(courseId)) {
-    this.averageRatingCache.set(courseId, this.feedbackService.getFeedbacksByCourseId(courseId).pipe(
-      map((feedbacks: Feedback[]) => {
-        if (!feedbacks || feedbacks.length === 0) {
-          return 0; // Explicit 0 for no feedbacks
-        }
-        const sum = feedbacks.reduce((acc, feedback) => acc + Number(feedback.rating), 0);
-        const avg = sum / feedbacks.length;
-        return Math.round(avg * 2) / 2;
-      }),
-      catchError(err => {
-        console.error(`Error getting rating for course ${courseId}`, err);
-        return of(0); // Return 0 on error too
-      }),
-      shareReplay(1)
-    ));
+  getAverageRating$(courseId: number): Observable<number> {
+    if (!this.averageRatingCache.has(courseId)) {
+      this.averageRatingCache.set(courseId, this.feedbackService.getFeedbacksByCourseId(courseId).pipe(
+        map((feedbacks: Feedback[]) => {
+          if (!feedbacks || feedbacks.length === 0) {
+            return 0; 
+          }
+          const sum = feedbacks.reduce((acc, feedback) => acc + Number(feedback.rating), 0);
+          const avg = sum / feedbacks.length;
+          const roundedAvg = Math.round(avg * 2) / 2;
+          return roundedAvg;
+        }),
+        catchError(err => {
+          console.error(`Error getting rating for course ${courseId}`, err);
+          this.snackBar.open('Failed to load average rating', 'Close', { duration: 5000 });
+          return of(0); 
+        }),
+        shareReplay(1)
+      ));
+    }
+    return this.averageRatingCache.get(courseId)!;
   }
-  return this.averageRatingCache.get(courseId)!;
-}
 
   sortCourses(): void {
     const validCourses = this.rawCourses.filter(course =>
