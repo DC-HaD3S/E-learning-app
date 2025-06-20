@@ -2,9 +2,12 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { UserRole } from '../../enums/user-role.enum';
-import { clearRole } from '../../state/auth.actions';
+import { clearRole, setUserDetails } from '../../state/auth.actions';
 import { AppState } from '../../state/app.state';
+import { AuthService } from 'src/app/services/auth.services';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-navbar',
@@ -12,13 +15,21 @@ import { AppState } from '../../state/app.state';
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
+  isAuthenticated$: Observable<boolean>;
   role$: Observable<UserRole | null>;
+  username$: Observable<string>;
 
   constructor(
     private router: Router,
-    private store: Store<AppState>
+    private store: Store<AppState>,
+    private authService: AuthService,
+    private snackBar: MatSnackBar
   ) {
+    this.isAuthenticated$ = this.authService.isAuthenticated$();
     this.role$ = this.store.select(state => state.auth.role);
+    this.username$ = this.store.select(state => state.auth.user?.username).pipe(
+      map(username => username || 'User') // Fallback to 'User' in TypeScript
+    );
   }
 
   goToLogin(): void {
@@ -26,41 +37,56 @@ export class NavbarComponent {
   }
 
   goToAdminHome(): void {
-    this.router.navigate(['/admin/home']);
+    this.checkAuthAndNavigate('/admin/home');
   }
 
   goToAdminFeedbacks(): void {
-    this.router.navigate(['/admin/feedbacks']);
+    this.checkAuthAndNavigate('/admin/feedbacks');
   }
 
-goToAboutUs():void{
-  this.router.navigate(['/user/about-us'])
-}
+  goToAboutUs(): void {
+    this.router.navigate(['/user/about-us']);
+  }
 
   goToAdminEnrolled(): void {
-    this.router.navigate(['/admin/enrolled']);
+    this.checkAuthAndNavigate('/admin/enrolled');
   }
 
   goToAdminManageCourses(): void {
-    this.router.navigate(['/admin/manage-courses']);
+    this.checkAuthAndNavigate('/admin/manage-courses');
   }
 
-
   goToUserFeedback(): void {
-    this.router.navigate(['/user/feedback']);
+    this.checkAuthAndNavigate('/user/feedback');
   }
 
   goToRegisteredUsers(): void {
-    this.router.navigate(['/admin/registered-users']);
+    this.checkAuthAndNavigate('/admin/registered-users');
   }
 
   goToUserEnrolled(): void {
-    this.router.navigate(['/user/enrolled']);
+    this.checkAuthAndNavigate('/user/enrolled');
   }
 
-  logout(): void {
+logout(): void {
+  this.authService.logout();
+  this.snackBar.open('Logged out successfully', 'Close', { duration: 3000 });
+  this.router.navigate(['/login']).then(() => {
     this.store.dispatch(clearRole());
-    localStorage.removeItem('token'); 
-    this.router.navigate(['/login']);
+    this.store.dispatch(setUserDetails({ userDetails: null }));
+  });
+}
+
+  private checkAuthAndNavigate(path: string): void {
+    this.isAuthenticated$.pipe(
+      take(1),
+      map(isAuthenticated => {
+        if (!isAuthenticated) {
+          this.router.navigate(['/login'], { queryParams: { returnUrl: path } });
+          return;
+        }
+        this.router.navigate([path]);
+      })
+    ).subscribe();
   }
 }

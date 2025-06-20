@@ -14,7 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { CourseApplyDialogComponent } from '../course-apply-dialog/course-apply-dialog.component';
-import { map, tap, switchMap, catchError } from 'rxjs/operators';
+import { map, tap, switchMap, catchError, take } from 'rxjs/operators'; // Added 'take'
 
 @Component({
   selector: 'app-course-details',
@@ -30,7 +30,6 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
   sortOrder: 'asc' | 'desc' = 'desc';
   isAdmin$: Observable<boolean>;
   canApply$: Observable<boolean>;
-
   isEnrolled$: Observable<boolean>;
   username$: Observable<string | null>;
   allowApply: boolean = false;
@@ -38,74 +37,82 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-    constructor(
-      private route: ActivatedRoute,
-      private router: Router,
-      private store: Store<AppState>,
-      private dialog: MatDialog,
-      private snackBar: MatSnackBar,
-      private feedbackService: FeedbackService,
-      private courseService: CourseService,
-      private cdr: ChangeDetectorRef
-    ) {
-      
-      this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.ADMIN);
-      this.username$ = this.store.select(state => state.auth?.user?.username || null);
-          const courseId$ = this.route.paramMap.pipe(
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private store: Store<AppState>,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private feedbackService: FeedbackService,
+    private courseService: CourseService,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.ADMIN);
+    this.username$ = this.store.select(state => state.auth?.user?.username || null);
+    const courseId$ = this.route.paramMap.pipe(
       map(paramMap => {
         const id = paramMap.get('id');
         return id ? parseInt(id, 10) : null;
       })
     );
-    
-      this.isEnrolled$ = combineLatest([
-        this.store.select(selectEnrollments),
-        this.username$,
-        this.route.paramMap
-      ]).pipe
-      (
+this.isEnrolled$ = combineLatest([
+  this.isAdmin$,
+  this.store.select(selectEnrollments),
+  this.username$,
+  this.route.paramMap
+]).pipe(
+  switchMap(([isAdmin, enrollments, username, paramMap]) => {
+    // Skip enrollment check for admins
+    if (isAdmin) {
+      return of(false);
+    }
+    const courseId = paramMap.get('id');
+    const numericId = courseId ? parseInt(courseId, 10) : null;
+    if (numericId == null || username == null) {
+      return of(false);
+    }
+    if (enrollments.length > 0) {
+      const isEnrolled = enrollments.some(enrollment => {
+        const match = enrollment.courseId === numericId && enrollment.username === username;
+        return match;
+      });
+      return of(isEnrolled);
+    }
+    // Rely on CourseService to handle authentication
+    return this.courseService.getEnrolledCourses().pipe(
+      map(apiEnrollments => {
+        const isEnrolled = apiEnrollments.some(enrollment => {
+          const match = enrollment.courseId === numericId && enrollment.username === username;
+          return match;
+        });
+        return isEnrolled;
+      }),
+      catchError(err => {
+        console.error('Failed to fetch enrollments from API:', err);
+        this.snackBar.open('Failed to check enrollment status', 'Close', { duration: 5000 });
+        return of(false);
+      })
+    );
+  })
+);
 
-        switchMap(([enrollments, username, paramMap]) => {
-          const courseId = paramMap.get('id');
-          const numericId = courseId ? parseInt(courseId, 10) : null;
-          if (numericId == null || username == null) {
-            return of(false);
-          }
-          if (enrollments.length > 0) {
-            const isEnrolled = enrollments.some(enrollment => {
-              const match = enrollment.courseId === numericId && enrollment.username === username;
-              return match;
-            });
-            return of(isEnrolled);
-          }
-          // Fallback to API if store is empty
-          return this.courseService.getEnrolledCourses().pipe(
-            map(apiEnrollments => {
-              const isEnrolled = apiEnrollments.some(enrollment => {
-                const match = enrollment.courseId === numericId && enrollment.username === username;
-                return match;
-              });
-              return isEnrolled;
-            }),
-            catchError(err => {
-              console.error('Failed to fetch enrollments from API:', err);
-              this.snackBar.open('Failed to check enrollment status', 'Close', { duration: 5000 });
-              return of(false);
-            })
-          );
-        }),
-      );
-      this.canApply$ = combineLatest([
+    this.canApply$ = combineLatest([
+      this.isAdmin$, // Check admin status
       this.isEnrolled$,
       this.username$,
       courseId$.pipe(
         switchMap(id => id ? this.store.select(selectCourseById(id)) : of(null))
       )
     ]).pipe(
-      map(([isEnrolled, username, course]) => !isEnrolled && !!username && !!course)
+      map(([isAdmin, isEnrolled, username, course]) => {
+        // Admins cannot apply
+        if (isAdmin) {
+          return false;
+        }
+        return !isEnrolled && !!username && !!course;
+      })
     );
   }
-
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -121,14 +128,14 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state) {
       this.course = navigation.extras.state['course'] as Course;
-      this.allowApply = navigation.extras.state['allowApply'] ?? false; // Use nullish coalescing
+      this.allowApply = navigation.extras.state['allowApply'] ?? false;
     }
 
     if (!this.course) {
       this.store.select(selectCourseById(numericId)).subscribe(course => {
         if (course) {
           this.course = course;
-          this.allowApply = true; // Default to true for non-navigation cases
+          this.allowApply = true;
         } else {
           console.error(`Course with ID ${numericId} not found`);
           this.snackBar.open('Course not found', 'Close', { duration: 5000 });
@@ -140,16 +147,13 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
     // Check enrollment status to adjust allowApply
     this.isEnrolled$.subscribe(isEnrolled => {
       if (isEnrolled) {
-        this.allowApply = false; // No apply for enrolled courses
+        this.allowApply = false;
       }
       this.cdr.detectChanges();
     });
 
     this.loadFeedbacks(numericId);
     this.loadAverageRating(numericId);
-
-    // Debug store state
-    
   }
 
   ngAfterViewInit(): void {
@@ -163,57 +167,63 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
       console.warn('MatSort is not initialized');
     }
   }
-    loadFeedbacks(courseId: number): void {
-      this.feedbackService.getFeedbacksByCourseId(courseId).subscribe({
-        next: (feedbacks: Feedback[]) => {
-          this.feedbacks = feedbacks.map(f => ({
-            ...f,
-            rating: Number(f.rating)
-          }));
-          this.dataSource.data = [...this.feedbacks];
-          this.cdr.detectChanges();
-        },
-        error: (err: any) => {
-          console.error('Failed to load feedbacks:', err);
-          this.snackBar.open('Failed to load feedbacks', 'Close', { duration: 5000 });
-        }
-      });
-    }
 
-    loadAverageRating(courseId: number): void {
-      this.feedbackService.getFeedbacksByCourseId(courseId).subscribe({
-        next: (feedbacks: Feedback[]) => {
-          if (feedbacks.length > 0) {
-            const sum = feedbacks.reduce((acc, feedback) => acc + Number(feedback.rating), 0);
-            const avg = sum / feedbacks.length;
-            this.averageRating = Math.round(avg * 2) / 2;
-          } else {
-            this.averageRating = 0;
-          }
-          this.cdr.detectChanges();
-        },
-        error: (err: any) => {
-          console.error('Failed to load feedbacks for average rating:', err);
-          this.snackBar.open('Failed to load average rating', 'Close', { duration: 5000 });
+  loadFeedbacks(courseId: number): void {
+    this.feedbackService.getFeedbacksByCourseId(courseId).subscribe({
+      next: (feedbacks: Feedback[]) => {
+        this.feedbacks = feedbacks.map(f => ({
+          ...f,
+          rating: Number(f.rating)
+        }));
+        this.dataSource.data = [...this.feedbacks];
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Failed to load feedbacks:', err);
+        this.snackBar.open('Failed to load feedbacks', 'Close', { duration: 5000 });
+      }
+    });
+  }
+
+  loadAverageRating(courseId: number): void {
+    this.feedbackService.getFeedbacksByCourseId(courseId).subscribe({
+      next: (feedbacks: Feedback[]) => {
+        if (feedbacks.length > 0) {
+          const sum = feedbacks.reduce((acc, feedback) => acc + Number(feedback.rating), 0);
+          const avg = sum / feedbacks.length;
+          this.averageRating = Math.round(avg * 2) / 2;
+        } else {
           this.averageRating = 0;
         }
-      });
-    }
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Failed to load feedbacks for average rating:', err);
+        this.snackBar.open('Failed to load average rating', 'Close', { duration: 5000 });
+        this.averageRating = 0;
+      }
+    });
+  }
 
-    toggleSortOrder(): void {
-      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-      this.sortFeedbacks();
-    }
+  toggleSortOrder(): void {
+    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    this.sortFeedbacks();
+  }
 
-    sortFeedbacks(): void {
-      this.sort.active = this.sortField;
-      this.sort.direction = this.sortOrder;
-      this.sort.sortChange.emit({ active: this.sortField, direction: this.sortOrder });
-      this.dataSource.sort = this.sort;
-      this.cdr.detectChanges();
-    }
+  sortFeedbacks(): void {
+    this.sort.active = this.sortField;
+    this.sort.direction = this.sortOrder;
+    this.sort.sortChange.emit({ active: this.sortField, direction: this.sortOrder });
+    this.dataSource.sort = this.sort;
+    this.cdr.detectChanges();
+  }
 
-    applyForCourse(): void {
+  applyForCourse(): void {
+    this.isAdmin$.pipe(take(1)).subscribe(isAdmin => {
+      if (isAdmin) {
+        this.snackBar.open('Admins cannot apply for courses', 'Close', { duration: 3000 });
+        return;
+      }
       if (this.course) {
         const dialogRef = this.dialog.open(CourseApplyDialogComponent, {
           width: '500px',
@@ -230,7 +240,8 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
           }
         });
       }
-    }
+    });
+  }
 
   navigateToFeedback(): void {
     const courseId = this.route.snapshot.paramMap.get('id');
@@ -245,7 +256,8 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit {
       this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
     }
   }
-    goBack(): void {
-      this.router.navigate(['/courses']);
-    }
+
+  goBack(): void {
+    this.router.navigate(['/courses']);
   }
+}

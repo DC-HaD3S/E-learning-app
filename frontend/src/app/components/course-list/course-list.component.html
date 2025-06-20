@@ -56,15 +56,15 @@
         <p class="price">Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}</p>
       </mat-card-content>
       <mat-card-actions *ngIf="course.id != null">
-                <ng-container *ngIf="!(isAdmin$ | async)">
+        <ng-container *ngIf="!(isAdmin$ | async)">
           <ng-container *ngIf="(getIsEnrolled$(course.id) | async); else notEnrolled">
             <button mat-raised-button disabled>Enrolled</button>
           </ng-container>
           <ng-template #notEnrolled>
-            <button mat-raised-button color="primary" (click)="openApplyDialog(course)" *ngIf="(getCanApply$(course.id) | async)">Apply</button>
+            <button mat-raised-button color="primary" (click)="openApplyDialog(course)">Apply</button>
           </ng-template>
         </ng-container>
-        <button mat-stroked-button color="primary" (click)="openDetailsDialog(course)">View Details</button>  
+        <button mat-stroked-button color="primary" (click)="openDetailsDialog(course)">View Details</button>
       </mat-card-actions>
     </mat-card>
   </div>

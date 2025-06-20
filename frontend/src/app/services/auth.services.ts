@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
+import { catchError, map, tap, switchMap } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { setRole, clearRole, setUserDetails } from '../state/auth.actions';
 import { UserRole } from '../enums/user-role.enum';
@@ -18,14 +18,38 @@ export interface UserDetails {
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8084';
+  private authStateSubject = new BehaviorSubject<boolean>(this.isLoggedIn());
 
   constructor(
     private http: HttpClient,
     private store: Store<AppState>
-  ) {}
+  ) {
+    // Update auth state when token changes
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'token') {
+        this.authStateSubject.next(this.isLoggedIn());
+      }
+    });
+  }
+
+  isAuthenticated$(): Observable<boolean> {
+    return this.authStateSubject.asObservable().pipe(
+      map(() => this.isLoggedIn()),
+      tap(isAuthenticated => console.log('AuthService: isAuthenticated$ emitted:', isAuthenticated)) // Debug log
+    );
+  }
 
   private isValidToken(token: string | null): boolean {
-    return !!token && token.split('.').length === 3;
+    if (!token) return false;
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return false;
+      JSON.parse(atob(parts[1])); // Validate payload
+      return true;
+    } catch (e) {
+      console.error('Invalid token format:', e);
+      return false;
+    }
   }
 
   private decodeToken(token: string): any {
@@ -36,8 +60,7 @@ export class AuthService {
     try {
       const payload = token.split('.')[1];
       const decoded = atob(payload);
-      const parsed = JSON.parse(decoded);
-      return parsed;
+      return JSON.parse(decoded);
     } catch (e) {
       console.error('Error decoding JWT token:', e);
       return {};
@@ -60,22 +83,24 @@ export class AuthService {
   private getHeaders(): HttpHeaders {
     const token = this.getToken();
     return new HttpHeaders({
-      'Authorization': `Bearer ${token || ''}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` })
     });
   }
 
   getUserId(): Observable<number> {
-    const token = this.getToken();
-    if (!token) {
-      console.warn('No token found for userId');
-      return of(0);
-    }
-    return this.http.get<{ id: number }>(`${this.apiUrl}/user/me`, { headers: this.getHeaders() }).pipe(
-      map(response => response.id || 0),
-      catchError(error => {
-        console.error('Error fetching userId:', error);
-        return of(0);
+    return this.isAuthenticated$().pipe(
+      switchMap(isAuthenticated => {
+        if (!isAuthenticated) {
+          return of(0);
+        }
+        return this.http.get<{ id: number }>(`${this.apiUrl}/user/me`, { headers: this.getHeaders() }).pipe(
+          map(response => response.id || 0),
+          catchError(error => {
+            console.error('Error fetching userId:', error);
+            return of(0);
+          })
+        );
       })
     );
   }
@@ -109,6 +134,9 @@ export class AuthService {
       };
       this.store.dispatch(setRole({ role }));
       this.store.dispatch(setUserDetails({ userDetails }));
+      this.authStateSubject.next(true);
+    } else {
+      this.authStateSubject.next(false);
     }
   }
 
@@ -137,10 +165,12 @@ export class AuthService {
         };
         this.store.dispatch(setRole({ role }));
         this.store.dispatch(setUserDetails({ userDetails }));
+        this.authStateSubject.next(true);
         return token;
       }),
       catchError(err => {
         console.error('Login error:', err.status, err.message, err.error);
+        this.authStateSubject.next(false);
         return throwError(() => new Error('Login failed. Please check your credentials.'));
       })
     );
@@ -152,6 +182,7 @@ export class AuthService {
       tap(() => {
         this.store.dispatch(clearRole());
         this.store.dispatch(setUserDetails({ userDetails: null }));
+        this.authStateSubject.next(false);
       }),
       catchError(err => {
         console.error('Signup error:', err);
@@ -180,14 +211,22 @@ export class AuthService {
     );
   }
 
+  isLoggedIn(): boolean {
+    const token = this.getToken();
+    const isValid = !!token && this.isValidToken(token); // Fix: Ensure boolean
+    console.log('AuthService: isLoggedIn check, Token exists:', !!token, 'Valid:', isValid); // Debug log
+    if (!isValid && token) {
+      console.log('AuthService: Invalid token detected, clearing'); // Debug log
+      this.logout();
+    }
+    return isValid;
+  }
+
   logout(): void {
+    console.log('AuthService: Logging out'); // Debug log
     localStorage.removeItem('token');
     this.store.dispatch(clearRole());
     this.store.dispatch(setUserDetails({ userDetails: null }));
-  }
-
-  isLoggedIn(): boolean {
-    const token = this.getToken();
-    return !!token && this.isValidToken(token);
+    this.authStateSubject.next(false);
   }
 }

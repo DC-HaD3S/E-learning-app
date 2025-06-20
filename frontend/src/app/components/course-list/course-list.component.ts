@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core'; 
 import { Store } from '@ngrx/store';
 import { Course } from 'src/app/models/course.model';
 import { UserRole } from 'src/app/enums/user-role.enum';
@@ -6,21 +6,22 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CourseApplyDialogComponent } from '../course-apply-dialog/course-apply-dialog.component';
 import { loadCourses } from 'src/app/state/course.actions';
-import { Observable, of, combineLatest } from 'rxjs';
+import { Observable, of, combineLatest, Subject } from 'rxjs'; // Added Subject
 import { Router } from '@angular/router';
-import { take, catchError, map, switchMap, tap, shareReplay } from 'rxjs/operators';
+import { take, catchError, map, switchMap, tap, shareReplay, takeUntil } from 'rxjs/operators'; // Added takeUntil
 import { selectCourses, selectCourseError, selectCourseState, selectEnrollments, selectCourseById } from 'src/app/state/course.selectors';
 import { AppState } from 'src/app/state/app.state';
 import { CourseService } from 'src/app/services/course.service';
 import { FeedbackService } from 'src/app/services/feedback.service';
 import { Feedback } from 'src/app/models/feedback.model';
+import { AuthService } from 'src/app/services/auth.services';
 
 @Component({
   selector: 'app-course-list',
   templateUrl: './course-list.component.html',
   styleUrls: ['./course-list.component.css']
 })
-export class CourseListComponent implements OnInit {
+export class CourseListComponent implements OnInit, OnDestroy {
   courses$: Observable<Course[] | undefined>;
   error$: Observable<string | null>;
   isAdmin$: Observable<boolean>;
@@ -31,9 +32,11 @@ export class CourseListComponent implements OnInit {
   hasCourses: boolean = false;
   isLoading: boolean = true;
   username$: Observable<string | null>;
+  isAuthenticated$: Observable<boolean>; // Added
   private enrollmentCache = new Map<number, Observable<boolean>>();
   private canApplyCache = new Map<number, Observable<boolean>>();
   private averageRatingCache = new Map<number, Observable<number>>();
+  private destroy$ = new Subject<void>(); // Added for cleanup
 
   constructor(
     private store: Store<AppState>,
@@ -41,7 +44,8 @@ export class CourseListComponent implements OnInit {
     private snackBar: MatSnackBar,
     private router: Router,
     private courseService: CourseService,
-    private feedbackService: FeedbackService
+    private feedbackService: FeedbackService,
+    private authService: AuthService // Added
   ) {
     this.courses$ = this.store.select(selectCourses).pipe(
       catchError(() => {
@@ -50,11 +54,10 @@ export class CourseListComponent implements OnInit {
       })
     );
     this.error$ = this.store.select(selectCourseError);
-    this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.ADMIN).pipe(
-    );
+    this.isAdmin$ = this.store.select(state => state.auth?.role === UserRole.ADMIN);
     this.role$ = this.store.select(state => state.auth?.role);
-    this.username$ = this.store.select(state => state.auth?.user?.username || null).pipe(
-    );
+    this.username$ = this.store.select(state => state.auth?.user?.username || null);
+    this.isAuthenticated$ = this.authService.isAuthenticated$(); // Added
   }
 
   ngOnInit(): void {
@@ -65,8 +68,9 @@ export class CourseListComponent implements OnInit {
         this.store.dispatch(loadCourses());
       }
     });
-    this.store.select(selectCourseState).subscribe(state => {});
-    this.courses$.subscribe({
+    this.courses$.pipe(
+      takeUntil(this.destroy$) // Cleanup subscription
+    ).subscribe({
       next: (courses) => {
         this.isLoading = false;
         if (Array.isArray(courses)) {
@@ -92,26 +96,49 @@ export class CourseListComponent implements OnInit {
         this.isLoading = false;
       }
     });
-    this.error$.subscribe(error => {
+    this.error$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(error => {
       if (error) {
         console.error('Store error:', error);
         this.snackBar.open(`Error: ${error}`, 'Close', { duration: 5000 });
         this.isLoading = false;
       }
     });
-    this.store.select(selectEnrollments).subscribe(enrollments => {
-    });
-    this.store.select(selectCourses).subscribe(courses => {
-    });
+    // Clear caches on logout
+    this.isAuthenticated$.pipe(
+      takeUntil(this.destroy$),
+      tap(isAuthenticated => {
+        if (!isAuthenticated) {
+          console.log('User logged out, clearing caches'); // Debug log
+          this.enrollmentCache.clear();
+          this.canApplyCache.clear();
+          this.averageRatingCache.clear();
+        }
+      })
+    ).subscribe();
+  }
+
+  ngOnDestroy(): void {
+    console.log('CourseListComponent destroyed'); // Debug log
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getIsEnrolled$(courseId: number): Observable<boolean> {
     if (!this.enrollmentCache.has(courseId)) {
       this.enrollmentCache.set(courseId, combineLatest([
+        this.isAdmin$,
+        this.isAuthenticated$, // Added
         this.store.select(selectEnrollments),
         this.username$
       ]).pipe(
-        switchMap(([enrollments, username]) => {
+        switchMap(([isAdmin, isAuthenticated, enrollments, username]) => {
+          console.log(`Checking enrollment for course ${courseId}, Authenticated: ${isAuthenticated}, Username: ${username}`); // Debug log
+          // Skip enrollment check for admins or unauthenticated users
+          if (isAdmin || !isAuthenticated) {
+            return of(false);
+          }
           if (courseId == null || username == null) {
             return of(false);
           }
@@ -121,6 +148,7 @@ export class CourseListComponent implements OnInit {
             });
             return of(isEnrolled);
           }
+          // Fetch from API only for authenticated users
           return this.courseService.getEnrolledCourses().pipe(
             map(apiEnrollments => {
               const isEnrolled = apiEnrollments.some(enrollment => {
@@ -135,7 +163,7 @@ export class CourseListComponent implements OnInit {
             })
           );
         }),
-        shareReplay(1) 
+        shareReplay(1)
       ));
     }
     return this.enrollmentCache.get(courseId)!;
@@ -144,17 +172,20 @@ export class CourseListComponent implements OnInit {
   getCanApply$(courseId: number): Observable<boolean> {
     if (!this.canApplyCache.has(courseId)) {
       this.canApplyCache.set(courseId, combineLatest([
+        this.isAdmin$,
         this.getIsEnrolled$(courseId),
-        this.username$,
         this.store.select(selectCourseById(courseId)).pipe(
-          map(course => course ?? this.sortedCourses.find(c => c.id === courseId) ?? null) // Fallback to sortedCourses
+          map(course => course ?? this.sortedCourses.find(c => c.id === courseId) ?? null)
         )
       ]).pipe(
-        map(([isEnrolled, username, course]) => {
-          const canApply = !isEnrolled && !!username && !!course;
-          return canApply;
+        map(([isAdmin, isEnrolled, course]) => {
+          // Admins cannot apply, but unauthenticated users can (handled in openApplyDialog)
+          if (isAdmin) {
+            return false;
+          }
+          return !isEnrolled && !!course;
         }),
-        shareReplay(1) 
+        shareReplay(1)
       ));
     }
     return this.canApplyCache.get(courseId)!;
@@ -165,7 +196,7 @@ export class CourseListComponent implements OnInit {
       this.averageRatingCache.set(courseId, this.feedbackService.getFeedbacksByCourseId(courseId).pipe(
         map((feedbacks: Feedback[]) => {
           if (!feedbacks || feedbacks.length === 0) {
-            return 0; 
+            return 0;
           }
           const sum = feedbacks.reduce((acc, feedback) => acc + Number(feedback.rating), 0);
           const avg = sum / feedbacks.length;
@@ -175,7 +206,7 @@ export class CourseListComponent implements OnInit {
         catchError(err => {
           console.error(`Error getting rating for course ${courseId}`, err);
           this.snackBar.open('Failed to load average rating', 'Close', { duration: 5000 });
-          return of(0); 
+          return of(0);
         }),
         shareReplay(1)
       ));
@@ -218,26 +249,36 @@ export class CourseListComponent implements OnInit {
       this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
       return;
     }
-    this.role$.pipe(take(1)).subscribe(role => {
-      if (!role) {
-        this.snackBar.open('Please log in', 'Close', { duration: 3000 });
-        this.router.navigate(['']);
-      } else {
-        const dialogRef = this.dialog.open(CourseApplyDialogComponent, {
-          width: '500px',
-          data: { course }
-        });
-        dialogRef.afterClosed().subscribe(result => {
-          if (result?.message) {
-            this.snackBar.open(`✅ ${result.message}`, 'Close', {
-              duration: 5000,
-              verticalPosition: 'bottom',
-              horizontalPosition: 'center',
-              panelClass: ['custom-snackbar']
-            });
-          }
-        });
+    this.isAuthenticated$.pipe(take(1)).subscribe(isAuthenticated => {
+      if (!isAuthenticated) {
+        console.log('Unauthenticated user clicked Apply, redirecting to login'); // Debug log
+        this.snackBar.open('Please log in to apply for courses', 'Close', { duration: 3000 });
+        this.router.navigate(['/login'], { queryParams: { returnUrl: '/courses' } });
+        return;
       }
+      this.role$.pipe(take(1)).subscribe(role => {
+        if (role === UserRole.ADMIN) {
+          this.snackBar.open('Admins cannot apply for courses', 'Close', { duration: 3000 });
+        } else {
+          const dialogRef = this.dialog.open(CourseApplyDialogComponent, {
+            width: '500px',
+            data: { course }
+          });
+          dialogRef.afterClosed().subscribe(result => {
+            if (result?.message) {
+              this.snackBar.open(`✅ ${result.message}`, 'Close', {
+                duration: 5000,
+                verticalPosition: 'bottom',
+                horizontalPosition: 'center',
+                panelClass: ['custom-snackbar']
+              });
+              // Clear enrollment cache to reflect new enrollment
+              this.enrollmentCache.delete(course.id!);
+              this.canApplyCache.delete(course.id!);
+            }
+          });
+        }
+      });
     });
   }
 
