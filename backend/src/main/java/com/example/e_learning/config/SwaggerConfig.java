@@ -21,7 +21,7 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("E learning platform")
                         .version("1.0")
-                        .description("Spring Boot 3 REST API for managing users, resumes, and job applications")
+                        .description("Spring Boot 3 REST API for managing courses, users, and feedbacks")
                         
                         )
                 .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME)) 
