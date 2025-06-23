@@ -33,6 +33,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './services/auth.interceptor';
 import { CourseDetailsComponent } from './components/course-details-dialog/course-details-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip'; 
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 
 
@@ -53,6 +54,7 @@ export function appInitializer(authService: AuthService) {
   imports: [
     BrowserModule,
     AppRoutingModule,
+    FontAwesomeModule,
     
     FormsModule,
     ReactiveFormsModule, 

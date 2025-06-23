@@ -43,8 +43,8 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Ensure card takes full grid cell width */
-  max-width: 360px; /* Match grid max width */
+  width: 100%; 
+  max-width: 360px; 
 }
 
 .course-card:nth-child(odd) {
@@ -204,12 +204,12 @@ button[mat-stroked-button][color="primary"] {
 
 @media (max-width: 480px) {
   .course-grid {
-    grid-template-columns: 1fr; /* Single column for mobile */
+    grid-template-columns: 1fr; 
     gap: 16px;
     padding: 12px;
   }
   .course-card {
-    max-width: 100%; /* Full width on mobile */
+    max-width: 100%; 
   }
   mat-card-actions {
     flex-direction: column;

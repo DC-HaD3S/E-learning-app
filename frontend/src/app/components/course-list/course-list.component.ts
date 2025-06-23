@@ -1,20 +1,26 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Course } from 'src/app/models/course.model';
-import { UserRole } from 'src/app/enums/user-role.enum';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { Observable, of, combineLatest, Subject, BehaviorSubject } from 'rxjs';
+import { take, catchError, map, switchMap, tap, shareReplay, takeUntil } from 'rxjs/operators';
+
+import { Course } from 'src/app/models/course.model';
+import { Feedback } from 'src/app/models/feedback.model';
+import { UserRole } from 'src/app/enums/user-role.enum';
+import { AppState } from 'src/app/state/app.state';
+
 import { CourseApplyDialogComponent } from '../course-apply-dialog/course-apply-dialog.component';
 import { loadCourses } from 'src/app/state/course.actions';
-import { Observable, of, combineLatest, Subject, BehaviorSubject } from 'rxjs';
-import { Router } from '@angular/router';
-import { take, catchError, map, switchMap, tap, shareReplay, takeUntil } from 'rxjs/operators';
 import { selectCourses, selectCourseError, selectEnrollments, selectCourseById } from 'src/app/state/course.selectors';
-import { AppState } from 'src/app/state/app.state';
+
 import { CourseService } from 'src/app/services/course.service';
 import { FeedbackService } from 'src/app/services/feedback.service';
 import { AuthService } from 'src/app/services/auth.services';
-import { Feedback } from 'src/app/models/feedback.model';
+import { faStar as solidStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons';
+import { faStar as emptyStar } from '@fortawesome/free-regular-svg-icons';
+
 
 @Component({
   selector: 'app-course-list',
@@ -26,19 +32,27 @@ export class CourseListComponent implements OnInit, OnDestroy {
   error$: Observable<string | null>;
   isAdmin$: Observable<boolean>;
   role$: Observable<UserRole | null>;
-  sortedCourses: Course[] = [];
-  sortCriteria: string = 'title-asc';
-  searchQuery: string = '';
-  private originalCourses: Course[] = []; // Store original courses
-  private filteredCourses: Course[] = []; // Store filtered courses
-  hasCourses: boolean = false;
-  isLoading: boolean = true;
   username$: Observable<string | null>;
   isAuthenticated$: Observable<boolean>;
+
+  sortedCourses: Course[] = [];
+  sortCriteria = 'title-asc';
+  searchQuery = '';
+
+  private originalCourses: Course[] = [];
+  private filteredCourses: Course[] = [];
+
+  hasCourses = false;
+  isLoading = true;
+
   private enrollmentCache = new Map<number, Observable<boolean>>();
   private canApplyCache = new Map<number, Observable<boolean>>();
   private averageRatingCache = new Map<number, Observable<number>>();
   private destroy$ = new Subject<void>();
+  solidStar = solidStar;
+faStarHalfAlt = faStarHalfAlt;
+emptyStar = emptyStar;
+
   private enrollmentRefresh$ = new BehaviorSubject<{ courseId: number | null }>({ courseId: null });
   loadingEnrollments = new Map<number, boolean>();
 
@@ -65,73 +79,77 @@ export class CourseListComponent implements OnInit, OnDestroy {
     this.isAuthenticated$ = this.authService.isAuthenticated$();
   }
 
-ngOnInit(): void {
-  this.store.dispatch(loadCourses());
+  ngOnInit(): void {
+    this.store.dispatch(loadCourses());
 
-  this.courses$.pipe(
-    takeUntil(this.destroy$),
-    switchMap(courses => {
-      if (!Array.isArray(courses)) {
-        this.originalCourses = [];
-        this.filteredCourses = [];
-        this.sortedCourses = [];
-        this.hasCourses = false;
+    this.courses$.pipe(
+      takeUntil(this.destroy$),
+      switchMap(courses => {
+        if (!Array.isArray(courses)) {
+          this.resetCourseLists();
+          return of([]);
+        }
+
+        this.originalCourses = [...courses];
+        this.filteredCourses = [...courses];
+        this.hasCourses = courses.length > 0;
+
+        const preloadEnrollments$ = courses.map(course => {
+          this.loadingEnrollments.set(course.id!, true);
+          return this.getIsEnrolled$(course.id!).pipe(take(1));
+        });
+
+        return combineLatest(preloadEnrollments$).pipe(
+          tap(() => {
+            this.sortCourses();
+            this.cdr.detectChanges();
+            this.isLoading = false;
+          })
+        );
+      }),
+      catchError(err => {
+        console.error('Failed during course/enrollment preload:', err);
+        this.snackBar.open('Failed to load courses', 'Close', { duration: 5000 });
         this.isLoading = false;
         this.cdr.detectChanges();
         return of([]);
-      }
+      })
+    ).subscribe();
 
-      this.originalCourses = [...courses];
-      this.filteredCourses = [...courses];
-      this.hasCourses = courses.length > 0;
-
-      const preloadEnrollments$ = courses.map(course => {
-        this.loadingEnrollments.set(course.id!, true);
-        return this.getIsEnrolled$(course.id!).pipe(take(1));
-      });
-
-      return combineLatest(preloadEnrollments$).pipe(
-        tap(() => {
-          this.sortCourses();
-          this.cdr.detectChanges();
-          this.isLoading = false;
-        })
-      );
-    }),
-    catchError(err => {
-      console.error('Failed during course/enrollment preload:', err);
-      this.snackBar.open('Failed to load courses', 'Close', { duration: 5000 });
-      this.isLoading = false;
-      this.cdr.detectChanges();
-      return of([]);
-    })
-  ).subscribe();
-
-  // Error subscription remains the same
-  this.error$.pipe(takeUntil(this.destroy$)).subscribe(error => {
-    if (error) {
-      console.error('Store error:', error);
-      this.snackBar.open(`Error: ${error}`, 'Close', { duration: 5000 });
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }
-  });
-
-  // Clear cache if unauthenticated
-  this.isAuthenticated$.pipe(
-    takeUntil(this.destroy$),
-    tap(isAuthenticated => {
-      if (!isAuthenticated) {
-        this.enrollmentCache.clear();
-        this.canApplyCache.clear();
-        this.averageRatingCache.clear();
-        this.loadingEnrollments.clear();
+    this.error$.pipe(takeUntil(this.destroy$)).subscribe(error => {
+      if (error) {
+        this.snackBar.open(`Error: ${error}`, 'Close', { duration: 5000 });
+        this.isLoading = false;
         this.cdr.detectChanges();
       }
-    })
-  ).subscribe();
+    });
+
+    this.isAuthenticated$.pipe(
+      takeUntil(this.destroy$),
+      tap(isAuthenticated => {
+        if (!isAuthenticated) {
+          this.enrollmentCache.clear();
+          this.canApplyCache.clear();
+          this.averageRatingCache.clear();
+          this.loadingEnrollments.clear();
+          this.cdr.detectChanges();
+        }
+      })
+    ).subscribe();
+  }
+
+getStarIcon(rating: number, index: number) {
+  if (rating >= index) return solidStar;
+  if (rating >= index - 0.5) return faStarHalfAlt;
+  return emptyStar;
 }
 
+getStarColor(rating: number, index: number): string {
+  if (rating >= index || rating >= index - 0.5) {
+    return 'gold';
+  }
+  return '#d1d5db';
+}
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -139,13 +157,9 @@ ngOnInit(): void {
 
   filterCourses(): void {
     const query = this.searchQuery.trim().toLowerCase();
-    if (query) {
-      this.filteredCourses = this.originalCourses.filter(course =>
-        course.title?.toLowerCase().includes(query)
-      );
-    } else {
-      this.filteredCourses = [...this.originalCourses]; 
-    }
+    this.filteredCourses = query
+      ? this.originalCourses.filter(course => course.title?.toLowerCase().includes(query))
+      : [...this.originalCourses];
 
     this.hasCourses = this.filteredCourses.length > 0;
     this.sortCourses();
@@ -153,29 +167,17 @@ ngOnInit(): void {
   }
 
   sortCourses(): void {
-    const validCourses = this.filteredCourses.filter(course =>
-      course.id != null &&
-      course.title &&
-      course.price != null &&
-      course.body &&
-      course.imageUrl
-    ) as Course[];
-    this.sortedCourses = [...validCourses];
     const [field, direction] = this.sortCriteria.split('-');
-
-    this.sortedCourses.sort((a, b) => {
+    this.sortedCourses = [...this.filteredCourses].sort((a, b) => {
       if (field === 'title') {
-        const valueA = a.title?.toLowerCase() || '';
-        const valueB = b.title?.toLowerCase() || '';
         return direction === 'asc'
-          ? valueA.localeCompare(valueB)
-          : valueB.localeCompare(valueA);
-      } else if (field === 'price') {
-        const valueA = a.price ?? 0;
-        const valueB = b.price ?? 0;
+          ? a.title.localeCompare(b.title)
+          : b.title.localeCompare(a.title);
+      }
+      if (field === 'price') {
         return direction === 'asc'
-          ? valueA - valueB
-          : valueB - valueA;
+          ? (a.price ?? 0) - (b.price ?? 0)
+          : (b.price ?? 0) - (a.price ?? 0);
       }
       return 0;
     });
@@ -191,39 +193,33 @@ ngOnInit(): void {
         this.store.select(selectEnrollments),
         this.username$
       ]).pipe(
-        switchMap(([isAdmin, isAuthenticated, refresh, enrollments, username]) => {
+        switchMap(([isAdmin, isAuth, refresh, enrollments, username]) => {
           if (refresh.courseId !== null && refresh.courseId !== courseId) {
             const cached = this.enrollmentCache.get(courseId);
-            if (cached) {
-              return cached;
-            }
+            if (cached) return cached;
           }
-          if (isAdmin || !isAuthenticated) {
+
+          if (isAdmin || !isAuth || courseId == null || username == null) {
             this.loadingEnrollments.set(courseId, false);
             return of(false);
           }
-          if (courseId == null || username == null) {
-            this.loadingEnrollments.set(courseId, false);
-            return of(false);
-          }
-          const isEnrolled = enrollments.some(enrollment => enrollment.courseId === courseId && enrollment.username === username);
+
+          const isEnrolled = enrollments.some(e => e.courseId === courseId && e.username === username);
           if (isEnrolled) {
             this.loadingEnrollments.set(courseId, false);
-            this.cdr.detectChanges();
             return of(true);
           }
+
           return this.courseService.getEnrolledCourses().pipe(
             map(apiEnrollments => {
-              const isEnrolled = apiEnrollments.some(enrollment => enrollment.courseId === courseId && enrollment.username === username);
+              const enrolled = apiEnrollments.some(e => e.courseId === courseId && e.username === username);
               this.loadingEnrollments.set(courseId, false);
-              this.cdr.detectChanges();
-              return isEnrolled;
+              return enrolled;
             }),
             catchError(err => {
-              console.error('Failed to fetch enrollments from API:', err);
+              console.error('Fetch enrollment failed:', err);
               this.snackBar.open('Failed to check enrollment status', 'Close', { duration: 5000 });
               this.loadingEnrollments.set(courseId, false);
-              this.cdr.detectChanges();
               return of(false);
             })
           );
@@ -240,16 +236,9 @@ ngOnInit(): void {
       this.canApplyCache.set(courseId, combineLatest([
         this.isAdmin$,
         this.getIsEnrolled$(courseId),
-        this.store.select(selectCourseById(courseId)).pipe(
-          map(course => course ?? null)
-        )
+        this.store.select(selectCourseById(courseId)).pipe(map(c => c ?? null))
       ]).pipe(
-        map(([isAdmin, isEnrolled, course]) => {
-          if (isAdmin) {
-            return false;
-          }
-          return !isEnrolled && !!course;
-        }),
+        map(([isAdmin, isEnrolled, course]) => !isAdmin && !isEnrolled && !!course),
         shareReplay(1)
       ));
     }
@@ -258,39 +247,37 @@ ngOnInit(): void {
 
   getAverageRating$(courseId: number): Observable<number> {
     if (!this.averageRatingCache.has(courseId)) {
-      this.averageRatingCache.set(courseId, this.feedbackService.getFeedbacksByCourseId(courseId).pipe(
+      const avg$ = this.feedbackService.getFeedbacksByCourseId(courseId).pipe(
         map((feedbacks: Feedback[]) => {
-          if (!feedbacks || feedbacks.length === 0) {
-            return 0;
-          }
-          const sum = feedbacks.reduce((acc, feedback) => acc + Number(feedback.rating), 0);
-          const avg = sum / feedbacks.length;
-          const roundedAvg = Math.round(avg * 2) / 2;
-          return roundedAvg;
+          if (!feedbacks.length) return 0;
+          const sum = feedbacks.reduce((acc, f) => acc + Number(f.rating), 0);
+          return Math.round((sum / feedbacks.length) * 2) / 2;
         }),
         catchError(err => {
-          console.error(`Error getting rating for course ${courseId}`, err);
+          console.error('Rating fetch failed:', err);
           this.snackBar.open('Failed to load average rating', 'Close', { duration: 5000 });
           return of(0);
         }),
         shareReplay(1)
-      ));
+      );
+      this.averageRatingCache.set(courseId, avg$);
     }
     return this.averageRatingCache.get(courseId)!;
   }
 
   openApplyDialog(course: Course): void {
     if (!course.id) {
-      console.error('Course ID is missing:', course);
       this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
       return;
     }
-    this.isAuthenticated$.pipe(take(1)).subscribe(isAuthenticated => {
-      if (!isAuthenticated) {
+
+    this.isAuthenticated$.pipe(take(1)).subscribe(auth => {
+      if (!auth) {
         this.snackBar.open('Please log in to apply for courses', 'Close', { duration: 3000 });
         this.router.navigate(['/login'], { queryParams: { returnUrl: '/courses' } });
         return;
       }
+
       this.role$.pipe(take(1)).subscribe(role => {
         if (role === UserRole.ADMIN) {
           this.snackBar.open('Admins cannot apply for courses', 'Close', { duration: 3000 });
@@ -299,6 +286,7 @@ ngOnInit(): void {
             width: '500px',
             data: { course }
           });
+
           dialogRef.afterClosed().subscribe(result => {
             if (result) {
               this.loadingEnrollments.set(course.id!, true);
@@ -315,28 +303,45 @@ ngOnInit(): void {
 
   openDetailsDialog(course: Course): void {
     if (!course.id) {
-      console.error('Course ID is missing:', course);
       this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
       return;
     }
     this.router.navigate(['/course-details', course.id.toString()], {
-      state: { course: course, allowApply: true }
+      state: { course, allowApply: true }
     });
   }
 
   navigateToFeedback(courseId: number): void {
     if (courseId == null) {
-      console.error('Course ID is missing');
       this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
       return;
     }
     this.router.navigate(['/feedback', courseId.toString()]).catch(err => {
-      console.error('Navigation to /feedback failed:', err);
+      console.error('Navigation failed:', err);
       this.snackBar.open('Failed to navigate to feedback page', 'Close', { duration: 5000 });
     });
   }
 
   trackByCourseId(index: number, course: Course): number {
     return course.id ?? index;
+  }
+  getStarType(rating: number, index: number): 'full' | 'half' | 'empty' {
+  if (rating >= index) {
+    return 'full';
+  } else if (rating >= index - 0.5) {
+    return 'half';
+  } else {
+    return 'empty';
+  }
+}
+
+
+  private resetCourseLists(): void {
+    this.originalCourses = [];
+    this.filteredCourses = [];
+    this.sortedCourses = [];
+    this.hasCourses = false;
+    this.isLoading = false;
+    this.cdr.detectChanges();
   }
 }

@@ -37,7 +37,7 @@ export class FeedbackDialogComponent implements OnInit, OnDestroy {
   ) {
     this.feedbackForm = this.fb.group({
       courseId: [data.courseId || '', Validators.required],
-      rating: [data.rating || '', [Validators.required, Validators.min(1), Validators.max(5)]], // Updated min to 1
+      rating: [data.rating || '', [Validators.required, Validators.min(0.5), Validators.max(5)]],
       comments: [data.comments || '', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]]
     });
     this.enrolledCourses = data.enrolledCourses || [];
@@ -57,7 +57,7 @@ export class FeedbackDialogComponent implements OnInit, OnDestroy {
 
   setRating(rating: number): void {
     this.feedbackForm.get('rating')?.setValue(rating);
-    this.feedbackForm.get('rating')?.markAsTouched(); // Mark as touched for validation
+    this.feedbackForm.get('rating')?.markAsTouched();
   }
 
   onSubmit(): void {
