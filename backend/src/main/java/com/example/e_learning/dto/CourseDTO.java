@@ -10,7 +10,7 @@ public class CourseDTO {
 	private String body;
 	private String imageUrl;
 	@Min(value = 0, message = "Price cannot be negative")
-	private Integer price;
+	private double price;
 
 	// Getters and setters
 	public Long getId() {
@@ -45,11 +45,11 @@ public class CourseDTO {
 		this.imageUrl = imageUrl;
 	}
 
-	public Integer getPrice() {
+	public double getPrice() {
 		return price;
 	}
 
-	public void setPrice(Integer price) {
+	public void setPrice(double price) {
 		this.price = price;
 	}
 }

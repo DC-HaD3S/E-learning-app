@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort'; // <-- Add this
+import { MatSort } from '@angular/material/sort'; 
 
 
 interface RawEnrollment {
@@ -32,7 +32,7 @@ export class EnrolledUsersComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.http.get<RawEnrollment[]>('http://localhost:8084/admin/enrolled').subscribe({
+    this.http.get<RawEnrollment[]>('http://localhost:8084/user/enrolled').subscribe({
       next: (data) => {
         this.dataSource.data = this.groupEnrollmentsByUser(data);
         this.dataSource.sort = this.sort; 

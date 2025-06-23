@@ -42,25 +42,31 @@ public class EnrollmentService {
 
     public List<EnrollmentDTO> getEnrollmentsByUserId(Long userId) {
         return enrollmentRepository.findByUserId(userId).stream()
-                .map(enrollment -> {
-                    EnrollmentDTO dto = new EnrollmentDTO();
-                    dto.setUsername(enrollment.getUser().getUsername());
-                    dto.setCourseId(enrollment.getCourse().getId());
-                    dto.setCourseName(enrollment.getCourse().getTitle());
-                    return dto;
-                })
-                .collect(Collectors.toList());
+            .map(enrollment -> {
+                EnrollmentDTO dto = new EnrollmentDTO();
+                dto.setUsername(enrollment.getUser().getUsername());
+                dto.setCourseId(enrollment.getCourse().getId());
+                dto.setCourseName(enrollment.getCourse().getTitle());
+                dto.setBody(enrollment.getCourse().getBody()); 
+                dto.setImageUrl(enrollment.getCourse().getImageUrl()); 
+                dto.setPrice(enrollment.getCourse().getPrice()); 
+                return dto;
+            })
+            .collect(Collectors.toList());
     }
 
     public List<EnrollmentDTO> getAllEnrollments() {
         return enrollmentRepository.findAll().stream()
-                .map(enrollment -> {
-                    EnrollmentDTO dto = new EnrollmentDTO();
-                    dto.setUsername(enrollment.getUser().getUsername());
-                    dto.setCourseId(enrollment.getCourse().getId());
-                    dto.setCourseName(enrollment.getCourse().getTitle());
-                    return dto;
-                })
-                .collect(Collectors.toList());
+            .map(enrollment -> {
+                EnrollmentDTO dto = new EnrollmentDTO();
+                dto.setUsername(enrollment.getUser().getUsername());
+                dto.setCourseId(enrollment.getCourse().getId());
+                dto.setCourseName(enrollment.getCourse().getTitle());
+                dto.setBody(enrollment.getCourse().getBody()); 
+                dto.setImageUrl(enrollment.getCourse().getImageUrl()); 
+                dto.setPrice(enrollment.getCourse().getPrice()); 
+                return dto;
+            })
+            .collect(Collectors.toList());
     }
 }

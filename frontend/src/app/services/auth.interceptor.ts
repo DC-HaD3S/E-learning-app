@@ -1,4 +1,3 @@
-// src/app/interceptors/auth.interceptor.ts
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -8,14 +7,15 @@ import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = localStorage.getItem('token');
     const isProtectedEndpoint = req.url.includes('/user/') ||
-                               req.url.includes('/admin/') ||
-                               req.url.includes('/auth/me') ||
-                               req.url.includes('/feedback/');
+      req.url.includes('/admin/') ||
+      req.url.includes('/auth/me') ||
+      req.url.includes('/feedback/') ||
+      req.url.includes('/course/');
 
     if (token && isProtectedEndpoint) {
       const cloned = req.clone({

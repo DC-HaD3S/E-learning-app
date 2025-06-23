@@ -10,7 +10,7 @@ import { UserRole } from '../enums/user-role.enum';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8084/admin/users'; 
+  private apiUrl = 'http://localhost:8084/user/users'; 
 
   constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
 

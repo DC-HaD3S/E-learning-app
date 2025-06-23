@@ -17,7 +17,7 @@ public class Course {
     private String body;
     @Column(name = "imageUrl", columnDefinition = "TEXT")
     private String imageUrl;
-    private Integer price;
+    private double price;
 
     public Long getId() {
         return id;
@@ -51,11 +51,11 @@ public class Course {
         this.imageUrl = imageUrl;
     }
 
-    public Integer getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 }

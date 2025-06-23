@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.e_learning.dto.EnrollmentDTO;
-import com.example.e_learning.entity.User;
+import com.example.e_learning.dto.UserDTO;
 import com.example.e_learning.service.EnrollmentService;
 import com.example.e_learning.service.UserService;
 
@@ -40,22 +40,21 @@ public class UserController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @GetMapping("/enrolled-courses")
-    public ResponseEntity<?> getEnrolled(Principal principal) {
+
+    
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/users")
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+    
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/enrolled")
+    public ResponseEntity<List<EnrollmentDTO>> getAllEnrolledUsers() {
         try {
-            User currentUser = userService.findByUsername(principal.getName()).orElse(null);
-            if (currentUser == null) {
-                Map<String, String> error = new HashMap<>();
-                error.put("message", "User not found");
-                return ResponseEntity.status(404).body(error);
-            }
-            List<EnrollmentDTO> enrollments = enrollmentService.getEnrollmentsByUserId(currentUser.getId());
-            return ResponseEntity.ok(enrollments);
+            return ResponseEntity.ok(enrollmentService.getAllEnrollments());
         } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("message", "Failed to fetch enrolled courses");
-            return ResponseEntity.badRequest().body(error);
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }
