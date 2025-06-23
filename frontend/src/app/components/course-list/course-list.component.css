@@ -1,76 +1,40 @@
 .course-grid-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px;
-}
-
-/* In your component's CSS file */
-.average-rating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.star-rating {
-  display: inline-flex;
-  gap: 2px;
-}
-
-.star-rating i {
-  font-size: 1rem;
-  display: inline-block;
-}
-
-/* Star colors */
-.bi-star-fill {
-  color: gold;
-}
-
-.bi-star-half {
-  color: gold;
-  position: relative;
-  overflow: hidden;
-}
-
-.bi-star-half::before {
-  content: "\f586";
-  position: absolute;
-  width: 50%;
-  overflow: hidden;
-}
-
-.bi-star {
-  color: #d1d5db !important;
+  padding: 2px;
 }
 
 .sort-container {
   display: flex;
+  gap: 16px;
   justify-content: flex-start;
-  margin-top: 10px; /* Added to move the dropdown down */
+  margin-top: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .sort-field {
   width: 200px;
 }
 
-.sort-field mat-label {
-  font-size: 0.9rem;
-  color: #555;
+.search-field {
+  width: 100%;
+  max-width: 900px;
 }
 
-.sort-field mat-select {
-  font-size: 0.9rem;
-  color: #333;
+.search-field mat-icon {
+  color: rgba(0, 0, 0, 0.54);
 }
 
 .course-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 360px)); 
   gap: 29px;
   padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
   padding-bottom: 80px;
+  justify-content: center; 
 }
 
 .course-card {
@@ -79,6 +43,8 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ensure card takes full grid cell width */
+  max-width: 360px; /* Match grid max width */
 }
 
 .course-card:nth-child(odd) {
@@ -130,6 +96,53 @@ mat-card-content {
   margin-top: 8px;
 }
 
+.average-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star-rating {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.star-rating i {
+  font-size: 1rem;
+  display: inline-block;
+}
+
+.bi-star-fill {
+  color: gold;
+}
+
+.bi-star-half {
+  color: gold;
+  position: relative;
+  overflow: hidden;
+}
+
+.bi-star-half::before {
+  content: "\f586";
+  position: absolute;
+  width: 50%;
+  overflow: hidden;
+}
+
+.bi-star {
+  color: #d1d5db !important;
+}
+
+.sort-field mat-label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.sort-field mat-select {
+  font-size: 0.9rem;
+  color: #333;
+}
+
 mat-card-actions {
   display: flex;
   justify-content: center;
@@ -165,23 +178,43 @@ button[mat-stroked-button][color="primary"] {
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .course-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 340px));
     gap: 20px;
     padding: 16px;
   }
 }
 
+@media (max-width: 768px) {
+  .course-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 16px;
+  }
+  .sort-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sort-field
+  {
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 480px) {
   .course-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single column for mobile */
+    gap: 16px;
+    padding: 12px;
   }
-  
+  .course-card {
+    max-width: 100%; /* Full width on mobile */
+  }
   mat-card-actions {
     flex-direction: column;
     align-items: center;
   }
-  
   button[mat-raised-button],
   button[mat-stroked-button] {
     width: 100%;

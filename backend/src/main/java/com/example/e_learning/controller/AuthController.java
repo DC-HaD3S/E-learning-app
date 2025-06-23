@@ -18,8 +18,12 @@ import com.example.e_learning.dto.JwtResponse;
 import com.example.e_learning.dto.SignupRequest;
 import com.example.e_learning.service.JwtService;
 import com.example.e_learning.service.UserService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+
+@Tag(name = "auth")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {

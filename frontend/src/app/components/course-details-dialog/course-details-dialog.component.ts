@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit,OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, combineLatest, of, Subject } from 'rxjs';
 import { Store } from '@ngrx/store';
@@ -26,12 +26,13 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
   course: Course | null = null;
   feedbacks: Feedback[] = [];
   dataSource: MatTableDataSource<Feedback> = new MatTableDataSource<Feedback>([]);
-  displayedColumns: string[] = ['username', 'rating', 'comments'];
+  displayedColumns: string[] = ['username', 'rating', 'comments', 'actions'];
   sortField: string = 'rating';
   sortOrder: 'asc' | 'desc' = 'desc';
+  searchTerm: string = '';
   isAdmin$: Observable<boolean>;
-  canApply$: Observable<boolean>;
   isEnrolled$: Observable<boolean>;
+  canApply$: Observable<boolean>;
   username$: Observable<string | null>;
   allowApply: boolean = false;
   averageRating: number | null = null;
@@ -65,7 +66,6 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
       this.route.paramMap
     ]).pipe(
       switchMap(([isAdmin, enrollments, username, paramMap]) => {
-        console.log('CourseDetailsComponent: Checking enrollment, Admin:', isAdmin, 'Username:', username); // Debug log
         if (isAdmin) {
           return of(false);
         }
@@ -173,7 +173,6 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngOnDestroy(): void {
-    console.log('CourseDetailsComponent destroyed'); // Debug log
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -185,7 +184,8 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
       next: (feedbacks: Feedback[]) => {
         this.feedbacks = feedbacks.map(f => ({
           ...f,
-          rating: Number(f.rating)
+          rating: Number(f.rating),
+          id: f.id
         }));
         this.dataSource.data = [...this.feedbacks];
         this.cdr.detectChanges();
@@ -217,6 +217,11 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
         this.averageRating = 0;
       }
     });
+  }
+
+  applyFilter(): void {
+    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
+    this.cdr.detectChanges();
   }
 
   toggleSortOrder(): void {
@@ -257,14 +262,14 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
     });
   }
 
-  openFeedbackDialog(): void {
+  openFeedbackDialog(feedback?: Feedback): void {
     if (!this.course || !this.course.id) {
       this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
       return;
     }
 
     this.isAdmin$.pipe(take(1)).subscribe(isAdmin => {
-      if (isAdmin) {
+      if (isAdmin && !feedback) {
         this.snackBar.open('Admins cannot submit feedback', 'Close', { duration: 3000 });
         return;
       }
@@ -276,8 +281,11 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
           const dialogRef = this.dialog.open(FeedbackDialogComponent, {
             width: '500px',
             data: {
-              courseId: this.course!.id,
-              courseName: this.course!.title,
+              courseId: feedback?.courseId || this.course!.id,
+              courseName: feedback?.courseName || this.course!.title,
+              rating: feedback?.rating,
+              comments: feedback?.comments,
+              feedbackId: feedback?.id,
               enrolledCourses: enrollments.map(e => ({
                 courseId: e.courseId,
                 courseName: e.courseName
@@ -292,8 +300,8 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
                 horizontalPosition: 'center',
                 panelClass: ['custom-snackbar']
               });
-              this.loadFeedbacks(this.course!.id!); // Refresh feedbacks
-              this.loadAverageRating(this.course!.id!); // Refresh average rating
+              this.loadFeedbacks(this.course!.id!);
+              this.loadAverageRating(this.course!.id!);
             }
           });
         },
@@ -305,6 +313,27 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
     });
   }
 
+  deleteFeedback(feedbackId: number): void {
+    this.feedbackService.deleteFeedback(feedbackId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        this.snackBar.open(`✅ Feedback Successfully Deleted`, 'Close', {
+          duration: 5000,
+          verticalPosition: 'bottom',
+          horizontalPosition: 'center',
+          panelClass: ['custom-snackbar']
+        });
+        this.loadFeedbacks(this.course!.id!);
+        this.loadAverageRating(this.course!.id!);
+      },
+      error: (err) => {
+        console.error('CourseDetailsComponent: Failed to delete feedback:', err);
+        const errorMessage = err.error?.error || 'Failed to delete feedback';
+        this.snackBar.open(`❌ ${errorMessage}`, 'Close', { duration: 5000 });
+      }
+    });
+  }
   goBack(): void {
     this.router.navigate(['/courses']);
   }

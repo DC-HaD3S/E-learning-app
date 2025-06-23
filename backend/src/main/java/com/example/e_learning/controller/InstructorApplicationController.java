@@ -12,7 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.e_learning.dto.InstructorApplicationDTO;
 import com.example.e_learning.service.InstructorApplicationService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.Map;
+
+@Tag(name = "instructor")
 @RestController
 @RequestMapping("/instructor")
 public class InstructorApplicationController {

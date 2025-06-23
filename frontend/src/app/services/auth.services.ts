@@ -24,7 +24,6 @@ export class AuthService {
     private http: HttpClient,
     private store: Store<AppState>
   ) {
-    // Update auth state when token changes
     window.addEventListener('storage', (event) => {
       if (event.key === 'token') {
         this.authStateSubject.next(this.isLoggedIn());
@@ -35,7 +34,6 @@ export class AuthService {
   isAuthenticated$(): Observable<boolean> {
     return this.authStateSubject.asObservable().pipe(
       map(() => this.isLoggedIn()),
-      tap(isAuthenticated => console.log('AuthService: isAuthenticated$ emitted:', isAuthenticated)) // Debug log
     );
   }
 
@@ -44,7 +42,7 @@ export class AuthService {
     try {
       const parts = token.split('.');
       if (parts.length !== 3) return false;
-      JSON.parse(atob(parts[1])); // Validate payload
+      JSON.parse(atob(parts[1])); 
       return true;
     } catch (e) {
       console.error('Invalid token format:', e);
@@ -213,17 +211,14 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     const token = this.getToken();
-    const isValid = !!token && this.isValidToken(token); // Fix: Ensure boolean
-    console.log('AuthService: isLoggedIn check, Token exists:', !!token, 'Valid:', isValid); // Debug log
+    const isValid = !!token && this.isValidToken(token); 
     if (!isValid && token) {
-      console.log('AuthService: Invalid token detected, clearing'); // Debug log
       this.logout();
     }
     return isValid;
   }
 
   logout(): void {
-    console.log('AuthService: Logging out'); // Debug log
     localStorage.removeItem('token');
     this.store.dispatch(clearRole());
     this.store.dispatch(setUserDetails({ userDetails: null }));

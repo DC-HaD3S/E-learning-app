@@ -1,3 +1,4 @@
+// src/app/interceptors/auth.interceptor.ts
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -11,9 +12,12 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = localStorage.getItem('token');
-    const isAuthEndpoint = req.url.includes('/user/') || req.url.includes('/admin/') || req.url.includes('/auth/me');
+    const isProtectedEndpoint = req.url.includes('/user/') ||
+                               req.url.includes('/admin/') ||
+                               req.url.includes('/auth/me') ||
+                               req.url.includes('/feedback/');
 
-    if (token && isAuthEndpoint) {
+    if (token && isProtectedEndpoint) {
       const cloned = req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
@@ -22,7 +26,7 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(cloned).pipe(
         catchError((error: HttpErrorResponse) => {
           if (error.status === 403 || error.status === 401) {
-            this.authService.logout(); // Clear token and state
+            this.authService.logout();
             this.router.navigate(['/login'], { queryParams: { sessionExpired: true } });
             return throwError(() => new Error('Session expired or access denied. Please log in.'));
           }

@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.e_learning.dto.CourseDTO;
 import com.example.e_learning.service.CourseService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "course")
 @RestController
 @RequestMapping("/courses")
 public class CourseController {

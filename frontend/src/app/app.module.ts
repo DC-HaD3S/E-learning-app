@@ -34,6 +34,8 @@ import { AuthInterceptor } from './services/auth.interceptor';
 import { CourseDetailsComponent } from './components/course-details-dialog/course-details-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip'; 
 
+
+
 export function appInitializer(authService: AuthService) {
   return () => authService.initializeApp();
 }
@@ -87,6 +89,7 @@ export function appInitializer(authService: AuthService) {
       useClass: AuthInterceptor,
       multi: true
     }
+
   ],
   bootstrap: [AppComponent]
 })

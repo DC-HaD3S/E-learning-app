@@ -1,11 +1,9 @@
 C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\config\JwtAuthFilter.java
 C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\config\SecurityConfig.java
 C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\config\SwaggerConfig.java
-C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\config\WebConfig.java
 C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\controller\AdminController.java
 C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\controller\AuthController.java
 C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\controller\CourseController.java
-C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\controller\EnrollmentController.java
 C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\controller\FeedbackController.java
 C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\controller\InstructorApplicationController.java
 C:\Users\Rohit.Zirmuta\Documents\e-learning\backend\src\main\java\com\example\e_learning\controller\UserController.java

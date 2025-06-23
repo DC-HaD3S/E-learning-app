@@ -9,7 +9,40 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
+.search-and-sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
 
+.search-field {
+  flex: 1;
+  min-width: 200px;
+}
+.feedback-table-container {
+  margin-top: 20px;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mat-table {
+  width: 100%;
+}
+
+.mat-column-actions {
+  width: 120px;
+  text-align: right;
+}
+
+.mat-icon-button {
+  margin: 0 4px;
+}
 .average-rating {
   font-size: 1.25rem;
   font-weight: 600;
@@ -219,12 +252,7 @@ h2 {
   padding-bottom: 0.5rem;
 }
 
-.sort-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
+
 
 mat-form-field {
   width: 200px;

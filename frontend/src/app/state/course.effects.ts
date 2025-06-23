@@ -1,14 +1,20 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { CourseService } from '../services/course.service';
+import { AuthService } from '../services/auth.services';
 import { of } from 'rxjs';
-import { map, mergeMap, catchError } from 'rxjs/operators';
+import { map, mergeMap, catchError, withLatestFrom, filter, switchMap, take } from 'rxjs/operators';
 import {
   loadCourses, loadCoursesSuccess, loadCoursesFailure,
   addCourse, updateCourse, deleteCourse,
   loadEnrollments, loadEnrollmentsSuccess, loadEnrollmentsFailure,
   enrollUser, enrollUserSuccess, enrollUserFailure
 } from './course.actions';
+import { Store } from '@ngrx/store';
+import { AppState } from './app.state';
+import { selectEnrollments } from './course.selectors';
+import { EMPTY } from 'rxjs';
+
 
 @Injectable()
 export class CourseEffects {
@@ -72,23 +78,44 @@ export class CourseEffects {
     )
   );
 
-  enrollUser$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(enrollUser),
-      mergeMap(({ courseId, courseName }) =>
-        this.courseService.enrollUser(courseId, courseName).pipe(
-          map(response => enrollUserSuccess({
-            enrollment: {
-              username: '', 
-              courseId,
-              courseName
-            }
-          })),
-          catchError(error => of(enrollUserFailure({ error: error.message })))
-        )
-      )
-    )
-  );
+enrollUser$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(enrollUser),
+    withLatestFrom(
+      this.store.select(state => state.auth?.user?.username || null),
+      this.store.select(selectEnrollments)
+    ),
+    switchMap(([{ courseId, courseName }, username, enrollments]) => {
+      if (!username) {
+        return of(enrollUserFailure({ error: 'User not authenticated' }));
+      }
 
-  constructor(private actions$: Actions, private courseService: CourseService) {}
+      const isEnrolled = enrollments.some(e => e.courseId === courseId && e.username === username);
+      if (isEnrolled) {
+        return of(enrollUserSuccess({
+          enrollment: { username, courseId, courseName }
+        }));
+      }
+
+      return this.courseService.enrollUser(courseId, courseName).pipe(
+        map(() => enrollUserSuccess({ enrollment: { username, courseId, courseName } })),
+        catchError(error => {
+          const msg = error?.message?.toLowerCase() || '';
+          if (msg.includes('already enrolled') || msg.includes('duplicate')) {
+            return of(enrollUserSuccess({ enrollment: { username, courseId, courseName } }));
+          }
+          return of(enrollUserFailure({ error: error.message || 'Unknown error' }));
+        })
+      );
+    })
+  )
+);
+
+
+  constructor(
+    private actions$: Actions,
+    private courseService: CourseService,
+    private authService: AuthService,
+    private store: Store<AppState>
+  ) {}
 }

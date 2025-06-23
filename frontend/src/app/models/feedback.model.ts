@@ -1,6 +1,7 @@
 export interface Feedback {
-  id: number;
+  id?: number;
   username: string;
+  courseId: number;
   courseName: string;
   rating: number;
   comments: string;

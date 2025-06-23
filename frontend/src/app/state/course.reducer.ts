@@ -2,14 +2,14 @@ import { createReducer, on } from '@ngrx/store';
 import { Course } from '../models/course.model';
 import { Enrollment } from '../models/enrollment.model';
 import {
-  loadCourses, clearCourseError, addCourse, updateCourse, deleteCourse,
-  loadCoursesSuccess, loadCoursesFailure,
+  loadCourses, loadCoursesSuccess, loadCoursesFailure,
+  addCourse, updateCourse, deleteCourse,
   loadEnrollments, loadEnrollmentsSuccess, loadEnrollmentsFailure,
-  enrollUser, enrollUserSuccess, enrollUserFailure
+  enrollUser, enrollUserSuccess, enrollUserFailure,
+  clearCourseError
 } from './course.actions';
 
 export interface CourseState {
-  
   courses: Course[];
   enrollments: Enrollment[];
   error: string | null;
@@ -29,15 +29,13 @@ export const courseReducer = createReducer(
   on(loadCoursesSuccess, (state, { courses }) => ({
     ...state,
     courses,
-    error: null
+    error: null,
+    message: null
   })),
-  on(loadCoursesFailure, (state, { error }) => {
-    console.log('Load Courses Failure:', error);
-    return { ...state, error };
-  }),
-  on(clearCourseError, state => ({
+  on(loadCoursesFailure, (state, { error }) => ({
     ...state,
-    error: null
+    error,
+    message: null
   })),
   on(addCourse, (state, { course }) => ({
     ...state,
@@ -61,21 +59,29 @@ export const courseReducer = createReducer(
   on(loadEnrollmentsSuccess, (state, { enrollments }) => ({
     ...state,
     enrollments,
-    error: null
+    error: null,
+    message: null
   })),
   on(loadEnrollmentsFailure, (state, { error }) => ({
     ...state,
-    error
+    error,
+    message: null
   })),
   on(enrollUser, state => ({ ...state, error: null, message: null })),
   on(enrollUserSuccess, (state, { enrollment }) => ({
     ...state,
-    enrollments: [...state.enrollments, enrollment],
+    enrollments: [...state.enrollments.filter(e => e.courseId !== enrollment.courseId || e.username !== enrollment.username), enrollment],
     error: null,
     message: 'Enrolled successfully'
   })),
   on(enrollUserFailure, (state, { error }) => ({
     ...state,
-    error
+    error: error.includes('duplicate') || error.includes('already enrolled') ? null : error,
+    message: null
+  })),
+  on(clearCourseError, state => ({
+    ...state,
+    error: null,
+    message: null
   }))
 );

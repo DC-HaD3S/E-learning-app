@@ -13,6 +13,9 @@ public class FeedbackDTO {
 	private String username;
 	@NotBlank(message = "Course name cannot be empty")
 	private String courseName;
+	private Long courseId; // Add courseId
+
+
 	@Min(value = 0, message = "Rating must be at least 0")
 	@Max(value = 5, message = "Rating must be at most 5")
 	private Integer rating;
@@ -22,7 +25,13 @@ public class FeedbackDTO {
 	public String getUsername() {
 		return username;
 	}
+	public Long getCourseId() {
+		return courseId;
+	}
 
+	public void setCourseId(Long courseId) {
+		this.courseId = courseId;
+	}
 	public void setUsername(String username) {
 		this.username = username;
 	}

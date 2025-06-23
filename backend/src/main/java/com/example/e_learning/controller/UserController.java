@@ -8,12 +8,15 @@ import com.example.e_learning.dto.EnrollmentDTO;
 import com.example.e_learning.entity.User;
 import com.example.e_learning.service.EnrollmentService;
 import com.example.e_learning.service.UserService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "user")
 @RestController
 @RequestMapping("/user")
 public class UserController {

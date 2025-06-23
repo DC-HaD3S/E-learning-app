@@ -15,7 +15,7 @@ public class Feedback {
 	@ManyToOne
 	private User user;
 	@ManyToOne
-    @JoinColumn(name = "course_id")
+	@JoinColumn(name = "course_id")
 	private Course course;
 	private Integer rating;
 	private String comments;

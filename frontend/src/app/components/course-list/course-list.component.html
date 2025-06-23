@@ -9,7 +9,13 @@
         <mat-option value="price-desc">Price (High to Low)</mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Search Courses</mat-label>
+    <input matInput [(ngModel)]="searchQuery" (ngModelChange)="filterCourses()" placeholder="Enter course name">
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
   </div>
+  
 
   <div *ngIf="error$ | async as error" class="error">{{ error }}</div>
   <div *ngIf="isLoading" class="loading">Loading courses...</div>
