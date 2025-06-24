@@ -14,27 +14,21 @@
     </mat-form-field>
 
     <div class="star-rating-container">
-      <label>Rating</label>
-      <div class="star-rating">
-        <mat-icon 
-          *ngFor="let i of [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]; let index = index"
-          [ngClass]="{
-            'filled': feedbackForm.get('rating')?.value >= i,
-            'half': feedbackForm.get('rating')?.value >= (i - 0.25) && feedbackForm.get('rating')?.value < i,
-            'empty': feedbackForm.get('rating')?.value < (i - 0.25)
-          }"
-          (click)="setRating(i)"
-          role="button"
-          tabindex="0"
-          (keydown.enter)="setRating(i)"
-          [attr.aria-label]="'Set rating to ' + i + ' stars'"
-        >
-          star
-        </mat-icon>
-      </div>
-      <mat-error *ngIf="feedbackForm.get('rating')?.touched && feedbackForm.get('rating')?.invalid">
-        Rating must be between 0.5 and 5.
-      </mat-error>
+<mat-form-field appearance="fill">
+  <mat-label>Rating (1 to 5)</mat-label>
+  <input
+    matInput
+    type="number"
+    formControlName="rating"
+    min="1"
+    max="5"
+    required
+  />
+  <mat-error *ngIf="feedbackForm.get('rating')?.touched && feedbackForm.get('rating')?.invalid">
+    Rating must be between 1 and 5.
+  </mat-error>
+</mat-form-field>
+
     </div>
 
     <mat-form-field appearance="fill">

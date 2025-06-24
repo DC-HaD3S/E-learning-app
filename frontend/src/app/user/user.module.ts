@@ -15,6 +15,8 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { AboutUsComponent } from '../components/about-us/about-us.component';
 import { FeedbackDialogComponent } from '../components/feedback/feedback-dialog.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { MatPaginatorModule } from '@angular/material/paginator';
 @NgModule({
   declarations: [
     EnrolledCoursesComponent,
@@ -25,8 +27,10 @@ import { FeedbackDialogComponent } from '../components/feedback/feedback-dialog.
     CommonModule,
     UserRoutingModule,
     MatSelectModule,
+    FontAwesomeModule,
     MatCardModule,
     MatGridListModule,
+    MatPaginatorModule,
     
     MatButtonModule,
     MatOptionModule,

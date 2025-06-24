@@ -80,12 +80,16 @@ public class UserService implements UserDetailsService {
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream().map(user -> {
             UserDTO dto = new UserDTO();
+            dto.setId(user.getId()); 
             dto.setName(user.getName());
             dto.setEmail(user.getEmail());
             dto.setUsername(user.getUsername());
+            dto.setPassword(user.getPassword()); 
             return dto;
         }).collect(Collectors.toList());
     }
+
+
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
@@ -107,7 +111,29 @@ public class UserService implements UserDetailsService {
                 user.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase())));
     }
-    
+    @Transactional
+    public void updateUserDetails(String email, UserDTO updatedUser) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        user.setName(updatedUser.getName());
+        user.setUsername(updatedUser.getUsername());
+        if (!updatedUser.getEmail().equals(user.getEmail())) {
+            throw new IllegalArgumentException("Email updates are not allowed.");
+        }
+
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        }
+
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        userRepository.delete(user);
+    }
 
 }

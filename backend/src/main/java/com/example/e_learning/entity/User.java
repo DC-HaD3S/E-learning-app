@@ -17,11 +17,11 @@ public class User {
     private String password;
     private String role;
 
-    @OneToMany(mappedBy = "user")
-    private List<Feedback> feedbacks;
-
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Enrollment> enrollments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Feedback> feedbacks;
 
     public Long getId() {
         return id;

@@ -1,4 +1,3 @@
-<!-- src/app/components/enrolled-courses/enrolled-courses.component.html -->
 <div class="course-grid-container">
   <!-- Error Message -->
   <div *ngIf="error$ | async as error" class="error">
@@ -17,7 +16,7 @@
 
   <!-- Course Grid -->
   <div class="course-grid" *ngIf="hasCourses">
-    <mat-card *ngFor="let course of sortedEnrollments" class="course-card">
+    <mat-card *ngFor="let course of paginatedEnrollments; trackBy: trackByCourseId" class="course-card">
       <mat-card-header>
         <mat-card-title>{{ course.courseName }}</mat-card-title>
       </mat-card-header>
@@ -26,6 +25,28 @@
 
       <mat-card-content>
         <p>{{ truncateBody(course.body, 100) }}</p>
+        <ng-container *ngIf="course.courseId != null">
+          <p class="average-rating">
+            Average Rating:
+            <span class="star-rating">
+              <ng-container *ngIf="getAverageRating$(course.courseId) | async as rating; else noRating">
+                <ng-container *ngFor="let i of [1, 2, 3, 4, 5]">
+                  <fa-icon
+                    [icon]="getStarIcon(rating, i)"
+                    [ngStyle]="{ color: getStarColor(rating, i) }"
+                  ></fa-icon>
+                </ng-container>
+                <span>({{ rating | number:'1.1-1' }}/5)</span>
+              </ng-container>
+              <ng-template #noRating>
+                <ng-container *ngFor="let i of [1, 2, 3, 4, 5]">
+                  <fa-icon [icon]="emptyStar" style="color: #d1d5db;"></fa-icon>
+                </ng-container>
+                <span>(0/5)</span>
+              </ng-template>
+            </span>
+          </p>
+        </ng-container>
         <p class="price">
           Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}
         </p>
@@ -38,4 +59,14 @@
       </mat-card-actions>
     </mat-card>
   </div>
+
+  <!-- Paginator -->
+  <mat-paginator
+    *ngIf="hasCourses"
+    [length]="sortedEnrollments.length"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[9]"
+    (page)="onPageChange($event)"
+    aria-label="Select page of enrolled courses"
+  ></mat-paginator>
 </div>

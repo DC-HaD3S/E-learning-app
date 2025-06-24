@@ -34,7 +34,7 @@ import { AuthInterceptor } from './services/auth.interceptor';
 import { CourseDetailsComponent } from './components/course-details-dialog/course-details-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip'; 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 
 export function appInitializer(authService: AuthService) {
@@ -55,6 +55,7 @@ export function appInitializer(authService: AuthService) {
     BrowserModule,
     AppRoutingModule,
     FontAwesomeModule,
+    MatPaginatorModule,
     
     FormsModule,
     ReactiveFormsModule, 
