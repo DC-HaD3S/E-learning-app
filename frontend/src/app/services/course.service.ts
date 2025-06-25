@@ -7,9 +7,9 @@ import { Course } from '../models/course.model';
 import { Enrollment } from '../models/enrollment.model';
 import { AuthService } from './auth.services';
 import { Store } from '@ngrx/store';
-import { enrollUser, loadEnrollments } from '../state/course.actions';
-import { selectEnrollments } from '../state/course.selectors';
-import { AppState } from '../state/app.state';
+import { selectEnrollments } from '../store/course/course.selectors';
+import { AppState } from '../store/app.state';
+import { loadEnrollments } from '../store/course/course.actions';
 
 @Injectable({
   providedIn: 'root'

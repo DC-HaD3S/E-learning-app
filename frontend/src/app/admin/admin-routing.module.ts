@@ -1,11 +1,10 @@
-import { Component, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from '../components/home/home.component';
-import { FeedbackListComponent } from '../components/feedback-list/feedback-list.component';
+import { FeedbackListComponent } from './components/feedback-list/feedback-list.component';
+import { EnrolledUsersComponent } from './components/enrolled-users/enrolled-users.component';
+import { ManageCoursesComponent } from './components/manage-courses/manage-courses.component';
+import { RegisteredUsersComponent } from './components/registered-users/registered-users.component';
 import { AuthGuard } from '../guards/auth.guards';
-import { EnrolledUsersComponent } from '../components/enrolled-users/enrolled-users.component';
-import { ManageCoursesComponent } from '../components/manage-courses/manage-courses.component';
-import { RegisteredUsersComponent } from '../components/registered-users/registered-users.component';
 
 const routes: Routes = [
   {
@@ -13,18 +12,17 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     data: { role: 'admin' },
     children: [
-      { path: 'home', component: HomeComponent },
+      { path: '', redirectTo: 'feedbacks', pathMatch: 'full' }, 
       { path: 'feedbacks', component: FeedbackListComponent },
       { path: 'manage-courses', component: ManageCoursesComponent },
       { path: 'enrolled', component: EnrolledUsersComponent },
       { path: 'registered-users', component: RegisteredUsersComponent },
-
-    ]
-  }
+    ],
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AdminRoutingModule { }
+export class AdminRoutingModule {}

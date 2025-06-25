@@ -3,9 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, map, tap, switchMap } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
-import { setRole, clearRole, setUserDetails } from '../state/auth.actions';
 import { UserRole } from '../enums/user-role.enum';
-import { AppState } from '../state/app.state';
+import { AppState } from '../store/app.state';
+import { clearRole, setRole, setUserDetails } from '../store/auth/auth.actions';
 
 export interface UserDetails {
   id: number;

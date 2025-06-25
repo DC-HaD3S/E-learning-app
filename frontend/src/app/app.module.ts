@@ -7,9 +7,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
-import { authReducer } from './state/auth.reducer';
-import { courseReducer } from './state/course.reducer';
-import { CourseEffects } from './state/course.effects';
+import { authReducer } from './store/auth/auth.reducer'; 
+import { courseReducer } from './store/course/course.reducer';
+import { CourseEffects } from './store/course/course.effects';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -22,19 +22,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { NavbarComponent } from './components/navbar/navbar.component';
-import { LoginComponent } from './components/login/login.component';
-import { SignupComponent } from './components/signup/signup.component';
-import { HomeComponent } from './components/home/home.component';
-import { CourseListComponent } from './components/course-list/course-list.component';
+import { NavbarComponent } from './shared/components/navbar/navbar.component';
+import { LoginComponent } from './shared/components/login/login.component';
+import { SignupComponent } from './shared/components/signup/signup.component';
+import { HomeComponent } from './shared/components/home/home.component';
+import { CourseListComponent } from './shared/components/course-list/course-list.component';
 import { AuthGuard } from './guards/auth.guards';
 import { AuthService } from './services/auth.services';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './services/auth.interceptor';
-import { CourseDetailsComponent } from './components/course-details-dialog/course-details-dialog.component';
+import { CourseDetailsComponent } from './shared/components/course-details-dialog/course-details-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip'; 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { SharedModule } from './shared/shared.module';
 
 
 export function appInitializer(authService: AuthService) {
@@ -56,7 +57,7 @@ export function appInitializer(authService: AuthService) {
     AppRoutingModule,
     FontAwesomeModule,
     MatPaginatorModule,
-    
+    SharedModule,
     FormsModule,
     ReactiveFormsModule, 
     HttpClientModule,

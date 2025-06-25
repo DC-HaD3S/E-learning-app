@@ -6,7 +6,7 @@ import { Observable, of } from 'rxjs';
 import { map, take, catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.services';
 import { UserRole } from '../enums/user-role.enum';
-import { AppState } from '../state/app.state';
+import { AppState } from '../store/app.state';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {

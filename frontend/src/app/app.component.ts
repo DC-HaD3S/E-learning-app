@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, NavigationStart } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { setRole } from './state/auth.actions';
+import { setRole } from './store/auth/auth.actions';
 import { UserRole } from './enums/user-role.enum';
 
 interface AppState {

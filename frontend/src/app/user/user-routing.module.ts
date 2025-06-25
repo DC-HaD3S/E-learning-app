@@ -1,24 +1,26 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from '../components/home/home.component';
+import { EnrolledCoursesComponent } from './components/enrolled-courses/enrolled-courses.component';
+import { AboutUsComponent } from '../shared/components/about-us/about-us.component';
+import { FeedbackDialogComponent } from './components/feedback/feedback-dialog.component';
 import { AuthGuard } from '../guards/auth.guards';
-import { EnrolledCoursesComponent } from '../components/enrolled-courses/enrolled-courses.component';
-import { AboutUsComponent } from '../components/about-us/about-us.component';
+
 const routes: Routes = [
-  { 
-    path: '', 
-    canActivate: [AuthGuard], 
+  {
+    path: '',
+    canActivate: [AuthGuard],
     data: { role: 'user' },
     children: [
-      { path: 'home', component: HomeComponent },
+      { path: '', redirectTo: 'enrolled', pathMatch: 'full' }, 
       { path: 'enrolled', component: EnrolledCoursesComponent },
-      {path : 'about-us', component: AboutUsComponent },
-    ]
-  }
+      { path: 'about-us', component: AboutUsComponent },
+      { path: 'feedback', component: FeedbackDialogComponent }, 
+    ],
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class UserRoutingModule { }
+export class UserRoutingModule {}
