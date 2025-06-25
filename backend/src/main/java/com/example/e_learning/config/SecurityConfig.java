@@ -35,8 +35,9 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) 
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/login", "/auth/signup","/feedback/course/{courseId}","/feedback/course/{courseId}/average-rating","/feedback/all	", "/course", "/auth/check-username", "/auth/check-email", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/auth/login", "/auth/signup","/feedback/course/{courseId}","/feedback/course/{courseId}/average-rating","/feedback/all", "/courses", "/auth/check-username", "/auth/check-email", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
@@ -53,6 +54,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(Arrays.asList("*")); 
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort'; 
+import { MatSort } from '@angular/material/sort';
+import { UserService } from 'src/app/services/user.service'; 
 
 
 interface RawEnrollment {
@@ -17,6 +18,8 @@ interface EnrolledUser {
   enrolledCourses: { courseId: number; courseName: string }[];
 }
 
+
+
 @Component({
   selector: 'app-enrolled-users',
   templateUrl: './enrolled-users.component.html',
@@ -28,14 +31,14 @@ export class EnrolledUsersComponent implements OnInit {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,private userService: UserService) {}
 
 
   ngOnInit(): void {
-    this.http.get<RawEnrollment[]>('http://localhost:8084/user/enrolled').subscribe({
+    this.userService.getEnrolledUsers().subscribe({
       next: (data) => {
         this.dataSource.data = this.groupEnrollmentsByUser(data);
-        this.dataSource.sort = this.sort; 
+        this.dataSource.sort = this.sort;
       },
       error: () => {
         console.error('Failed to load enrolled users');

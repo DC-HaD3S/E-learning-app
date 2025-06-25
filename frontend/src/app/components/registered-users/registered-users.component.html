@@ -19,13 +19,15 @@
   </div>
 
   <div class="users-grid" *ngIf="!error && sortedUsers.length > 0">
-    <app-details-card
+    <app-details-card 
       *ngFor="let user of sortedUsers"
       [title]="user.name || user.username"
       [details]="[
         'Email: ' + (user.email || 'N/A'),
         'Username: ' + user.username
-      ]">
+      ]"
+      [showDeleteButton]="true"
+      (delete)="openDeleteDialog(user)"> 
     </app-details-card>
   </div>
 

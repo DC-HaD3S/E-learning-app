@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input,Output,EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-details-card',
@@ -8,4 +8,7 @@ import { Component, Input } from '@angular/core';
 export class DetailsCardComponent {
   @Input() title: string = '';
   @Input() details: string[] = [];
+  @Output() delete = new EventEmitter<void>();
+  @Input() showDeleteButton: boolean = false;
+
 }

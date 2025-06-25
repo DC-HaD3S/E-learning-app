@@ -10,14 +10,17 @@
   import { FormsModule, ReactiveFormsModule } from '@angular/forms';
   import { DetailsCardComponent } from './details-card/details-card.component';
   import { CourseApplyDialogComponent } from '../components/course-apply-dialog/course-apply-dialog.component';
-
+import { MatIconModule } from '@angular/material/icon';
+import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
   @NgModule({
     declarations: [
       DetailsCardComponent,
-      CourseApplyDialogComponent
+      CourseApplyDialogComponent,
+      ConfirmDialogComponent
     ],
     imports: [
       CommonModule,
+      MatIconModule,
       MatCardModule,
       MatButtonModule,
       MatDialogModule,

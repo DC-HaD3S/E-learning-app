@@ -28,7 +28,7 @@ export class CourseService {
   ) {}
 
   getCourses(): Observable<Course[]> {
-    return this.http.get<Course[]>(`${this.apiUrl}/course`).pipe(
+    return this.http.get<Course[]>(`${this.apiUrl}/courses`).pipe(
       map(courses => courses || []),
       catchError(error => {
         console.error('Courses API Error:', error);
@@ -45,7 +45,7 @@ export class CourseService {
           this.snackBar.open('Please log in to add a course.', 'Close', { duration: 5000 });
           return throwError(() => new Error('User not authenticated'));
         }
-        return this.http.post<{ message: string, data: Course }>(`${this.apiUrl}/course`, course).pipe(
+        return this.http.post<{ message: string, data: Course }>(`${this.apiUrl}/courses`, course).pipe(
           catchError(error => {
             console.error('Add Course API Error:', error);
             this.snackBar.open(`Error adding course: ${error.error?.message || 'Unknown error'}`, 'Close', { duration: 5000 });
@@ -70,7 +70,7 @@ updateCourse(course: Course): Observable<{ message: string, data: Course }> {
         imageUrl: course.imageUrl
       };
 
-      return this.http.put<{ message: string, data: Course }>(`${this.apiUrl}/course/${course.id}`, courseDTO).pipe(
+      return this.http.put<{ message: string, data: Course }>(`${this.apiUrl}/courses/${course.id}`, courseDTO).pipe(
         catchError(error => {
           console.error('Update Course API Error:', error);
           this.snackBar.open(`Error updating course: ${error.error?.message || 'Unknown error'}`, 'Close', { duration: 5000 });
@@ -90,7 +90,7 @@ updateCourse(course: Course): Observable<{ message: string, data: Course }> {
           this.snackBar.open('Please log in to delete a course.', 'Close', { duration: 5000 });
           return throwError(() => new Error('User not authenticated'));
         }
-        return this.http.delete<{ message: string, data: null }>(`${this.apiUrl}/course/${courseId}`).pipe(
+        return this.http.delete<{ message: string, data: null }>(`${this.apiUrl}/courses/${courseId}`).pipe(
           catchError(error => {
             console.error('Delete Course API Error:', error);
             this.snackBar.open(`Error deleting course: ${error.error?.message || 'Unknown error'}`, 'Close', { duration: 5000 });
@@ -132,7 +132,7 @@ updateCourse(course: Course): Observable<{ message: string, data: Course }> {
             }
 
             const payload = { courseId };
-            return this.http.post<{ message: string }>(`${this.apiUrl}/user/apply-course`, payload).pipe(
+            return this.http.post<{ message: string }>(`${this.apiUrl}/users/apply-course`, payload).pipe(
               tap(() => {
                 this.enrollmentCache = null;
                 this.enrollmentRefresh$.next();
@@ -183,7 +183,7 @@ updateCourse(course: Course): Observable<{ message: string, data: Course }> {
 
         return this.enrollmentRefresh$.pipe(
           switchMap(() =>
-            this.http.get<Enrollment[]>(`${this.apiUrl}/course/enrolled-courses`).pipe(
+            this.http.get<Enrollment[]>(`${this.apiUrl}/courses/enrolled-courses`).pipe(
               map(enrollments => {
                 const cleaned = (enrollments || []).map(e => ({
                   username: e.username || '',

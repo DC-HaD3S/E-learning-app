@@ -4,6 +4,8 @@ import { AuthService } from 'src/app/services/auth.services';
 import { User } from '../../models/user.model';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-registered-users',
@@ -12,17 +14,19 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class RegisteredUsersComponent implements OnInit {
   users: User[] = [];
-  sortedUsers: User[] = []; 
+  sortedUsers: User[] = [];
   error: string | null = null;
-  sortField: string = 'name'; 
+  sortField: string = 'name';
   sortOrder: 'asc' | 'desc' = 'asc';
 
   constructor(
     private userService: UserService,
     private authService: AuthService,
     private router: Router,
-    private snackBar: MatSnackBar
-  ) {}
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
+
+  ) { }
 
   ngOnInit(): void {
     if (!this.authService.isLoggedIn()) {
@@ -38,8 +42,8 @@ export class RegisteredUsersComponent implements OnInit {
     this.userService.getAllUsers().subscribe({
       next: (users) => {
         this.users = users;
-        this.sortedUsers = [...users]; 
-        this.sortUsers(); 
+        this.sortedUsers = [...users];
+        this.sortUsers();
         this.error = null;
       },
       error: (err) => {
@@ -52,15 +56,51 @@ export class RegisteredUsersComponent implements OnInit {
     });
   }
 
+  deleteUser(user: User): void {
+    if (!user.email) {
+      this.snackBar.open('User email is missing. Cannot delete.', 'Close', { duration: 4000 });
+      return;
+    }
+
+
+    this.userService.deleteUserByEmail(user.email).subscribe({
+      next: (res) => {
+        this.snackBar.open(res.message, 'Close', { duration: 4000 });
+        this.users = this.users.filter(u => u.email !== user.email);
+        this.sortUsers();
+      },
+      error: (err) => {
+        const msg = err.message || 'Failed to delete user.';
+        this.snackBar.open(msg, 'Close', { duration: 4000 });
+      }
+    });
+  }
+  openDeleteDialog(user: User): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete ${user.username}?`
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deleteUser(user);
+      }
+    });
+  }
+
+
   sortUsers(): void {
-    this.sortedUsers = [...this.users]; 
+    this.sortedUsers = [...this.users];
     this.sortedUsers.sort((a, b) => {
       let valueA: string | undefined;
       let valueB: string | undefined;
 
       switch (this.sortField) {
         case 'name':
-          valueA = a.name || a.username || ''; 
+          valueA = a.name || a.username || '';
           valueB = b.name || b.username || '';
           break;
         case 'username':

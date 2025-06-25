@@ -11,11 +11,10 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = localStorage.getItem('token');
-    const isProtectedEndpoint = req.url.includes('/user/') ||
-      req.url.includes('/admin/') ||
+    const isProtectedEndpoint = req.url.includes('/users') ||
       req.url.includes('/auth/me') ||
       req.url.includes('/feedback/') ||
-      req.url.includes('/course/');
+      req.url.includes('/courses/');
 
     if (token && isProtectedEndpoint) {
       const cloned = req.clone({

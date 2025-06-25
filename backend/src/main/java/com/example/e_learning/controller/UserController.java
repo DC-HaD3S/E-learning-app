@@ -19,9 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Tag(name = "user")
+@Tag(name = "users")
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired private UserService userService;
@@ -45,7 +45,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/users")
+    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());

@@ -28,9 +28,9 @@ import com.example.e_learning.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "course")
+@Tag(name = "courses")
 @RestController
-@RequestMapping("/course")
+@RequestMapping("/courses")
 public class CourseController {
     @Autowired CourseService courseService;
     @Autowired private UserService userService;
