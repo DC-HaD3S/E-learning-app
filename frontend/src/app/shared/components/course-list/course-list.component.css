@@ -177,7 +177,6 @@ button[mat-stroked-button][color="primary"] {
   grid-column: 1 / -1;
 }
 
-/* Responsive adjustments */
 @media (max-width: 1024px) {
   .course-grid {
     grid-template-columns: repeat(auto-fit, minmax(280px, 340px));
@@ -220,4 +219,30 @@ button[mat-stroked-button][color="primary"] {
     width: 100%;
     max-width: none;
   }
+
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end; 
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+
+.pagination-controls button {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 }

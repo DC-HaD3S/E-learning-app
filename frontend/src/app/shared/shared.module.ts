@@ -15,20 +15,17 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
-import { MatOptionModule } from '@angular/material/core'; // For mat-option
-
-
-import { MatProgressBarModule } from '@angular/material/progress-bar'; // If progress bars are used
-
-// Components
+import { MatOptionModule } from '@angular/material/core'; 
+import { MatProgressBarModule } from '@angular/material/progress-bar'; 
 import { DetailsCardComponent } from './components/details-card/details-card.component';
-import { CourseApplyDialogComponent } from '../user/components/course-apply-dialog/course-apply-dialog.component';
+import { CourseApplyDialogComponent } from '../modules/user/components/course-apply-dialog/course-apply-dialog.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   declarations: [
     DetailsCardComponent,
     CourseApplyDialogComponent,
+    
     ConfirmDialogComponent,
   ],
   imports: [

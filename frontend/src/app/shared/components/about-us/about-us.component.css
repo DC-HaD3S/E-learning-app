@@ -1,24 +1,23 @@
 :root {
-  --primary-color: #6b21a8; /* Vibrant purple */
+  --primary-color: #6b21a8; 
   --primary-light: #f3e8ff;
   --primary-dark: #4c1d95;
-  --accent-color: #f472b6; /* Bright pink accent */
+  --accent-color: #f472b6; 
   --text-dark: #1f2937;
   --text-medium: #4b5563;
   --text-light: #9ca3af;
   --white: #ffffff;
   --light-gray: #f9fafb;
-  --sky-light: #a78bfa; /* Soft purple */
-  --sky-dark: #60a5fa; /* Soft blue */
+  --sky-light: #a78bf
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
   --shadow-lg: 0 12px 20px rgba(0, 0, 0, 0.15);
   --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  --main-gradient: linear-gradient(180deg, #ede9fe 0%, #dbeafe 50%, #f3e8ff 100%); /* Smooth, colorful gradient */
-  --card-gradient: linear-gradient(45deg, #ffffff 0%, #f9faff 100%); /* Subtle card gradient */
+  --main-gradient: linear-gradient(180deg, #ede9fe 0%, #dbeafe 50%, #f3e8ff 100%); 
+  --card-gradient: linear-gradient(45deg, #ffffff 0%, #f9faff 100%); 
   --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  --page-gradient: linear-gradient(135deg, var(--sky-light), var(--sky-dark)); /* Hero-inspired gradient */
-  --card-gradient: linear-gradient(45deg, #ffffff 0%, var(--sky-light) 100%); /* Mission card gradient */
+  --page-gradient: linear-gradient(135deg, var(--sky-light), var(--sky-dark));
+  --card-gradient: linear-gradient(45deg, #ffffff 0%, var(--sky-light) 100%); 
 }
 
 body {
@@ -36,7 +35,6 @@ body {
   padding: 0 1.5rem;
 }
 
-/* Hero Section */
 .hero {
   background: var(--page-gradient) !important;
   color: var(--white);
@@ -63,7 +61,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.05); /* Subtle overlay for depth */
+  background: rgba(0, 0, 0, 0.05); 
   z-index: 0;
 }
 
@@ -138,7 +136,6 @@ body {
 }
 
 
-/* Values Section */
 .values {
   background: linear-gradient(180deg, #f3e8ff 0%, #dbeafe 100%) !important;
   position: relative;
@@ -181,7 +178,6 @@ body {
   font-size: 1rem;
 }
 
-/* Team Section */
 .team {
   background: linear-gradient(180deg, #dbeafe 0%, #f3e8ff 100%) !important;
 }
@@ -251,7 +247,6 @@ body {
   font-weight: 500;
 }
 
-/* Footer */
 .footer {
   background:  var(--sky-light) !important;
   color: var(--white);
@@ -265,17 +260,16 @@ body {
   opacity: 0.9;
 }
 
-/* Button */
 button.custom-button {
-  background: linear-gradient(45deg, #6b21a8, #4c1d95) !important; /* --primary-color, --primary-dark */
-  color: #ffffff !important; /* --white */
+  background: linear-gradient(45deg, #6b21a8, #4c1d95) !important; 
+  color: #ffffff !important; 
   padding: 0.75rem 2rem !important;
   font-size: 0.9rem !important;
   font-weight: 600 !important;
   border-radius: 50px !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important; /* --shadow-sm */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
   border: none !important;
   cursor: pointer !important;
@@ -286,13 +280,13 @@ button.custom-button {
 
 button.custom-button:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12) !important; /* --shadow-md */
-  color: #ffffff !important; /* --white */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12) !important; 
+  color: #ffffff !important; 
 }
 
 button.custom-button:active {
   transform: translateY(0) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important; /* --shadow-sm */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important; 
 }
 
 button.custom-button:focus {
@@ -301,7 +295,6 @@ button.custom-button:focus {
 }
 
 
-/* Animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -374,19 +367,16 @@ button.custom-button:focus {
   }
 }
 
-/* Enhanced hover transitions for all interactive elements */
 mat-card, .custom-button, .team-card, .value-card {
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Values Card hover */
 .value-card:hover {
   transform: translateY(-8px) scale(1.02);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
   background: linear-gradient(45deg, var(--sky-light) 0%, #ffffff 100%) !important;
 }
 
-/* Team Card hover */
 .team-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
@@ -398,13 +388,11 @@ mat-card, .custom-button, .team-card, .value-card {
   border-color: var(--primary-color);
 }
 
-/* Button hover */
 .custom-button:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Grid tile hover effects */
 mat-grid-tile:hover .value-card {
   transform: translateY(-8px);
 }
@@ -413,7 +401,6 @@ mat-grid-tile:hover .team-card {
   transform: translateY(-8px);
 }
 
-/* Smooth image transitions */
 img {
   transition: transform 0.4s ease, border-color 0.4s ease;
 }

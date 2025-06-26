@@ -6,18 +6,18 @@ import { Router } from '@angular/router';
 import { Observable, of, combineLatest, Subject, BehaviorSubject } from 'rxjs';
 import { take, catchError, map, switchMap, tap, shareReplay, takeUntil } from 'rxjs/operators';
 
-import { Course } from 'src/app/models/course.model';
-import { Feedback } from 'src/app/models/feedback.model';
+import { Course } from 'src/app/shared/models/course.model';
+import { Feedback } from 'src/app/shared/models/feedback.model';
 import { UserRole } from 'src/app/enums/user-role.enum';
 import { AppState } from 'src/app/store/app.state';
 
-import { CourseApplyDialogComponent } from '../../../user/components/course-apply-dialog/course-apply-dialog.component';
+import { CourseApplyDialogComponent } from 'src/app/modules/user/components/course-apply-dialog/course-apply-dialog.component';
 import { loadCourses } from 'src/app/store/course/course.actions';
 import { selectCourses, selectCourseError, selectEnrollments, selectCourseById } from 'src/app/store/course/course.selectors';
 
-import { CourseService } from 'src/app/services/course.service';
-import { FeedbackService } from 'src/app/services/feedback.service';
-import { AuthService } from 'src/app/services/auth.services';
+import { CourseService } from 'src/app/shared/services/course.service';
+import { FeedbackService } from 'src/app/shared/services/feedback.service';
+import { AuthService } from 'src/app/auth/auth.services';
 import { faStar as solidStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons';
 import { faStar as emptyStar } from '@fortawesome/free-regular-svg-icons';
 
@@ -50,8 +50,8 @@ export class CourseListComponent implements OnInit, OnDestroy {
   private averageRatingCache = new Map<number, Observable<number>>();
   private destroy$ = new Subject<void>();
   solidStar = solidStar;
-faStarHalfAlt = faStarHalfAlt;
-emptyStar = emptyStar;
+  faStarHalfAlt = faStarHalfAlt;
+  emptyStar = emptyStar;
 
   private enrollmentRefresh$ = new BehaviorSubject<{ courseId: number | null }>({ courseId: null });
   loadingEnrollments = new Map<number, boolean>();
@@ -138,18 +138,18 @@ emptyStar = emptyStar;
     ).subscribe();
   }
 
-getStarIcon(rating: number, index: number) {
-  if (rating >= index) return solidStar;
-  if (rating >= index - 0.5) return faStarHalfAlt;
-  return emptyStar;
-}
-
-getStarColor(rating: number, index: number): string {
-  if (rating >= index || rating >= index - 0.5) {
-    return 'gold';
+  getStarIcon(rating: number, index: number) {
+    if (rating >= index) return solidStar;
+    if (rating >= index - 0.5) return faStarHalfAlt;
+    return emptyStar;
   }
-  return '#d1d5db';
-}
+
+  getStarColor(rating: number, index: number): string {
+    if (rating >= index || rating >= index - 0.5) {
+      return 'gold';
+    }
+    return '#d1d5db';
+  }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -326,15 +326,42 @@ getStarColor(rating: number, index: number): string {
     return course.id ?? index;
   }
   getStarType(rating: number, index: number): 'full' | 'half' | 'empty' {
-  if (rating >= index) {
-    return 'full';
-  } else if (rating >= index - 0.5) {
-    return 'half';
-  } else {
-    return 'empty';
+    if (rating >= index) {
+      return 'full';
+    } else if (rating >= index - 0.5) {
+      return 'half';
+    } else {
+      return 'empty';
+    }
   }
-}
 
+  pageSize = 9;
+  currentPage = 0;
+
+  get pagedCourses(): Course[] {
+    const start = this.currentPage * this.pageSize;
+    return this.sortedCourses.slice(start, start + this.pageSize);
+  }
+
+
+  get totalPages(): number {
+    return Math.ceil(this.sortedCourses.length / this.pageSize);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.cdr.detectChanges();
+
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.cdr.detectChanges();
+    }
+  }
 
   private resetCourseLists(): void {
     this.originalCourses = [];

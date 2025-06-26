@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { CourseService } from '../../services/course.service';
-import { AuthService } from '../../services/auth.services';
+import { CourseService } from '../../shared/services/course.service';
+import { AuthService } from '../../auth/auth.services';
 import { of } from 'rxjs';
 import { map, mergeMap, catchError, withLatestFrom, filter, switchMap, take } from 'rxjs/operators';
 import {

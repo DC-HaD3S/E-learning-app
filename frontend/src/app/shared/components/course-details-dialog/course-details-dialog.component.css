@@ -1,7 +1,7 @@
 :root {
   --star-size: 1.75rem;
-  --star-color: #FFD700; /* Gold */
-  --star-empty-color: #d1d5db; /* Light Gray */
+  --star-color: #FFD700; 
+  --star-empty-color: #d1d5db; 
   --accent-color: #3b82f6;
   --text-dark: #1f2937;
   --text-light: #6b7280;
@@ -182,7 +182,6 @@ h2 {
   content: "💰 ";
 }
 
-/* Button Styles - Specific and Forceful */
 .actions-container {
   display: flex;
   justify-content: space-between;
@@ -197,7 +196,6 @@ h2 {
   display: flex;
   gap: 10px;
 }
-/* Back to Courses button */
 .actions-container button.mat-button {
   color: var(--text-medium) !important;
   background-color: transparent !important;
@@ -214,7 +212,6 @@ h2 {
   transform: translateX(-3px) !important;
 }
 
-/* Apply button - Force override of Material styles */
 .actions-container button.mat-raised-button.mat-primary {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
   color: white !important;
@@ -233,7 +230,6 @@ h2 {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)) !important;
 }
 
-/* Feedback Section */
 .feedback-table-container {
   max-width: 1200px;
   margin: 2rem auto;
@@ -284,7 +280,6 @@ mat-form-field {
   border-bottom: none;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .page-container, .feedback-table-container {
     padding: 1.5rem;

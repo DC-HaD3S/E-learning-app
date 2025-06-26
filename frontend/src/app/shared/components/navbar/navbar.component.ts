@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { UserRole } from '../../../enums/user-role.enum';
 import { AppState } from '../../../store/app.state';
-import { AuthService } from 'src/app/services/auth.services';
+import { AuthService } from 'src/app/auth/auth.services';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { clearRole, setUserDetails } from 'src/app/store/auth/auth.actions';
 
@@ -28,7 +28,7 @@ export class NavbarComponent {
     this.isAuthenticated$ = this.authService.isAuthenticated$();
     this.role$ = this.store.select(state => state.auth.role);
     this.username$ = this.store.select(state => state.auth.user?.username).pipe(
-      map(username => username || 'User') // Fallback to 'User' in TypeScript
+      map(username => username || 'User') 
     );
   }
 
@@ -45,7 +45,7 @@ export class NavbarComponent {
   }
 
   goToAboutUs(): void {
-    this.router.navigate(['/user/about-us']);
+    this.router.navigate(['/about-us']);
   }
 
   goToAdminEnrolled(): void {

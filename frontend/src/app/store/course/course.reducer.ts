@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
-import { Course } from '../../models/course.model';
-import { Enrollment } from '../../models/enrollment.model';
+import { Course } from '../../shared/models/course.model';
+import { Enrollment } from '../../shared/models/enrollment.model';
 import {
   loadCourses, loadCoursesSuccess, loadCoursesFailure,
   addCourse, updateCourse, deleteCourse,

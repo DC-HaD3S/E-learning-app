@@ -1,7 +1,7 @@
 
 import { createAction, props } from '@ngrx/store';
 import { UserRole } from 'src/app/enums/user-role.enum';
-import { UserDetails } from 'src/app/services/auth.services';
+import { UserDetails } from 'src/app/auth/auth.services';
 
 export const setRole = createAction(
   '[Auth] Set Role',

@@ -1,8 +1,8 @@
 
-import { UserDetails } from '../services/auth.services';
+import { UserDetails } from '../auth/auth.services';
 import { UserRole } from '../enums/user-role.enum';
-import { Course } from '../models/course.model';
-import { Enrollment } from '../models/enrollment.model';
+import { Course } from '../shared/models/course.model';
+import { Enrollment } from '../shared/models/enrollment.model';
 
 
 export interface CourseState {

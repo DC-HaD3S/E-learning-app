@@ -6,6 +6,7 @@
       <ng-container *ngIf="role$ | async as role">
         <!-- Admin Buttons -->
         <ng-container *ngIf="role === 'admin'">
+          <button mat-button (click)="goToAboutUs()">About Us</button>
           <button mat-button (click)="goToRegisteredUsers()">Registered Users</button>
           <button mat-button (click)="goToAdminFeedbacks()">Feedbacks</button>
           <button mat-button (click)="goToAdminEnrolled()">Enrolled</button>

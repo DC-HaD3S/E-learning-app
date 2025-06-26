@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
-import { Course } from 'src/app/models/course.model';
-import { Enrollment } from 'src/app/models/enrollment.model';
+import { Course } from 'src/app/shared/models/course.model';
+import { Enrollment } from 'src/app/shared/models/enrollment.model';
 
 export const loadCourses = createAction('[Courses] Load Courses');
 export const loadCoursesSuccess = createAction('[Courses] Load Courses Success', props<{ courses: Course[] }>());

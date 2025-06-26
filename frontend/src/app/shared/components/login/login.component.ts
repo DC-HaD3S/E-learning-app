@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatDialog } from '@angular/material/dialog';
-import { AuthService } from 'src/app/services/auth.services';
+import { AuthService } from 'src/app/auth/auth.services';
 
 @Component({
   selector: 'app-login',

@@ -4,17 +4,17 @@ import { Observable, combineLatest, of, Subject } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from '../../../store/app.state';
 import { UserRole } from '../../../enums/user-role.enum';
-import { Course } from '../../../models/course.model';
-import { Feedback } from '../../../models/feedback.model';
-import { FeedbackService } from '../../../services/feedback.service';
-import { CourseService } from '../../../services/course.service';
+import { Course } from '../../models/course.model';
+import { Feedback } from '../../models/feedback.model';
+import { FeedbackService } from '../../services/feedback.service';
+import { CourseService } from '../../services/course.service';
 import { selectCourseById, selectEnrollments } from '../../../store/course/course.selectors';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { CourseApplyDialogComponent } from '../../../user/components/course-apply-dialog/course-apply-dialog.component';
-import { FeedbackDialogComponent } from '../../../user/components/feedback/feedback-dialog.component';
+import { CourseApplyDialogComponent } from 'src/app/modules/user/components/course-apply-dialog/course-apply-dialog.component';
+import { FeedbackDialogComponent } from 'src/app/modules/user/components/feedback/feedback-dialog.component';
 import { map, tap, switchMap, catchError, take, takeUntil } from 'rxjs/operators';
 
 @Component({
