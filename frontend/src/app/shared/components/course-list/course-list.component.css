@@ -4,6 +4,7 @@
   padding: 2px;
 }
 
+
 .sort-container {
   display: flex;
   gap: 16px;
@@ -201,6 +202,11 @@ button[mat-stroked-button][color="primary"] {
   }
 }
 
+
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
 @media (max-width: 480px) {
   .course-grid {
     grid-template-columns: 1fr; 
@@ -219,14 +225,12 @@ button[mat-stroked-button][color="primary"] {
     width: 100%;
     max-width: none;
   }
-
 .pagination-controls {
   display: flex;
-  justify-content: flex-end; 
-  align-items: center;
+  justify-content: center; 
   gap: 12px;
-  margin-top: 24px;
-  margin-bottom: 16px;
+  margin-top: 10px;
+  margin-bottom: 0px;
 }
 
 
@@ -239,10 +243,4 @@ button[mat-stroked-button][color="primary"] {
   border-radius: 4px;
   cursor: pointer;
 }
-
-.pagination-controls button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
 }

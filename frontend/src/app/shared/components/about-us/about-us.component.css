@@ -8,7 +8,7 @@
   --text-light: #9ca3af;
   --white: #ffffff;
   --light-gray: #f9fafb;
-  --sky-light: #a78bf
+  --sky-light: #a78bff;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
   --shadow-lg: 0 12px 20px rgba(0, 0, 0, 0.15);
@@ -94,7 +94,6 @@ body {
   max-width: 90%;
 }
 
-/* Sections */
 .section {
   padding: 5rem 1rem;
 }

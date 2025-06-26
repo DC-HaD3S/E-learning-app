@@ -18,8 +18,6 @@ interface EnrolledUser {
   enrolledCourses: { courseId: number; courseName: string }[];
 }
 
-
-
 @Component({
   selector: 'app-enrolled-users',
   templateUrl: './enrolled-users.component.html',

@@ -12,12 +12,7 @@
 
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search Courses</mat-label>
-      <input
-        matInput
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="filterCourses()"
-        placeholder="Enter course name"
-      />
+      <input matInput [(ngModel)]="searchQuery" (ngModelChange)="filterCourses()" placeholder="Enter course name" />
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
   </div>
@@ -48,10 +43,7 @@
             <span class="star-rating">
               <ng-container *ngIf="getAverageRating$(course.id) | async as rating; else noRating">
                 <ng-container *ngFor="let i of [1, 2, 3, 4, 5]">
-                  <fa-icon
-                    [icon]="getStarIcon(rating, i)"
-                    [ngStyle]="{ color: getStarColor(rating, i) }"
-                  ></fa-icon>
+                  <fa-icon [icon]="getStarIcon(rating, i)" [ngStyle]="{ color: getStarColor(rating, i) }"></fa-icon>
                 </ng-container>
                 <span>({{ rating | number: '1.1-1' }}/5)</span>
               </ng-container>
@@ -69,9 +61,9 @@
         <p class="price">
           Price:
           {{
-            course.price != null
-              ? (course.price === 0 ? 'Free' : 'Rs.' + course.price)
-              : 'N/A'
+          course.price != null
+          ? (course.price === 0 ? 'Free' : 'Rs.' + course.price)
+          : 'N/A'
           }}
         </p>
       </mat-card-content>
@@ -92,16 +84,17 @@
         </button>
       </mat-card-actions>
     </mat-card>
+
+  </div>
       <div class="pagination-controls" *ngIf="totalPages > 1">
-    <button mat-button (click)="prevPage()" [disabled]="currentPage === 0">
-      Previous
-    </button>
-    <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
-    <button mat-button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">
-      Next
-    </button>
-  </div>
-  </div>
+      <button mat-button (click)="prevPage()" [disabled]="currentPage === 0">
+        Previous
+      </button>
+      <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button mat-button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">
+        Next
+      </button>
+    </div>
 
 
 </div>

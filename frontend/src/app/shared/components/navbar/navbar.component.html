@@ -4,7 +4,6 @@
   <div class="nav-buttons">
     <div *ngIf="isAuthenticated$ | async; else notLoggedIn">
       <ng-container *ngIf="role$ | async as role">
-        <!-- Admin Buttons -->
         <ng-container *ngIf="role === 'admin'">
           <button mat-button (click)="goToAboutUs()">About Us</button>
           <button mat-button (click)="goToRegisteredUsers()">Registered Users</button>
@@ -13,14 +12,12 @@
           <button mat-button (click)="goToAdminManageCourses()">Manage Courses</button>
         </ng-container>
         
-        <!-- User Buttons -->
         <ng-container *ngIf="role === 'user'">
           <button mat-button (click)="goToAboutUs()">About Us</button>
           <button mat-button (click)="goToUserEnrolled()">Enrolled Courses</button>
         </ng-container>
       </ng-container>
       
-      <!-- Custom Dropdown for Username -->
       <div class="username-container">
         <button mat-button class="username-button" [attr.aria-label]="'User menu for ' + (username$ | async)">
           {{ username$ | async }}
