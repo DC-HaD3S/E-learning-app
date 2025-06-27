@@ -75,12 +75,13 @@
             <mat-option value="comments">Comments</mat-option>
           </mat-select>
         </mat-form-field>
-        <button mat-icon-button (click)="toggleSortOrder()"
+        
+      </div>
+      <button mat-icon-button (click)="toggleSortOrder()"
           matTooltip="{{ sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending' }}"
           aria-label="Toggle sort order">
           <mat-icon>{{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
         </button>
-      </div>
     </div>
     <table mat-table [dataSource]="dataSource" matSort class="mat-table" aria-label="Feedback table">
       <!-- Username Column -->
