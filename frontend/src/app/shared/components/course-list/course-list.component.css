@@ -34,47 +34,56 @@
   margin-top: 8px;
 }
 
-/* Main Container */
 .search-sort-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 32px; /* Increased gap */
+  gap: 32px;
   margin-bottom: 24px;
   align-items: center;
 }
 
-/* Sort Field - Narrower */
 .sort-field {
-  flex: 0 0 180px; /* Fixed narrow width */
+  flex: 0 0 180px;
   min-width: 160px;
 }
 
-/* Search Field - Wider */
 .search-field {
-  flex: 1 1 700px; /* Much wider flexible width */
+  flex: 1 1 700px;
   min-width: 300px;
 }
 
-/* Extra width for the search input */
 .wide-search {
   width: 100%;
 }
 
-/* Responsive Behavior */
 @media (max-width: 992px) {
   .search-sort-container {
     gap: 24px;
   }
+
   .search-field {
     flex-basis: 500px;
+  }
+
+  .sort-search-wrapper {
+    gap: 24px;
   }
 }
 
 @media (max-width: 768px) {
+  mat-card-actions {
+    align-items: stretch;
+  }
+
+  button[mat-raised-button],
+  button[mat-stroked-button] {
+    width: 100%;
+  }
+
   .search-sort-container {
-    flex-direction: column;
     gap: 16px;
   }
+
   .sort-field,
   .search-field {
     width: 100%;
@@ -82,52 +91,34 @@
   }
 }
 
-/* Material Design Adjustments */
-::ng-deep .mat-form-field-appearance-outline .mat-form-field-flex {
-  height: 44px;
-  align-items: center;
-}
 
-
-/* Form field consistency */
 .sort-field mat-form-field,
 .search-field mat-form-field {
   width: 100%;
   display: block;
 }
 
-/* Responsive behavior */
-@media (max-width: 992px) {
-  .sort-search-wrapper {
-    gap: 24px;
-  }
-}
 
-@media (max-width: 768px) {
-  .sort-search-wrapper {
-    flex-direction: row;
-    gap: 16px;
-  }
-  
-  .sort-field,
-  .search-field {
-    flex: 1 1 auto;
-    min-width: 100%;
-  }
-}
+
 
 @media (max-width: 480px) {
+  .pagination-controls {
+    gap: 8px;
+  }
+
+  .pagination-controls button {
+    width: 100%;
+  }
+
   .sort-search-wrapper {
-    flex-direction: column;
     gap: 12px;
   }
-  
+
   .title {
     font-size: 20px;
   }
 }
 
-/* Course Grid Styles */
 .course-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -239,45 +230,4 @@ button[mat-stroked-button] {
   min-width: 100px;
 }
 
-@media (max-width: 768px) {
-  mat-card-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
 
-  button[mat-raised-button],
-  button[mat-stroked-button] {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .pagination-controls {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .pagination-controls button {
-    width: 100%;
-  }
-}
-
-/* Enhanced Material Inputs */
-::ng-deep .mat-form-field-appearance-outline .mat-form-field-flex {
-  height: 44px;
-  align-items: center;
-}
-
-::ng-deep .mat-form-field-appearance-outline .mat-form-field-infix {
-  padding: 0 12px;
-}
-
-::ng-deep .mat-form-field-label {
-  font-size: 13px;
-  top: 1.2em;
-}
-
-::ng-deep .mat-input-element {
-  font-size: 14px;
-  padding: 4px 0;
-}
