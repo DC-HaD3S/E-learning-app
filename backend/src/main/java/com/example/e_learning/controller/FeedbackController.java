@@ -92,23 +92,16 @@ public class FeedbackController {
 
     @GetMapping("/course/{courseId}")
     public ResponseEntity<List<FeedbackDTO>> getFeedbacksByCourseId(@PathVariable Long courseId) {
-        try {
+        
             return ResponseEntity.ok(feedbackService.getFeedbacksByCourseId(courseId));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
+        } 
 
     @GetMapping("/course/{courseId}/average-rating")
     public ResponseEntity<Double> getAverageRatingByCourseId(@PathVariable Long courseId) {
-        try {
+
             Double averageRating = feedbackService.getAverageRatingByCourseId(courseId);
             return ResponseEntity.ok(averageRating);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(0.0);
-        }
+
     }
 
 }

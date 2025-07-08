@@ -1,17 +1,15 @@
 package com.example.e_learning.dto;
 
 public class InstructorApplicationDTO {
-
-    private String name;
-
-
-    private String email;
-    private String courses;
-	private String qualifications;
-	
-    private int experience;
     private Long id;
+    private String name;
+    private String email;
+    private String qualifications;
+    private int experience;
+    private String courses;
+    private boolean approved;
 
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -23,13 +21,7 @@ public class InstructorApplicationDTO {
     public String getName() {
         return name;
     }
-    public String getCourses() {
-		return courses;
-	}
 
-	public void setCourses(String courses) {
-		this.courses = courses;
-	}
     public void setName(String name) {
         this.name = name;
     }
@@ -56,5 +48,21 @@ public class InstructorApplicationDTO {
 
     public void setExperience(int experience) {
         this.experience = experience;
+    }
+
+    public String getCourses() {
+        return courses;
+    }
+
+    public void setCourses(String courses) {
+        this.courses = courses;
+    }
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
     }
 }

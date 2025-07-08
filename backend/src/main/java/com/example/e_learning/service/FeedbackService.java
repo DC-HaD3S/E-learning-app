@@ -19,8 +19,10 @@ public class FeedbackService {
 
     @Autowired
     private FeedbackRepository feedbackRepository;
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private CourseRepository courseRepository;
 
@@ -33,14 +35,10 @@ public class FeedbackService {
         }
 
         User user = userRepository.findByUsername(feedbackDTO.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + feedbackDTO.getUsername()));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + feedbackDTO.getUsername()));
 
         Course course = courseRepository.findById(feedbackDTO.getCourseId())
-                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + feedbackDTO.getCourseId()));
-
-        if (!courseRepository.existsById(feedbackDTO.getCourseId())) {
-            throw new IllegalArgumentException("Course ID " + feedbackDTO.getCourseId() + " does not exist in database");
-        }
+                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + feedbackDTO.getCourseId()));
 
         Feedback feedback = new Feedback();
         feedback.setUser(user);
@@ -66,18 +64,17 @@ public class FeedbackService {
         }
 
         Feedback feedback = feedbackRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Feedback not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Feedback not found with ID: " + id));
+
+        User user = userRepository.findByUsername(feedbackDTO.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + feedbackDTO.getUsername()));
 
         if (!feedback.getUser().getUsername().equals(feedbackDTO.getUsername())) {
             throw new IllegalArgumentException("You can only update your own feedback");
         }
 
         Course course = courseRepository.findById(feedbackDTO.getCourseId())
-                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + feedbackDTO.getCourseId()));
-
-        if (!courseRepository.existsById(feedbackDTO.getCourseId())) {
-            throw new IllegalArgumentException("Course ID " + feedbackDTO.getCourseId() + " does not exist in database");
-        }
+                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + feedbackDTO.getCourseId()));
 
         feedback.setCourse(course);
         feedback.setRating(feedbackDTO.getRating());
@@ -94,12 +91,12 @@ public class FeedbackService {
 
     public void deleteFeedback(Long id, String username) {
         Feedback feedback = feedbackRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Feedback not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Feedback not found with ID: " + id));
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + username));
 
-        if (!feedback.getUser().getUsername().equals(username) && !user.getRole().equals("ADMIN")) {
+        if (!feedback.getUser().getUsername().equals(username) && !user.getRole().equalsIgnoreCase("ADMIN")) {
             throw new IllegalArgumentException("You can only delete your own feedback or must be an admin");
         }
 
@@ -111,47 +108,55 @@ public class FeedbackService {
     }
 
     public List<FeedbackDTO> getAllFeedbacks() {
-        List<Feedback> feedbacks = feedbackRepository.findAll();
-        return feedbacks.stream().map(feedback -> {
-            FeedbackDTO dto = new FeedbackDTO();
-            dto.setId(feedback.getId());
-            dto.setUsername(feedback.getUser().getUsername());
-            dto.setCourseName(feedback.getCourse().getTitle());
-            dto.setCourseId(feedback.getCourse().getId());
-            dto.setRating(feedback.getRating());
-            dto.setComments(feedback.getComments());
-            return dto;
-        }).collect(Collectors.toList());
+        try {
+            return feedbackRepository.findAll().stream()
+                    .map(this::mapToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve feedbacks: " + e.getMessage(), e);
+        }
     }
 
     public List<FeedbackDTO> getFeedbacksByCourseId(Long courseId) {
-        return feedbackRepository.findByCourseId(courseId).stream().map(feedback -> {
-            FeedbackDTO dto = new FeedbackDTO();
-            dto.setId(feedback.getId());
-            dto.setUsername(feedback.getUser().getUsername());
-            dto.setCourseName(feedback.getCourse().getTitle());
-            dto.setCourseId(feedback.getCourse().getId());
-            dto.setRating(feedback.getRating());
-            dto.setComments(feedback.getComments());
-            return dto;
-        }).collect(Collectors.toList());
+        courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + courseId));
+
+        try {
+            return feedbackRepository.findByCourseId(courseId).stream()
+                    .map(this::mapToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve course feedbacks: " + e.getMessage(), e);
+        }
     }
 
     public List<FeedbackDTO> getAllFeedbacksByCourseId(Long courseId) {
-        return feedbackRepository.findByCourseId(courseId).stream().map(feedback -> {
-            FeedbackDTO dto = new FeedbackDTO();
-            dto.setId(feedback.getId());
-            dto.setUsername(feedback.getUser().getUsername());
-            dto.setCourseName(feedback.getCourse().getTitle());
-            dto.setCourseId(feedback.getCourse().getId());
-            dto.setRating(feedback.getRating());
-            dto.setComments(feedback.getComments());
-            return dto;
-        }).collect(Collectors.toList());
+        try {
+            return feedbackRepository.findByCourseId(courseId).stream()
+                    .map(this::mapToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve feedbacks by course: " + e.getMessage(), e);
+        }
     }
 
     public Double getAverageRatingByCourseId(Long courseId) {
-        Double averageRating = feedbackRepository.findAverageRatingByCourseId(courseId);
-        return averageRating != null ? averageRating : 0.0;
+        try {
+            Double averageRating = feedbackRepository.findAverageRatingByCourseId(courseId);
+            return averageRating != null ? averageRating : 0.0;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to calculate average rating: " + e.getMessage(), e);
+        }
+    }
+
+    private FeedbackDTO mapToDTO(Feedback feedback) {
+        FeedbackDTO dto = new FeedbackDTO();
+        dto.setId(feedback.getId());
+        dto.setUsername(feedback.getUser().getUsername());
+        dto.setCourseName(feedback.getCourse().getTitle());
+        dto.setCourseId(feedback.getCourse().getId());
+        dto.setRating(feedback.getRating());
+        dto.setComments(feedback.getComments());
+        return dto;
     }
 }

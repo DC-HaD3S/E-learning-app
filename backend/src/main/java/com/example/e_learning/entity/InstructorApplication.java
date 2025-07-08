@@ -12,14 +12,15 @@ public class InstructorApplication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String email;
     private String qualifications;
     private int experience;
     private String courses;
-    
+    private boolean approved;
 
-	@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -64,6 +65,22 @@ public class InstructorApplication {
         this.experience = experience;
     }
 
+    public String getCourses() {
+        return courses;
+    }
+
+    public void setCourses(String courses) {
+        this.courses = courses;
+    }
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
+    }
+
     public User getUser() {
         return user;
     }
@@ -71,11 +88,4 @@ public class InstructorApplication {
     public void setUser(User user) {
         this.user = user;
     }
-    public void setCourses(String courses) {
-		this.courses = courses;
-	}
-
-	public String getCourses() {
-		return courses;
-	}
 }

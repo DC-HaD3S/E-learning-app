@@ -3,7 +3,6 @@ package com.example.e_learning.service;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,9 +20,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
-    private final UserRepository userRepository;
+   private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-  
 
     public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -50,10 +48,10 @@ public class UserService implements UserDetailsService {
         String role = signupRequest.getRole();
         if (role == null || role.trim().isEmpty()) {
             role = "USER"; 
-        } else if (!role.equals("USER") && !role.equals("ADMIN")) {
-            throw new IllegalArgumentException("Invalid role: must be 'USER' or 'ADMIN'");
-        } else if (role.equals("ADMIN")) {
-            throw new IllegalArgumentException("Admin registration is not allowed via this endpoint");
+        } else if (!role.equals("USER") && !role.equals("ADMIN") && !role.equals("INSTRUCTOR")) {
+            throw new IllegalArgumentException("Invalid role: must be 'USER', 'ADMIN', or 'INSTRUCTOR'");
+        } else if (role.equals("ADMIN") || role.equals("INSTRUCTOR")) {
+            throw new IllegalArgumentException("Admin or Instructor registration is not allowed via this endpoint");
         }
 
         User user = new User();
@@ -89,8 +87,6 @@ public class UserService implements UserDetailsService {
         }).collect(Collectors.toList());
     }
 
-
-
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
@@ -111,12 +107,13 @@ public class UserService implements UserDetailsService {
                 user.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase())));
     }
+
     @Transactional
     public void updateUserDetails(String email, UserDTO updatedUser) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        user.setName(updatedUser.getName());
+        user.setName(updatedUser.getName()); 
         user.setUsername(updatedUser.getUsername());
         if (!updatedUser.getEmail().equals(user.getEmail())) {
             throw new IllegalArgumentException("Email updates are not allowed.");
@@ -135,5 +132,4 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         userRepository.delete(user);
     }
-
 }
