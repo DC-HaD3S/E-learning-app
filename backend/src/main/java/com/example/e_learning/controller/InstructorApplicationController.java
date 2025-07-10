@@ -25,7 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 
-@Tag(name = "instructor")
+@Tag(name = "instructor", description = "Endpoints for managing instructor applications and approvals")
 @RestController
 @RequestMapping("/instructor")
 public class InstructorApplicationController {

@@ -20,10 +20,14 @@ import com.example.e_learning.service.JwtService;
 import com.example.e_learning.service.UserService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 
-
-@Tag(name = "auth")
+@Tag(name = "auth", description = "Authentication and user registration endpoints")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -32,8 +36,22 @@ public class AuthController {
     @Autowired private JwtService jwtService;
     @Autowired private UserService userService;
 
+    @Operation(
+        summary = "User login",
+        description = "Authenticates a user with username and password, returning a JWT token upon successful authentication.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Authentication successful, JWT token returned", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: Incorrect username or password", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "Server error", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+        }
+    )
     @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest request) {
+    public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody 
+        @Parameter(description = "Login credentials containing username and password", required = true) 
+        JwtRequest request) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
@@ -46,8 +64,22 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(jwt));
     }
 
+    @Operation(
+        summary = "User registration",
+        description = "Registers a new user with provided details (name, email, username, password, role). Only USER role is allowed via this endpoint.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "User registered successfully", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "409", description = "Conflict: Username or email already registered", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "Server error", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+        }
+    )
     @PostMapping("/signup")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<String> registerUser(@Valid @RequestBody 
+        @Parameter(description = "User registration details", required = true) 
+        SignupRequest signupRequest) {
         try {
             userService.registerUser(signupRequest);
             return ResponseEntity.ok("User registered successfully");
@@ -58,16 +90,40 @@ public class AuthController {
         }
     }
 
+    @Operation(
+        summary = "Check username availability",
+        description = "Checks if a username is available for registration.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Username is available", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "409", description = "Username already registered", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+        }
+    )
     @GetMapping("/check-username")
-    public ResponseEntity<String> checkUsername(@RequestParam String username) {
+    public ResponseEntity<String> checkUsername(
+        @Parameter(description = "Username to check for availability", required = true) 
+        @RequestParam String username) {
         if (userService.findByUsername(username).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already registered");
         }
         return ResponseEntity.ok("Username is available");
     }
 
+    @Operation(
+        summary = "Check email availability",
+        description = "Checks if an email is available for registration.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Email is available", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "409", description = "Email already registered", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+        }
+    )
     @GetMapping("/check-email")
-    public ResponseEntity<String> checkEmail(@RequestParam String email) {
+    public ResponseEntity<String> checkEmail(
+        @Parameter(description = "Email to check for availability", required = true) 
+        @RequestParam String email) {
         if (userService.findByEmail(email).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already registered");
         }
