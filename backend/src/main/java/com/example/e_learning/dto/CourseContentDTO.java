@@ -1,57 +1,66 @@
 package com.example.e_learning.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
-import java.util.Map;
+import java.util.List;
 
 public class CourseContentDTO {
+	private Long id;
 
-    @Schema(description = "The main topic of the course content", example = "Introduction to Java")
-    private String topic;
+	public Long getId() {
+		return id;
+	}
 
-    @Schema(description = "Subtopics under the main topic, each with a name and URL", 
-            example = "{\"subtopicOne\": {\"name\": \"Variables\", \"url\": \"http://example.com/variables\"}, \"subtopicTwo\": {\"name\": \"Data Types\", \"url\": \"http://example.com/datatypes\"}, \"subtopicThree\": {\"name\": \"Control Structures\", \"url\": \"http://example.com/control\"}}")
-    private Map<String, Subtopic> subtopics;
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public static class Subtopic {
-        @Schema(description = "Name of the subtopic", example = "Variables")
-        private String name;
+	private String topic;
+	private List<Subtopic> subtopics;
 
-        @Schema(description = "URL for the subtopic", example = "http://example.com/variables")
-        private String url;
+	public static class Subtopic {
+		private Long id;
+		private String name;
+		private String url;
 
-        // Getters and setters
-        public String getName() {
-            return name;
-        }
+		public Long getId() {
+			return id;
+		}
 
-        public void setName(String name) {
-            this.name = name;
-        }
+		public void setId(Long id) {
+			this.id = id;
+		}
 
-        public String getUrl() {
-            return url;
-        }
+		// Getters and setters
+		public String getName() {
+			return name;
+		}
 
-        public void setUrl(String url) {
-            this.url = url;
-        }
-    }
+		public void setName(String name) {
+			this.name = name;
+		}
 
-    // Getters and setters
-    public String getTopic() {
-        return topic;
-    }
+		public String getUrl() {
+			return url;
+		}
 
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
+		public void setUrl(String url) {
+			this.url = url;
+		}
+	}
 
-    public Map<String, Subtopic> getSubtopics() {
-        return subtopics;
-    }
+	// Getters and setters
+	public String getTopic() {
+		return topic;
+	}
 
-    public void setSubtopics(Map<String, Subtopic> subtopics) {
-        this.subtopics = subtopics;
-    }
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+
+	public List<Subtopic> getSubtopics() {
+		return subtopics;
+	}
+
+	public void setSubtopics(List<Subtopic> subtopics) {
+		this.subtopics = subtopics;
+	}
 }

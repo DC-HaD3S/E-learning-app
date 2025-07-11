@@ -1,18 +1,21 @@
 package com.example.e_learning.service;
 
 import com.example.e_learning.dto.CourseContentDTO;
+import com.example.e_learning.dto.SubtopicDTO;
+import com.example.e_learning.dto.TopicDTO;
 import com.example.e_learning.entity.Course;
 import com.example.e_learning.entity.CourseContent;
+import com.example.e_learning.entity.Subtopic;
 import com.example.e_learning.entity.User;
 import com.example.e_learning.repository.CourseContentRepository;
 import com.example.e_learning.repository.CourseRepository;
+import com.example.e_learning.repository.SubtopicRepository;
 import com.example.e_learning.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,126 +24,232 @@ public class CourseContentService {
     private final CourseContentRepository courseContentRepository;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final SubtopicRepository subtopicRepository;
 
     public CourseContentService(CourseContentRepository courseContentRepository,
                                 CourseRepository courseRepository,
-                                UserRepository userRepository) {
+                                UserRepository userRepository,
+                                SubtopicRepository subtopicRepository) {
         this.courseContentRepository = courseContentRepository;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
-    }
-
-    public List<CourseContentDTO> getAllCourseContent() {
-        List<CourseContent> contents = courseContentRepository.findAll();
-        return contents.stream().map(this::convertToDTO).collect(Collectors.toList());
-    }
-
-    public List<CourseContentDTO> getCourseContentByCourseId(Long courseId) {
-        List<CourseContent> contents = courseContentRepository.findByCourseId(courseId);
-        return contents.stream().map(this::convertToDTO).collect(Collectors.toList());
+        this.subtopicRepository = subtopicRepository;
     }
 
     @Transactional
-    public List<CourseContent> createCourseContent(Long courseId, List<CourseContentDTO> dtos) {
+    public List<CourseContentDTO> createTopic(Long courseId, List<CourseContentDTO> dtos) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
         if (!user.getRole().equals("ADMIN") && !user.getRole().equals("INSTRUCTOR")) {
-            throw new IllegalStateException("Only admins and instructors can create course content");
+            throw new IllegalStateException("Only admins and instructors can create topics");
         }
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
 
-        // Admins can create content for any course; instructors only for their own
         if (!user.getRole().equals("ADMIN") && 
             (course.getInstructor() == null || !course.getInstructor().getId().equals(user.getId()))) {
-            throw new IllegalStateException("Instructors can only add content to their own courses");
+            throw new IllegalStateException("Instructors can only add topics to their own courses");
         }
 
-        return dtos.stream().map(dto -> {
-            CourseContent content = new CourseContent();
-            content.setTopic(dto.getTopic());
-            CourseContentDTO.Subtopic subtopicOne = dto.getSubtopics().get("subtopicOne");
-            content.setSubtopicOne(subtopicOne != null ? subtopicOne.getName() : null);
-            content.setSubtopicOneUrl(subtopicOne != null ? subtopicOne.getUrl() : null);
-            CourseContentDTO.Subtopic subtopicTwo = dto.getSubtopics().get("subtopicTwo");
-            content.setSubtopicTwo(subtopicTwo != null ? subtopicTwo.getName() : null);
-            content.setSubtopicTwoUrl(subtopicTwo != null ? subtopicTwo.getUrl() : null);
-            CourseContentDTO.Subtopic subtopicThree = dto.getSubtopics().get("subtopicThree");
-            content.setSubtopicThree(subtopicThree != null ? subtopicThree.getName() : null);
-            content.setSubtopicThreeUrl(subtopicThree != null ? subtopicThree.getUrl() : null);
-            content.setCourse(course);
-            content.setInstructor(user.getRole().equals("ADMIN") ? null : user);
-            return courseContentRepository.save(content);
+        List<CourseContent> topics = dtos.stream().map(dto -> {
+            CourseContent topic = new CourseContent();
+            topic.setTopic(dto.getTopic());
+            topic.setCourse(course);
+            topic.setInstructor(user.getRole().equals("ADMIN") ? null : user);
+
+            if (dto.getSubtopics() != null) {
+                List<Subtopic> subtopics = dto.getSubtopics().stream().map(subtopicDto -> {
+                    Subtopic subtopic = new Subtopic();
+                    subtopic.setName(subtopicDto.getName());
+                    subtopic.setUrl(subtopicDto.getUrl());
+                    subtopic.setCourseContent(topic);
+                    return subtopic;
+                }).collect(Collectors.toList());
+                topic.setSubtopics(subtopics);
+            }
+
+            return courseContentRepository.save(topic);
         }).collect(Collectors.toList());
+
+        return topics.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public List<CourseContentDTO> getTopicByCourseId(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+        List<CourseContent> topics = courseContentRepository.findByCourseId(courseId);
+        return topics.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Transactional
-    public void updateCourseContent(Long contentId, CourseContentDTO dto) {
-        CourseContent content = courseContentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("Course content not found"));
-
+    public void updateTopic(Long courseId, Long topicId, TopicDTO dto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        // Admins can update any content; instructors only their own
-        if (!user.getRole().equals("ADMIN") && 
-            (content.getInstructor() == null || !content.getInstructor().getId().equals(user.getId()))) {
-            throw new IllegalStateException("Instructors can only update their own course content");
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        if (!user.getRole().equals("ADMIN") && !user.getRole().equals("INSTRUCTOR")) {
+            throw new IllegalStateException("Only admins and instructors can update topics");
         }
 
-        content.setTopic(dto.getTopic());
-        CourseContentDTO.Subtopic subtopicOne = dto.getSubtopics().get("subtopicOne");
-        content.setSubtopicOne(subtopicOne != null ? subtopicOne.getName() : null);
-        content.setSubtopicOneUrl(subtopicOne != null ? subtopicOne.getUrl() : null);
-        CourseContentDTO.Subtopic subtopicTwo = dto.getSubtopics().get("subtopicTwo");
-        content.setSubtopicTwo(subtopicTwo != null ? subtopicTwo.getName() : null);
-        content.setSubtopicTwoUrl(subtopicTwo != null ? subtopicTwo.getUrl() : null);
-        CourseContentDTO.Subtopic subtopicThree = dto.getSubtopics().get("subtopicThree");
-        content.setSubtopicThree(subtopicThree != null ? subtopicThree.getName() : null);
-        content.setSubtopicThreeUrl(subtopicThree != null ? subtopicThree.getUrl() : null);
-        content.setInstructor(user.getRole().equals("ADMIN") ? null : user);
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
 
-        courseContentRepository.save(content);
+        CourseContent topic = courseContentRepository.findById(topicId)
+                .orElseThrow(() -> new IllegalArgumentException("Topic not found: " + topicId));
+
+        if (!topic.getCourse().getId().equals(courseId)) {
+            throw new IllegalArgumentException("Topic does not belong to the specified course");
+        }
+
+        if (!user.getRole().equals("ADMIN") && 
+            (topic.getInstructor() == null || !topic.getInstructor().getId().equals(user.getId()))) {
+            throw new IllegalStateException("Instructors can only update their own topics");
+        }
+
+        topic.setTopic(dto.getTopic());
+        courseContentRepository.save(topic);
     }
 
     @Transactional
-    public void deleteCourseContent(Long contentId) {
-        CourseContent content = courseContentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("Course content not found"));
-
+    public void addSubtopic(Long courseId, Long topicId, SubtopicDTO dto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        // Admins can delete any content; instructors only their own
-        if (!user.getRole().equals("ADMIN") && 
-            (content.getInstructor() == null || !content.getInstructor().getId().equals(user.getId()))) {
-            throw new IllegalStateException("Instructors can only delete their own course content");
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        if (!user.getRole().equals("ADMIN") && !user.getRole().equals("INSTRUCTOR")) {
+            throw new IllegalStateException("Only admins and instructors can add subtopics");
         }
 
-        courseContentRepository.deleteById(contentId);
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+
+        CourseContent topic = courseContentRepository.findById(topicId)
+                .orElseThrow(() -> new IllegalArgumentException("Topic not found: " + topicId));
+
+        if (!topic.getCourse().getId().equals(courseId)) {
+            throw new IllegalArgumentException("Topic does not belong to the specified course");
+        }
+
+        if (!user.getRole().equals("ADMIN") && 
+            (topic.getInstructor() == null || !topic.getInstructor().getId().equals(user.getId()))) {
+            throw new IllegalStateException("Instructors can only add subtopics to their own topics");
+        }
+
+        Subtopic subtopic = new Subtopic();
+        subtopic.setName(dto.getName());
+        subtopic.setUrl(dto.getUrl());
+        subtopic.setCourseContent(topic);
+        subtopicRepository.save(subtopic);
     }
 
-    private CourseContentDTO convertToDTO(CourseContent content) {
+    @Transactional
+    public void updateSubtopic(Long courseId, Long topicId, Long subtopicId, SubtopicDTO dto) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        if (!user.getRole().equals("ADMIN") && !user.getRole().equals("INSTRUCTOR")) {
+            throw new IllegalStateException("Only admins and instructors can update subtopics");
+        }
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+
+        CourseContent topic = courseContentRepository.findById(topicId)
+                .orElseThrow(() -> new IllegalArgumentException("Topic not found: " + topicId));
+
+        if (!topic.getCourse().getId().equals(courseId)) {
+            throw new IllegalArgumentException("Topic does not belong to the specified course");
+        }
+
+        if (!user.getRole().equals("ADMIN") && 
+            (topic.getInstructor() == null || !topic.getInstructor().getId().equals(user.getId()))) {
+            throw new IllegalStateException("Instructors can only update subtopics from their own topics");
+        }
+
+        Subtopic subtopic = subtopicRepository.findById(subtopicId)
+                .orElseThrow(() -> new IllegalArgumentException("Subtopic not found: " + subtopicId));
+
+        if (!subtopic.getCourseContent().getId().equals(topicId)) {
+            throw new IllegalArgumentException("Subtopic does not belong to the specified topic");
+        }
+
+        subtopic.setName(dto.getName());
+        subtopic.setUrl(dto.getUrl());
+        subtopicRepository.save(subtopic);
+    }
+
+    @Transactional
+    public void deleteTopic(Long courseId, Long topicId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        if (!user.getRole().equals("ADMIN") && !user.getRole().equals("INSTRUCTOR")) {
+            throw new IllegalStateException("Only admins and instructors can delete topics");
+        }
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+
+        CourseContent topic = courseContentRepository.findById(topicId)
+                .orElseThrow(() -> new IllegalArgumentException("Topic not found: " + topicId));
+
+        if (!topic.getCourse().getId().equals(courseId)) {
+            throw new IllegalArgumentException("Topic does not belong to the specified course");
+        }
+
+        if (!user.getRole().equals("ADMIN") && 
+            (topic.getInstructor() == null || !topic.getInstructor().getId().equals(user.getId()))) {
+            throw new IllegalStateException("Instructors can only delete their own topics");
+        }
+
+        courseContentRepository.deleteById(topicId);
+    }
+
+    @Transactional
+    public void deleteSubtopic(Long courseId, Long topicId, Long subtopicId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        if (!user.getRole().equals("ADMIN") && !user.getRole().equals("INSTRUCTOR")) {
+            throw new IllegalStateException("Only admins and instructors can delete subtopics");
+        }
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+
+        CourseContent topic = courseContentRepository.findById(topicId)
+                .orElseThrow(() -> new IllegalArgumentException("Topic not found: " + topicId));
+
+        if (!topic.getCourse().getId().equals(courseId)) {
+            throw new IllegalArgumentException("Topic does not belong to the specified course");
+        }
+
+        if (!user.getRole().equals("ADMIN") && 
+            (topic.getInstructor() == null || !topic.getInstructor().getId().equals(user.getId()))) {
+            throw new IllegalStateException("Instructors can only delete subtopics from their own topics");
+        }
+
+        Subtopic subtopic = subtopicRepository.findById(subtopicId)
+                .orElseThrow(() -> new IllegalArgumentException("Subtopic not found: " + subtopicId));
+
+        if (!subtopic.getCourseContent().getId().equals(topicId)) {
+            throw new IllegalArgumentException("Subtopic does not belong to the specified topic");
+        }
+
+        subtopicRepository.deleteById(subtopicId);
+    }
+
+    private CourseContentDTO convertToDTO(CourseContent topic) {
         CourseContentDTO dto = new CourseContentDTO();
-        dto.setTopic(content.getTopic());
-        dto.setSubtopics(Map.of(
-            "subtopicOne", new CourseContentDTO.Subtopic() {{
-                setName(content.getSubtopicOne() != null ? content.getSubtopicOne() : "");
-                setUrl(content.getSubtopicOneUrl() != null ? content.getSubtopicOneUrl() : "");
-            }},
-            "subtopicTwo", new CourseContentDTO.Subtopic() {{
-                setName(content.getSubtopicTwo() != null ? content.getSubtopicTwo() : "");
-                setUrl(content.getSubtopicTwoUrl() != null ? content.getSubtopicTwoUrl() : "");
-            }},
-            "subtopicThree", new CourseContentDTO.Subtopic() {{
-                setName(content.getSubtopicThree() != null ? content.getSubtopicThree() : "");
-                setUrl(content.getSubtopicThreeUrl() != null ? content.getSubtopicThreeUrl() : "");
-            }}
-        ));
+        dto.setId(topic.getId()); 
+        dto.setTopic(topic.getTopic());
+        dto.setSubtopics(topic.getSubtopics().stream().map(subtopic -> {
+            CourseContentDTO.Subtopic subtopicDto = new CourseContentDTO.Subtopic();
+            subtopicDto.setId(subtopic.getId());
+            subtopicDto.setName(subtopic.getName());
+            subtopicDto.setUrl(subtopic.getUrl());
+            return subtopicDto;
+        }).collect(Collectors.toList()));
         return dto;
     }
 }

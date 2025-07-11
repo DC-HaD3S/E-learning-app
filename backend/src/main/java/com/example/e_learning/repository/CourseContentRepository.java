@@ -12,6 +12,4 @@ public interface CourseContentRepository extends JpaRepository<CourseContent, Lo
     @Query("SELECT c FROM CourseContent c WHERE c.course.id = :courseId")
     List<CourseContent> findByCourseId(@Param("courseId") Long courseId);
 
-    @Query("SELECT c FROM CourseContent c WHERE c.instructor.id = :instructorId")
-    List<CourseContent> findByInstructorId(@Param("instructorId") Long instructorId);
 }

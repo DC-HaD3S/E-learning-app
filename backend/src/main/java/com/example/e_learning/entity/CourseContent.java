@@ -1,6 +1,8 @@
 package com.example.e_learning.entity;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "course_content")
@@ -12,23 +14,8 @@ public class CourseContent {
 
     private String topic;
 
-    @Column(name = "subtopic_one")
-    private String subtopicOne;
-
-    @Column(name = "subtopic_one_url")
-    private String subtopicOneUrl;
-
-    @Column(name = "subtopic_two")
-    private String subtopicTwo;
-
-    @Column(name = "subtopic_two_url")
-    private String subtopicTwoUrl;
-
-    @Column(name = "subtopic_three")
-    private String subtopicThree;
-
-    @Column(name = "subtopic_three_url")
-    private String subtopicThreeUrl;
+    @OneToMany(mappedBy = "courseContent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Subtopic> subtopics = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "course_id")
@@ -55,52 +42,12 @@ public class CourseContent {
         this.topic = topic;
     }
 
-    public String getSubtopicOne() {
-        return subtopicOne;
+    public List<Subtopic> getSubtopics() {
+        return subtopics;
     }
 
-    public void setSubtopicOne(String subtopicOne) {
-        this.subtopicOne = subtopicOne;
-    }
-
-    public String getSubtopicOneUrl() {
-        return subtopicOneUrl;
-    }
-
-    public void setSubtopicOneUrl(String subtopicOneUrl) {
-        this.subtopicOneUrl = subtopicOneUrl;
-    }
-
-    public String getSubtopicTwo() {
-        return subtopicTwo;
-    }
-
-    public void setSubtopicTwo(String subtopicTwo) {
-        this.subtopicTwo = subtopicTwo;
-    }
-
-    public String getSubtopicTwoUrl() {
-        return subtopicTwoUrl;
-    }
-
-    public void setSubtopicTwoUrl(String subtopicTwoUrl) {
-        this.subtopicTwoUrl = subtopicTwoUrl;
-    }
-
-    public String getSubtopicThree() {
-        return subtopicThree;
-    }
-
-    public void setSubtopicThree(String subtopicThree) {
-        this.subtopicThree = subtopicThree;
-    }
-
-    public String getSubtopicThreeUrl() {
-        return subtopicThreeUrl;
-    }
-
-    public void setSubtopicThreeUrl(String subtopicThreeUrl) {
-        this.subtopicThreeUrl = subtopicThreeUrl;
+    public void setSubtopics(List<Subtopic> subtopics) {
+        this.subtopics = subtopics;
     }
 
     public Course getCourse() {
