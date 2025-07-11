@@ -38,7 +38,7 @@ public class CourseContentController {
                                                        @RequestBody List<CourseContentDTO> contentDTOs) {
         courseContentService.createTopic(courseId, contentDTOs);
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Topics added successfully");
+        response.put("message", "Topic added successfully");
         return ResponseEntity.ok(response);
     }
 
