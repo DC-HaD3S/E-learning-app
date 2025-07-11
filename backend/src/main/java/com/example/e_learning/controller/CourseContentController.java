@@ -29,7 +29,7 @@ public class CourseContentController {
 
     @Operation(summary = "Add topic for a specific course", 
                description = "Creates multiple topic entries with dynamic subtopics for a given course ID. Admins can add topics to any course; instructors only to their own.")
-    @ApiResponse(responseCode = "200", description = "Topic(s) added successfully", 
+    @ApiResponse(responseCode = "200", description = "Topics added successfully", 
                  content = @Content(schema = @Schema(implementation = Map.class)))
     @ApiResponse(responseCode = "400", description = "Invalid course ID or request body")
     @ApiResponse(responseCode = "403", description = "Unauthorized: User is not an admin or instructor, or instructor is not authorized for this course")
@@ -38,7 +38,7 @@ public class CourseContentController {
                                                        @RequestBody List<CourseContentDTO> contentDTOs) {
         courseContentService.createTopic(courseId, contentDTOs);
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Topic(s) added successfully");
+        response.put("message", "Topics added successfully");
         return ResponseEntity.ok(response);
     }
 
