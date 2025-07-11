@@ -3,64 +3,61 @@ package com.example.e_learning.dto;
 import java.util.List;
 
 public class CourseContentDTO {
-	private Long id;
+    private Long id;
+    private String topic;
+    private List<Subtopic> subtopics;
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	private String topic;
-	private List<Subtopic> subtopics;
+    public String getTopic() {
+        return topic;
+    }
 
-	public static class Subtopic {
-		private Long id;
-		private String name;
-		private String url;
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
 
-		public Long getId() {
-			return id;
-		}
+    public List<Subtopic> getSubtopics() {
+        return subtopics;
+    }
 
-		public void setId(Long id) {
-			this.id = id;
-		}
+    public void setSubtopics(List<Subtopic> subtopics) {
+        this.subtopics = subtopics;
+    }
 
-		// Getters and setters
-		public String getName() {
-			return name;
-		}
+    public static class Subtopic {
+        private Long id;
+        private String name;
+        private String url;
 
-		public void setName(String name) {
-			this.name = name;
-		}
+        public Long getId() {
+            return id;
+        }
 
-		public String getUrl() {
-			return url;
-		}
+        public void setId(Long id) {
+            this.id = id;
+        }
 
-		public void setUrl(String url) {
-			this.url = url;
-		}
-	}
+        public String getName() {
+            return name;
+        }
 
-	// Getters and setters
-	public String getTopic() {
-		return topic;
-	}
+        public void setName(String name) {
+            this.name = name;
+        }
 
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
+        public String getUrl() {
+            return url;
+        }
 
-	public List<Subtopic> getSubtopics() {
-		return subtopics;
-	}
-
-	public void setSubtopics(List<Subtopic> subtopics) {
-		this.subtopics = subtopics;
-	}
+        public void setUrl(String url) {
+            this.url = url;
+        }
+    }
 }

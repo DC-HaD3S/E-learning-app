@@ -37,7 +37,7 @@ public class CourseContentService {
     }
 
     @Transactional
-    public List<CourseContentDTO> createTopic(Long courseId, List<CourseContentDTO> dtos) {
+    public void createTopic(Long courseId, List<CourseContentDTO> dtos) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
@@ -53,7 +53,7 @@ public class CourseContentService {
             throw new IllegalStateException("Instructors can only add topics to their own courses");
         }
 
-        List<CourseContent> topics = dtos.stream().map(dto -> {
+        dtos.forEach(dto -> {
             CourseContent topic = new CourseContent();
             topic.setTopic(dto.getTopic());
             topic.setCourse(course);
@@ -70,10 +70,8 @@ public class CourseContentService {
                 topic.setSubtopics(subtopics);
             }
 
-            return courseContentRepository.save(topic);
-        }).collect(Collectors.toList());
-
-        return topics.stream().map(this::convertToDTO).collect(Collectors.toList());
+            courseContentRepository.save(topic);
+        });
     }
 
     public List<CourseContentDTO> getTopicByCourseId(Long courseId) {
@@ -241,7 +239,7 @@ public class CourseContentService {
 
     private CourseContentDTO convertToDTO(CourseContent topic) {
         CourseContentDTO dto = new CourseContentDTO();
-        dto.setId(topic.getId()); 
+        dto.setId(topic.getId());
         dto.setTopic(topic.getTopic());
         dto.setSubtopics(topic.getSubtopics().stream().map(subtopic -> {
             CourseContentDTO.Subtopic subtopicDto = new CourseContentDTO.Subtopic();
