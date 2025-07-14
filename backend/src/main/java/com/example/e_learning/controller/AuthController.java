@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import java.util.Map;
 
 @Tag(name = "auth", description = "Authentication and user registration endpoints")
 @RestController
@@ -43,9 +44,9 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Authentication successful, JWT token returned", 
                          content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtResponse.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized: Incorrect username or password", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "500", description = "Server error", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
         }
     )
     @PostMapping("/login")
@@ -56,7 +57,7 @@ public class AuthController {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Incorrect username or password"));
         }
 
         final UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
@@ -66,27 +67,27 @@ public class AuthController {
 
     @Operation(
         summary = "User registration",
-        description = "Registers a new user with provided details (name, email, username, password, role). Only USER role is allowed via this endpoint.",
+        description = "Registers a new user with provided details (name, email, username, password). Role is set to USER by default.",
         responses = {
             @ApiResponse(responseCode = "200", description = "User registered successfully", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "409", description = "Conflict: Username or email already registered", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "500", description = "Server error", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
         }
     )
     @PostMapping("/signup")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody 
+    public ResponseEntity<Map<String, String>> registerUser(@Valid @RequestBody 
         @Parameter(description = "User registration details", required = true) 
         SignupRequest signupRequest) {
         try {
             userService.registerUser(signupRequest);
-            return ResponseEntity.ok("User registered successfully");
+            return ResponseEntity.ok(Map.of("message", "User registered successfully"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Registration failed: " + e.getMessage()));
         }
     }
 
@@ -95,19 +96,19 @@ public class AuthController {
         description = "Checks if a username is available for registration.",
         responses = {
             @ApiResponse(responseCode = "200", description = "Username is available", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "409", description = "Username already registered", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
         }
     )
     @GetMapping("/check-username")
-    public ResponseEntity<String> checkUsername(
+    public ResponseEntity<Map<String, String>> checkUsername(
         @Parameter(description = "Username to check for availability", required = true) 
         @RequestParam String username) {
         if (userService.findByUsername(username).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already registered");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "Username already registered"));
         }
-        return ResponseEntity.ok("Username is available");
+        return ResponseEntity.ok(Map.of("message", "Username is available"));
     }
 
     @Operation(
@@ -115,18 +116,18 @@ public class AuthController {
         description = "Checks if an email is available for registration.",
         responses = {
             @ApiResponse(responseCode = "200", description = "Email is available", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "409", description = "Email already registered", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
         }
     )
     @GetMapping("/check-email")
-    public ResponseEntity<String> checkEmail(
+    public ResponseEntity<Map<String, String>> checkEmail(
         @Parameter(description = "Email to check for availability", required = true) 
         @RequestParam String email) {
         if (userService.findByEmail(email).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already registered");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "Email already registered"));
         }
-        return ResponseEntity.ok("Email is available");
+        return ResponseEntity.ok(Map.of("message", "Email is available"));
     }
 }

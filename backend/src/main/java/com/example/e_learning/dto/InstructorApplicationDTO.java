@@ -8,6 +8,10 @@ public class InstructorApplicationDTO {
     private int experience;
     private String courses;
     private boolean approved;
+    private String photoUrl;
+    private String aboutMe;
+    private String twitterUrl;
+    private String githubUrl;
 
     // Getters and setters
     public Long getId() {
@@ -64,5 +68,37 @@ public class InstructorApplicationDTO {
 
     public void setApproved(boolean approved) {
         this.approved = approved;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public String getAboutMe() {
+        return aboutMe;
+    }
+
+    public void setAboutMe(String aboutMe) {
+        this.aboutMe = aboutMe;
+    }
+
+    public String getTwitterUrl() {
+        return twitterUrl;
+    }
+
+    public void setTwitterUrl(String twitterUrl) {
+        this.twitterUrl = twitterUrl;
+    }
+
+    public String getGithubUrl() {
+        return githubUrl;
+    }
+
+    public void setGithubUrl(String githubUrl) {
+        this.githubUrl = githubUrl;
     }
 }

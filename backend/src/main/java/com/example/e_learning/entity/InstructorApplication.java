@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Column;
 
 @Entity
 public class InstructorApplication {
@@ -15,10 +16,20 @@ public class InstructorApplication {
 
     private String name;
     private String email;
+    @Column(length = 300)
     private String qualifications;
     private int experience;
+    @Column(length = 300)
     private String courses;
     private boolean approved;
+    @Column(length = 3000)
+    private String photoUrl;
+    @Column(columnDefinition = "TEXT")
+    private String aboutMe;
+    @Column(length = 3000)
+    private String twitterUrl;
+    @Column(length = 3000)
+    private String githubUrl;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -68,7 +79,6 @@ public class InstructorApplication {
     public String getCourses() {
         return courses;
     }
-
     public void setCourses(String courses) {
         this.courses = courses;
     }
@@ -81,11 +91,42 @@ public class InstructorApplication {
         this.approved = approved;
     }
 
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public String getAboutMe() {
+        return aboutMe;
+    }
+
+    public void setAboutMe(String aboutMe) {
+        this.aboutMe = aboutMe;
+    }
+
+    public String getTwitterUrl() {
+        return twitterUrl;
+    }
+
+    public void setTwitterUrl(String twitterUrl) {
+        this.twitterUrl = twitterUrl;
+    }
+
+    public String getGithubUrl() {
+        return githubUrl;
+    }
+
+    public void setGithubUrl(String githubUrl) {
+        this.githubUrl = githubUrl;
+    }
+
     public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
-    }
-}
+    }}

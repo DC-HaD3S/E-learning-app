@@ -1,3 +1,4 @@
+
 package com.example.e_learning.service;
 
 import java.util.List;
@@ -40,8 +41,12 @@ public class InstructorApplicationService {
         application.setEmail(user.getEmail());
         application.setQualifications(dto.getQualifications());
         application.setExperience(dto.getExperience());
-        application.setUser(user);
         application.setCourses(dto.getCourses());
+        application.setPhotoUrl(dto.getPhotoUrl());
+        application.setAboutMe(dto.getAboutMe());
+        application.setTwitterUrl(dto.getTwitterUrl());
+        application.setGithubUrl(dto.getGithubUrl());
+        application.setUser(user);
         application.setApproved(false);
 
         instructorRepo.save(application);
@@ -59,6 +64,10 @@ public class InstructorApplicationService {
                     dto.setQualifications(application.getQualifications());
                     dto.setExperience(application.getExperience());
                     dto.setCourses(application.getCourses());
+                    dto.setPhotoUrl(application.getPhotoUrl());
+                    dto.setAboutMe(application.getAboutMe());
+                    dto.setTwitterUrl(application.getTwitterUrl());
+                    dto.setGithubUrl(application.getGithubUrl());
                     dto.setApproved(application.isApproved());
                     logger.debug("Mapping application ID: {}, approved: {}", application.getId(), application.isApproved());
                     return dto;
@@ -67,7 +76,7 @@ public class InstructorApplicationService {
     }
 
     @Transactional
-    public void approveApplication(Long applicationId, String approvedCourses) {
+    public void approveApplication(Long applicationId) {
         InstructorApplication application = instructorRepo.findById(applicationId)
                 .orElseThrow(() -> new EntityNotFoundException("Application not found: " + applicationId));
 
@@ -77,11 +86,6 @@ public class InstructorApplicationService {
         }
 
         user.setRole("INSTRUCTOR");
-
-        if (approvedCourses != null && !approvedCourses.trim().isEmpty()) {
-            application.setCourses(approvedCourses);
-        }
-
         application.setApproved(true);
 
         userRepo.save(user);

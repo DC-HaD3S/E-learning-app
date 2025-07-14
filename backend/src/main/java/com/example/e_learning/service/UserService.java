@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
-   private final UserRepository userRepository;
+    private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
@@ -45,21 +45,14 @@ public class UserService implements UserDetailsService {
         if (signupRequest.getEmail() == null || signupRequest.getEmail().trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be empty");
         }
-        String role = signupRequest.getRole();
-        if (role == null || role.trim().isEmpty()) {
-            role = "USER"; 
-        } else if (!role.equals("USER") && !role.equals("ADMIN") && !role.equals("INSTRUCTOR")) {
-            throw new IllegalArgumentException("Invalid role: must be 'USER', 'ADMIN', or 'INSTRUCTOR'");
-        } else if (role.equals("ADMIN") || role.equals("INSTRUCTOR")) {
-            throw new IllegalArgumentException("Admin or Instructor registration is not allowed via this endpoint");
-        }
 
         User user = new User();
         user.setName(signupRequest.getName());
         user.setEmail(signupRequest.getEmail());
         user.setUsername(signupRequest.getUsername());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-        user.setRole(role);
+        user.setRole("USER");
+
         try {
             userRepository.save(user);
         } catch (Exception e) {
@@ -78,11 +71,11 @@ public class UserService implements UserDetailsService {
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream().map(user -> {
             UserDTO dto = new UserDTO();
-            dto.setId(user.getId()); 
+            dto.setId(user.getId());
             dto.setName(user.getName());
             dto.setEmail(user.getEmail());
             dto.setUsername(user.getUsername());
-            dto.setPassword(user.getPassword()); 
+            dto.setPassword(user.getPassword());
             return dto;
         }).collect(Collectors.toList());
     }
@@ -113,7 +106,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        user.setName(updatedUser.getName()); 
+        user.setName(updatedUser.getName());
         user.setUsername(updatedUser.getUsername());
         if (!updatedUser.getEmail().equals(user.getEmail())) {
             throw new IllegalArgumentException("Email updates are not allowed.");
