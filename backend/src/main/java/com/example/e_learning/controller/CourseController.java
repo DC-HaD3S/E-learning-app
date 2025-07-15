@@ -1,11 +1,14 @@
+
 package com.example.e_learning.controller;
 
 import java.security.Principal;
 import java.util.Collections;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.e_learning.dto.CourseDTO;
@@ -38,15 +42,17 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/courses")
 public class CourseController {
-    @Autowired CourseService courseService;
+    private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+
+    @Autowired private CourseService courseService;
     @Autowired private UserService userService;
     @Autowired private EnrollmentService enrollmentService;
 
     @Operation(
         summary = "Get all courses",
-        description = "Public endpoint to view all courses, accessible to unauthenticated users, users, instructors, and admins.",
+        description = "Public endpoint to view all courses, accessible to unauthenticated users, users, instructors, and admins. Returns course details including title, body, image URL, price, and instructor ID (if assigned).",
         responses = {
-            @ApiResponse(responseCode = "200", description = "List of all courses", 
+            @ApiResponse(responseCode = "200", description = "List of all courses with their details", 
                          content = @Content(mediaType = "application/json", schema = @Schema(implementation = CourseDTO.class, type = "array"))),
             @ApiResponse(responseCode = "400", description = "Bad request, returns empty list", 
                          content = @Content(mediaType = "application/json", schema = @Schema(implementation = CourseDTO.class, type = "array")))
@@ -57,45 +63,45 @@ public class CourseController {
         try {
             return ResponseEntity.ok(courseService.getAllCourses());
         } catch (Exception e) {
+            logger.error("Error retrieving all courses: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Collections.emptyList());
         }
     }
 
     @Operation(
         summary = "Get instructor's own courses",
-        description = "Allows an instructor to view only their own courses, based on their user ID.",
+        description = "Allows an instructor to view only their own courses, based on their instructor application ID.",
         responses = {
             @ApiResponse(responseCode = "200", description = "List of instructor's courses", 
                          content = @Content(mediaType = "application/json", schema = @Schema(implementation = CourseDTO.class, type = "array"))),
-            @ApiResponse(responseCode = "400", description = "Bad request or user not found, returns empty list", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CourseDTO.class, type = "array"))),
+            @ApiResponse(responseCode = "400", description = "Bad request or user not found, returns error message", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "403", description = "Unauthorized: Instructor access required", 
-                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CourseDTO.class, type = "array")))
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "404", description = "No courses or instructor application found", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
         }
     )
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @GetMapping("/my-courses")
-    public ResponseEntity<List<CourseDTO>> getMyCourses(
+    public ResponseEntity<?> getMyCourses(
         @Parameter(description = "Authenticated user's principal", hidden = true) 
         Principal principal) {
         try {
-            User user = userService.findByUsername(principal.getName())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-            List<Course> courses = courseService.getCoursesByInstructorId(user.getId());
-            List<CourseDTO> courseDTOs = courses.stream()
-                    .map(courseService::convertToDTO)
-                    .toList();
+            List<CourseDTO> courseDTOs = courseService.getCoursesByInstructor();
             return ResponseEntity.ok(courseDTOs);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Collections.emptyList());
+        } catch (IllegalStateException e) {
+            logger.error("Error fetching courses: {}", e.getMessage());
+            return ResponseEntity.status(404).body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Collections.emptyList());
+            logger.error("Unexpected error fetching courses: {}", e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("message", "Server error: " + e.getMessage()));
         }
     }
 
     @Operation(
         summary = "Create a new course",
-        description = "Allows an admin or instructor to create a course. The course is associated with the authenticated instructor or admin.",
+        description = "Allows an admin or instructor to create a course. The course is associated with the authenticated instructor's application ID if created by an instructor. Admins can create courses without an instructor, to be assigned later.",
         responses = {
             @ApiResponse(responseCode = "200", description = "Course created successfully", 
                          content = @Content(mediaType = "application/json", schema = @Schema(type = "object", example = "{\"message\": \"Course created successfully\", \"data\": {\"id\": 1, \"title\": \"string\", \"body\": \"string\", \"imageUrl\": \"string\", \"price\": 0.0, \"instructorId\": 1}}"))),
@@ -105,23 +111,20 @@ public class CourseController {
                          content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
         }
     )
-    @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR')")
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'INSTRUCTOR')")
     public ResponseEntity<Map<String, Object>> createCourse(
-        @Valid @RequestBody @Parameter(description = "Course details to create", required = true) 
+        @Valid @RequestBody @Parameter(description = "Course details to create, including instructorId for instructors", required = true) 
         CourseDTO courseDTO,
         @Parameter(description = "Authenticated user's principal", hidden = true) 
         Principal principal) {
         try {
-            User user = userService.findByUsername(principal.getName())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-            courseDTO.setInstructorId(user.getId());
             Course course = courseService.createCourse(courseDTO);
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Course created successfully");
             response.put("data", courseService.convertToDTO(course));
             return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException | IllegalArgumentException e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("message", "Course creation failed: " + e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);
@@ -156,24 +159,14 @@ public class CourseController {
         @Parameter(description = "Authenticated user's principal", hidden = true) 
         Principal principal) {
         try {
-            User user = userService.findByUsername(principal.getName())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-            Course course = courseService.findById(courseId);
-            if (course == null) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Course not found");
-                return ResponseEntity.status(404).body(errorResponse);
-            }
-            boolean isAdmin = "ADMIN".equalsIgnoreCase(user.getRole());
-            if (!isAdmin && (course.getInstructor() == null || !course.getInstructor().getId().equals(user.getId()))) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Access denied: you can only update your own courses");
-                return ResponseEntity.status(403).body(errorResponse);
-            }
             courseService.updateCourse(courseId, courseDTO);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Course updated successfully");
             return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(403).body(errorResponse);
         } catch (IllegalArgumentException e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("message", e.getMessage());
@@ -207,24 +200,14 @@ public class CourseController {
         @Parameter(description = "Authenticated user's principal", hidden = true) 
         Principal principal) {
         try {
-            User user = userService.findByUsername(principal.getName())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-            Course course = courseService.findById(courseId);
-            if (course == null) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Course not found");
-                return ResponseEntity.status(404).body(errorResponse);
-            }
-            boolean isAdmin = "ADMIN".equalsIgnoreCase(user.getRole());
-            if (!isAdmin && (course.getInstructor() == null || !course.getInstructor().getId().equals(user.getId()))) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Access denied: you can only delete your own courses");
-                return ResponseEntity.status(403).body(errorResponse);
-            }
             courseService.deleteCourse(courseId);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Course deleted successfully");
             return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(403).body(errorResponse);
         } catch (IllegalArgumentException e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("message", e.getMessage());
@@ -232,6 +215,47 @@ public class CourseController {
         } catch (Exception e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("message", "Course deletion failed: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    @Operation(
+        summary = "Set or update instructor for a course",
+        description = "Allows an admin to set or update the instructor for a specific course using the course ID and instructor application ID.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Instructor set successfully", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class, example = "{\"message\": \"Instructor set successfully\"}"))),
+            @ApiResponse(responseCode = "400", description = "Invalid request (e.g., course or instructor not found, missing instructor ID)", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "403", description = "Unauthorized: Admin access required", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Server error", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+        }
+    )
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{courseId}/set-instructor")
+    public ResponseEntity<Map<String, String>> setCourseInstructor(
+        @Parameter(description = "ID of the course to set or update instructor for", required = true) 
+        @PathVariable Long courseId,
+        @Parameter(description = "ID of the instructor application", required = true) 
+        @RequestParam Long instructorId) {
+        try {
+            courseService.setCourseInstructor(courseId, instructorId);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Instructor set successfully");
+            return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(403).body(errorResponse);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Failed to set instructor: " + e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
         }
     }

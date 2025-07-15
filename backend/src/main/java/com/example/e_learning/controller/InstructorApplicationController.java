@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.e_learning.dto.AverageRatingResponseDTO;
 import com.example.e_learning.dto.InstructorApplicationDTO;
 import com.example.e_learning.dto.InstructorApplicationRequestDTO;
 import com.example.e_learning.service.InstructorApplicationService;
@@ -26,6 +28,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataAccessException;
 
@@ -107,6 +110,32 @@ public class InstructorApplicationController {
         } catch (Exception e) {
             logger.error("Error approving application ID {}: {}", applicationId, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @Operation(
+            summary = "To fetch average ratings using  all course feedbacks",
+            description = "Allows a user to submit an instructor application. Name, email, and username are fetched from the authenticated user's account.")    
+    @GetMapping("/average-rating")
+    public ResponseEntity<AverageRatingResponseDTO> getInstructorAverageRating(
+        @Parameter(description = "ID of the instructor", required = true) @RequestParam Long instructorId
+    ) {
+        try {
+            Double averageRating = service.getInstructorAverageRating(instructorId);
+            AverageRatingResponseDTO response = new AverageRatingResponseDTO();
+            response.setInstructorId(instructorId);
+            response.setAverageRating(averageRating);
+            response.setMessage(averageRating != null ? "Average rating calculated successfully" : "No feedback ratings available for instructor's courses");
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            logger.error("Instructor not found for ID {}: {}", instructorId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AverageRatingResponseDTO(instructorId, null, e.getMessage()));
+        } catch (IllegalStateException e) {
+            logger.error("Invalid request for instructor ID {}: {}", instructorId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AverageRatingResponseDTO(instructorId, null, e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Error retrieving average rating for instructor ID {}: {}", instructorId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AverageRatingResponseDTO(instructorId, null, "Server error: " + e.getMessage()));
         }
     }
 

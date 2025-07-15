@@ -24,7 +24,7 @@ public class Course {
 
     @ManyToOne
     @JoinColumn(name = "instructor_id")
-    private User instructor;
+    private InstructorApplication instructor;
 
     public Long getId() {
         return id;
@@ -66,11 +66,11 @@ public class Course {
         this.price = price;
     }
 
-    public User getInstructor() {
+    public InstructorApplication getInstructor() {
         return instructor;
     }
 
-    public void setInstructor(User instructor) {
+    public void setInstructor(InstructorApplication instructor) {
         this.instructor = instructor;
     }
 }

@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.e_learning.dto.InstructorApplicationDTO;
 import com.example.e_learning.dto.InstructorApplicationRequestDTO;
+import com.example.e_learning.entity.Course;
 import com.example.e_learning.entity.InstructorApplication;
 import com.example.e_learning.entity.User;
+import com.example.e_learning.repository.CourseRepository;
+import com.example.e_learning.repository.FeedbackRepository;
 import com.example.e_learning.repository.InstructorApplicationRepository;
 import com.example.e_learning.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +29,13 @@ public class InstructorApplicationService {
 
     @Autowired
     private UserRepository userRepo;
+    
+
+    @Autowired
+    private CourseRepository courseRepo;
+    
+    @Autowired
+    private FeedbackRepository feedbackRepo;
 
     @Transactional
     public void submitApplication(InstructorApplicationRequestDTO dto, String username) {
@@ -91,5 +101,41 @@ public class InstructorApplicationService {
         userRepo.save(user);
         instructorRepo.save(application);
         logger.info("Application ID: {} approved, courses: {}", applicationId, application.getCourses());
+    }
+    
+
+    public Double getInstructorAverageRating(Long instructorId) {
+        User instructor = userRepo.findById(instructorId)
+                .orElseThrow(() -> new EntityNotFoundException("Instructor not found: " + instructorId));
+
+        if (!instructor.getRole().equals("INSTRUCTOR")) {
+            throw new IllegalStateException("User is not an instructor: " + instructorId);
+        }
+
+        List<Course> courses = courseRepo.findByInstructorId(instructorId);
+        if (courses.isEmpty()) {
+            logger.info("No courses found for instructor ID: {}", instructorId);
+            return null;
+        }
+
+        double totalRating = 0.0;
+        int courseCount = 0;
+
+        for (Course course : courses) {
+            Double avgRating = feedbackRepo.findAverageRatingByCourseId(course.getId());
+            if (avgRating != null) {
+                totalRating += avgRating;
+                courseCount++;
+            }
+        }
+
+        if (courseCount == 0) {
+            logger.info("No feedback ratings found for courses of instructor ID: {}", instructorId);
+            return null;
+        }
+
+        double averageRating = totalRating / courseCount;
+        logger.info("Average rating for instructor ID {}: {}", instructorId, averageRating);
+        return averageRating;
     }
 }

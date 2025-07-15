@@ -76,6 +76,7 @@ public class UserService implements UserDetailsService {
             dto.setEmail(user.getEmail());
             dto.setUsername(user.getUsername());
             dto.setPassword(user.getPassword());
+            dto.setRole(user.getRole());
             return dto;
         }).collect(Collectors.toList());
     }
