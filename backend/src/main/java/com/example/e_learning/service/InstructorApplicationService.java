@@ -138,4 +138,13 @@ public class InstructorApplicationService {
         logger.info("Average rating for instructor ID {}: {}", instructorId, averageRating);
         return averageRating;
     }
+    
+    public Long getEnrollmentCountByInstructorId(Long instructorId) {
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Instructor application not found: " + instructorId);
+        }
+        Long count = instructorRepo.countEnrollmentsByInstructorId(instructorId);
+        logger.info("Enrollment count for instructor ID {}: {}", instructorId, count);
+        return count;
+    }
 }

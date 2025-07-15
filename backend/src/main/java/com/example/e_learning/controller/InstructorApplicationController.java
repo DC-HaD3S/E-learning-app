@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -139,6 +140,36 @@ public class InstructorApplicationController {
         }
     }
 
+    @Operation(
+        summary = "Get total enrollment count for an instructor's courses",
+        description = "Retrieves the total number of enrolled students across all courses taught by a specific instructor, identified by instructor application ID. Accessible to all users, including unauthenticated users.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Total enrollment count for the instructor's courses", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Long.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid instructor ID", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Server error", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+        }
+    )
+    @GetMapping("/{instructorId}/enrollment-count")
+    public ResponseEntity<?> getEnrollmentCountByInstructorId(
+        @Parameter(description = "ID of the instructor application to retrieve enrollment count for", required = true) 
+        @PathVariable Long instructorId) {
+        try {
+            Long enrollmentCount = service.getEnrollmentCountByInstructorId(instructorId);
+            return ResponseEntity.ok(enrollmentCount);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid instructor ID {}: {}", instructorId, e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        } catch (Exception e) {
+            logger.error("Failed to retrieve enrollment count for instructor ID {}: {}", instructorId, e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", "Failed to retrieve enrollment count: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
     private String getAuthenticatedUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
