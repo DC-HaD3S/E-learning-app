@@ -149,6 +149,10 @@ public class FeedbackService {
         }
     }
 
+    public Long getFeedbackCountByInstructorId(Long instructorId) {
+        return feedbackRepository.countFeedbackByInstructorId(instructorId);
+    }
+    
     private FeedbackDTO mapToDTO(Feedback feedback) {
         FeedbackDTO dto = new FeedbackDTO();
         dto.setId(feedback.getId());

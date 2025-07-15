@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.e_learning.dto.FeedbackDTO;
+import com.example.e_learning.entity.InstructorApplication;
+import com.example.e_learning.entity.User;
+import com.example.e_learning.repository.InstructorApplicationRepository;
+import com.example.e_learning.repository.UserRepository;
 import com.example.e_learning.service.FeedbackService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +33,13 @@ public class FeedbackController {
 
     @Autowired
     private FeedbackService feedbackService;
+    
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private InstructorApplicationRepository instructorApplicationRepository;
+
 
     @Operation(
         summary = "Submit feedback",
@@ -174,6 +185,34 @@ public class FeedbackController {
         @PathVariable Long courseId) {
         return ResponseEntity.ok(feedbackService.getFeedbacksByCourseId(courseId));
     }
+    
+
+    @Operation(
+            summary = "Get total feedback count for an instructor's courses",
+            description = "Retrieves the total number of feedback entries for all courses taught by a specific instructor, identified by instructor application ID. Accessible to all users, including unauthenticated users.",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Total feedback count for the instructor's courses", 
+                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Long.class))),
+                @ApiResponse(responseCode = "400", description = "Invalid instructor ID", 
+                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+                @ApiResponse(responseCode = "500", description = "Server error", 
+                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+            }
+        )
+        @GetMapping("/instructor/{instructorId}/feedback-count")
+        public ResponseEntity<?> getFeedbackCountByInstructorId(
+            @Parameter(description = "ID of the instructor application to retrieve feedback count for", required = true) 
+            @PathVariable Long instructorId) {
+            try {
+                Long feedbackCount = feedbackService.getFeedbackCountByInstructorId(instructorId);
+                return ResponseEntity.ok(feedbackCount);
+            } catch (Exception e) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Failed to retrieve feedback count: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            }
+        }
+    
 
     @Operation(
         summary = "Get average rating by course ID",

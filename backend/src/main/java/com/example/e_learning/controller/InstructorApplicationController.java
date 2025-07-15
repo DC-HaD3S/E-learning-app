@@ -115,7 +115,7 @@ public class InstructorApplicationController {
     
     @Operation(
             summary = "To fetch average ratings using  all course feedbacks",
-            description = "Allows a user to submit an instructor application. Name, email, and username are fetched from the authenticated user's account.")    
+            description = "Allows a user to fetch instructor average ratings of their coursesx.")    
     @GetMapping("/average-rating")
     public ResponseEntity<AverageRatingResponseDTO> getInstructorAverageRating(
         @Parameter(description = "ID of the instructor", required = true) @RequestParam Long instructorId
