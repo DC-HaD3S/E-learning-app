@@ -1,12 +1,14 @@
 	
 	package com.example.e_learning.service;
 	
-	import java.util.List;
+	import java.security.Principal;
+import java.util.List;
 	import java.util.stream.Collectors;
 	import org.slf4j.Logger;
 	import org.slf4j.LoggerFactory;
 	import org.springframework.beans.factory.annotation.Autowired;
-	import org.springframework.stereotype.Service;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 	import org.springframework.transaction.annotation.Transactional;
 	import com.example.e_learning.dto.InstructorApplicationDTO;
 	import com.example.e_learning.dto.InstructorApplicationRequestDTO;
@@ -31,6 +33,12 @@
 	    @Autowired
 	    private UserRepository userRepo;
 	    
+
+	    @Autowired
+	    private UserRepository userRepository;
+	    
+	    @Autowired
+	    private InstructorApplicationRepository instructorApplicationRepository;
 	
 	    @Autowired
 	    private CourseRepository courseRepo;
@@ -159,6 +167,53 @@
 	        return averageRating;
 	    }
 	    
+	    public void updateInstructorDetails(InstructorApplicationRequestDTO dto, Principal principal) {
+	        String username = principal.getName();
+	        User currentUser = userRepository.findByUsername(username)
+	                .orElseThrow(() -> {
+	                    logger.error("User not found: {}", username);
+	                    return new IllegalStateException("User not found: " + username);
+	                });
+
+	        // Check if user is INSTRUCTOR
+	        if (!currentUser.getRole().equals("INSTRUCTOR")) {
+	            logger.error("User {} is not an instructor", username);
+	            throw new IllegalStateException("Only instructors can update their details");
+	        }
+
+	        InstructorApplication instructorApplication = instructorApplicationRepository.findByUserId(currentUser.getId())
+	                .orElseThrow(() -> {
+	                    logger.error("Instructor application not found for user ID: {}", currentUser.getId());
+	                    return new IllegalArgumentException("Instructor application not found for user: " + username);
+	                });
+
+	        // Update fields if provided
+	        if (dto.getQualifications() != null) {
+	            instructorApplication.setQualifications(dto.getQualifications());
+	        }
+	        if (dto.getExperience() >= 0) { // Validation handled by DTO
+	            instructorApplication.setExperience(dto.getExperience());
+	        }
+	        if (dto.getCourses() != null) {
+	            instructorApplication.setCourses(dto.getCourses());
+	        }
+	        if (dto.getPhotoUrl() != null) {
+	            instructorApplication.setPhotoUrl(dto.getPhotoUrl());
+	        }
+	        if (dto.getAboutMe() != null) {
+	            instructorApplication.setAboutMe(dto.getAboutMe());
+	        }
+	        if (dto.getTwitterUrl() != null) {
+	            instructorApplication.setTwitterUrl(dto.getTwitterUrl());
+	        }
+	        if (dto.getGithubUrl() != null) {
+	            instructorApplication.setGithubUrl(dto.getGithubUrl());
+	        }
+
+	        instructorApplicationRepository.save(instructorApplication);
+	        logger.info("Updated instructor details for user {} (instructor application ID: {})", 
+	                    username, instructorApplication.getId());
+	    }
 	    public Long getEnrollmentCountByInstructorId(Long instructorId) {
 	        if (!instructorRepo.existsById(instructorId)) {
 	            throw new IllegalArgumentException("Instructor application not found: " + instructorId);

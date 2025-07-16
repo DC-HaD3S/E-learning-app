@@ -1,6 +1,7 @@
 
 package com.example.e_learning.controller;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +46,7 @@ public class InstructorApplicationController {
 
     @Autowired
     private InstructorApplicationService service;
+    
     
     @Autowired
     private CourseService courseService;
@@ -223,6 +226,36 @@ public class InstructorApplicationController {
             logger.error("Failed to retrieve instructor's highest enrolled courses: {}", e.getMessage());
             Map<String, String> errorResponse = Map.of("error", "Failed to retrieve instructor's highest enrolled courses: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @Operation(
+        summary = "Update instructor details",
+        description = "Allows an authenticated instructor to update their own details (e.g., qualifications, experience, courses) for the specified instructor ID. The instructor must match the authenticated user.")
+    @PutMapping("/me")
+    public ResponseEntity<Map<String, String>> updateInstructorDetails(
+            @Valid @RequestBody InstructorApplicationRequestDTO dto,
+            Principal principal) {
+        try {
+            if (principal == null) {
+                logger.error("No authenticated user found");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Authentication required"));
+            }
+            service.updateInstructorDetails(dto, principal);
+            return ResponseEntity.ok(Map.of("message", "Instructor details updated successfully"));
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid request: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            logger.error("Unauthorized access: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Failed to update instructor details: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to update instructor details: " + e.getMessage()));
         }
     }
     private String getAuthenticatedUsername() {
