@@ -23,6 +23,8 @@ import com.example.e_learning.dto.AverageRatingResponseDTO;
 import com.example.e_learning.dto.InstructorApplicationDTO;
 import com.example.e_learning.dto.InstructorApplicationRequestDTO;
 import com.example.e_learning.dto.InstructorDetailsDTO;
+import com.example.e_learning.dto.InstructorHighestEnrollmentDTO;
+import com.example.e_learning.service.CourseService;
 import com.example.e_learning.service.InstructorApplicationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,6 +44,9 @@ public class InstructorApplicationController {
 
     @Autowired
     private InstructorApplicationService service;
+    
+    @Autowired
+    private CourseService courseService;
 
     @Operation(
         summary = "Submit an instructor application",
@@ -200,6 +205,26 @@ public class InstructorApplicationController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
             }
         }
+    
+    
+    @Operation(
+            summary = "Get instructor's courses with highest enrollments",
+            description = "Public endpoint to retrieve the course IDs, titles, and enrollment counts of the courses with the highest number of enrollments for a specific instructor, identified by instructorId. Returns multiple courses in case of ties. Accessible to all users, including unauthenticated users.")
+    @GetMapping("/{instructorId}/highest-enrolled-courses")
+    public ResponseEntity<?> getInstructorHighestEnrolledCourses(@PathVariable Long instructorId) {
+        try {
+            List<InstructorHighestEnrollmentDTO> courses = courseService.getInstructorCoursesWithHighestEnrollments(instructorId);
+            return ResponseEntity.ok(courses);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid instructor ID: {}", e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        } catch (Exception e) {
+            logger.error("Failed to retrieve instructor's highest enrolled courses: {}", e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", "Failed to retrieve instructor's highest enrolled courses: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
     private String getAuthenticatedUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {

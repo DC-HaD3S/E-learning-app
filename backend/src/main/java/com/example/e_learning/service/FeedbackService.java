@@ -1,6 +1,9 @@
 package com.example.e_learning.service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.example.e_learning.dto.FeedbackDTO;
+import com.example.e_learning.dto.HighestRatedCourseDTO;
 import com.example.e_learning.entity.Feedback;
 import com.example.e_learning.entity.User;
 import com.example.e_learning.entity.Course;
@@ -25,6 +28,9 @@ public class FeedbackService {
 
     @Autowired
     private CourseRepository courseRepository;
+    
+    private static final Logger logger = LoggerFactory.getLogger(FeedbackService.class);
+
 
     public void submitFeedback(FeedbackDTO feedbackDTO) {
         if (feedbackDTO.getCourseId() == null) {
@@ -162,5 +168,38 @@ public class FeedbackService {
         dto.setRating(feedback.getRating());
         dto.setComments(feedback.getComments());
         return dto;
+    }
+    
+
+    public List<HighestRatedCourseDTO> getHighestRatedCourses() {
+        List<Object[]> results = feedbackRepository.findCoursesWithHighestAverageRating();
+        logger.info("Query returned {} results", results.size());
+
+        if (results.isEmpty()) {
+            logger.info("No feedback found for any courses");
+            return List.of();
+        }
+
+        List<HighestRatedCourseDTO> dtos = results.stream()
+            .filter(result -> result.length >= 3)
+            .map(result -> {
+                Long courseId = ((Number) result[0]).longValue();
+                String title = (String) result[1];
+                Double averageRating = ((Number) result[2]).doubleValue();
+                logger.info("Processing course: courseId = {}, title = {}, averageRating = {}", 
+                            courseId, title, averageRating);
+                HighestRatedCourseDTO dto = new HighestRatedCourseDTO();
+                dto.setCourseId(courseId);
+                dto.setTitle(title);
+                dto.setAverageRating(averageRating);
+                return dto;
+            })
+            .collect(Collectors.toList());
+
+        if (dtos.isEmpty()) {
+            logger.warn("No valid results after processing");
+        }
+
+        return dtos;
     }
 }

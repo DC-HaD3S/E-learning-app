@@ -2,6 +2,7 @@ package com.example.e_learning.service;
 
 import com.example.e_learning.dto.CourseDTO;
 import com.example.e_learning.dto.HighestEnrollmentDTO;
+import com.example.e_learning.dto.InstructorHighestEnrollmentDTO;
 import com.example.e_learning.entity.Course;
 import com.example.e_learning.entity.InstructorApplication;
 import com.example.e_learning.entity.User;
@@ -199,6 +200,44 @@ public class CourseService {
         }
 
         return dto;
+    }
+    
+
+    public List<InstructorHighestEnrollmentDTO> getInstructorCoursesWithHighestEnrollments(Long instructorId) {
+        if (!instructorApplicationRepository.existsById(instructorId)) {
+            logger.warn("Instructor ID {} does not exist", instructorId);
+            throw new IllegalArgumentException("Instructor not found: " + instructorId);
+        }
+
+        List<Object[]> results = enrollmentRepository.findCoursesWithHighestEnrollmentsByInstructorId(instructorId);
+        logger.info("Query returned {} results for instructor ID {}", results.size(), instructorId);
+
+        if (results.isEmpty()) {
+            logger.info("No enrollments or courses found for instructor ID {}", instructorId);
+            return List.of();
+        }
+
+        List<InstructorHighestEnrollmentDTO> dtos = results.stream()
+            .filter(result -> result.length >= 3)
+            .map(result -> {
+                Long courseId = ((Number) result[0]).longValue();
+                String title = (String) result[1];
+                Long enrollmentCount = ((Number) result[2]).longValue();
+                logger.info("Processing course: courseId = {}, title = {}, enrollmentCount = {}", 
+                            courseId, title, enrollmentCount);
+                InstructorHighestEnrollmentDTO dto = new InstructorHighestEnrollmentDTO();
+                dto.setCourseId(courseId);
+                dto.setTitle(title);
+                dto.setEnrollmentCount(enrollmentCount);
+                return dto;
+            })
+            .collect(Collectors.toList());
+
+        if (dtos.isEmpty()) {
+            logger.warn("No valid results after processing for instructor ID {}", instructorId);
+        }
+
+        return dtos;
     }
 
 }

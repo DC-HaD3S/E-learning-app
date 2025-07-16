@@ -1,12 +1,15 @@
 package com.example.e_learning.controller;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.example.e_learning.dto.FeedbackDTO;
-
+import com.example.e_learning.dto.HighestRatedCourseDTO;
+import com.example.e_learning.dto.InstructorHighestEnrollmentDTO;
+import com.example.e_learning.service.CourseService;
 import com.example.e_learning.service.FeedbackService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +34,9 @@ public class FeedbackController {
     @Autowired
     private FeedbackService feedbackService;
     
+
+    
+    private static final Logger logger = LoggerFactory.getLogger(FeedbackController.class);
 
 
 
@@ -224,4 +230,23 @@ public class FeedbackController {
         Double averageRating = feedbackService.getAverageRatingByCourseId(courseId);
         return ResponseEntity.ok(averageRating);
     }
-}
+	    
+	    @Operation(
+	            summary = "Get course with highest average rating",
+	            description = "Public endpoint to retrieve the course ID, title, and average rating of the course with the highest average rating based on feedback. Accessible to all users, including unauthenticated users.")
+	    @GetMapping("/highest-rated-courses")
+	    public ResponseEntity<?> getHighestRatedCourses() {
+	        try {
+	            List<HighestRatedCourseDTO> courses = feedbackService.getHighestRatedCourses();
+	            return ResponseEntity.ok(courses);
+	        } catch (Exception e) {
+	            logger.error("Failed to retrieve highest rated courses: {}", e.getMessage());
+	            Map<String, String> errorResponse = Map.of("error", "Failed to retrieve highest rated courses: " + e.getMessage());
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+	        }
+	    }
+	    
+
+
+	}
+
