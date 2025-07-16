@@ -1,15 +1,19 @@
 package com.example.e_learning.service;
 
 import com.example.e_learning.dto.CourseDTO;
+import com.example.e_learning.dto.HighestEnrollmentDTO;
 import com.example.e_learning.entity.Course;
 import com.example.e_learning.entity.InstructorApplication;
 import com.example.e_learning.entity.User;
 import com.example.e_learning.repository.CourseRepository;
+import com.example.e_learning.repository.EnrollmentRepository;
 import com.example.e_learning.repository.InstructorApplicationRepository;
 import com.example.e_learning.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +24,9 @@ public class CourseService {
     @Autowired private CourseRepository courseRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private InstructorApplicationRepository instructorApplicationRepository;
+    @Autowired private EnrollmentRepository enrollmentRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(CourseService.class);
 
     public List<CourseDTO> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
@@ -145,8 +152,53 @@ public class CourseService {
     public List<Course> getCoursesByInstructorId(Long instructorId) {
         return courseRepository.findByInstructorId(instructorId);
     }
-
-    public Course findById(Long courseId) {
-        return courseRepository.findById(courseId).orElse(null);
+    
+    
+    public Long getEnrollmentCountByCourseId(Long courseId) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new IllegalArgumentException("Course not found: " + courseId);
+        }
+        Long count = enrollmentRepository.countEnrollmentsByCourseId(courseId);
+        logger.info("Enrollment count for course ID {}: {}", courseId, count);
+        return count;
     }
+
+
+    public HighestEnrollmentDTO getHighestEnrolledUsersCount() {
+        List<Object[]> results = enrollmentRepository.findCourseWithHighestEnrolledUsersCount();
+        HighestEnrollmentDTO dto = new HighestEnrollmentDTO();
+
+        if (results == null || results.isEmpty()) {
+            logger.info("No enrollments found or query returned empty result: {}", results);
+            dto.setCourseId(null);
+            dto.setCount(0L);
+            return dto;
+        }
+
+        Object[] result = results.get(0); // Take the first result
+        if (result.length < 2) {
+            logger.info("Invalid query result: result is {}, length is {}", 
+                        java.util.Arrays.toString(result), result.length);
+            dto.setCourseId(null);
+            dto.setCount(0L);
+            return dto;
+        }
+
+        Long courseId = ((Number) result[0]).longValue();
+        Long count = ((Number) result[1]).longValue();
+        logger.info("Query result: courseId = {}, count = {}", courseId, count);
+
+        if (!courseRepository.existsById(courseId)) {
+            logger.warn("Course ID {} from enrollment data does not exist in course table", courseId);
+            dto.setCourseId(null);
+            dto.setCount(0L);
+        } else {
+            logger.info("Highest enrolled users count for course ID {}: {}", courseId, count);
+            dto.setCourseId(courseId);
+            dto.setCount(count);
+        }
+
+        return dto;
+    }
+
 }

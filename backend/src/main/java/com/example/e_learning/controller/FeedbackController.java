@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.e_learning.dto.FeedbackDTO;
-import com.example.e_learning.entity.InstructorApplication;
-import com.example.e_learning.entity.User;
-import com.example.e_learning.repository.InstructorApplicationRepository;
-import com.example.e_learning.repository.UserRepository;
+
 import com.example.e_learning.service.FeedbackService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,11 +31,7 @@ public class FeedbackController {
     @Autowired
     private FeedbackService feedbackService;
     
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private InstructorApplicationRepository instructorApplicationRepository;
 
 
     @Operation(

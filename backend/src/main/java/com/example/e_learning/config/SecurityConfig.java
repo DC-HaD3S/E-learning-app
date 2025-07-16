@@ -35,7 +35,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) 
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/login","/instructor/{instructorId}/enrollment-count","/feedback/instructor/{instructorId}/feedback-count", "/auth/signup","/feedback/course/{courseId}","/feedback/course/{courseId}/average-rating","/feedback/all","instructor/average-rating", "/courses", "/auth/check-username", "/auth/check-email", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/auth/login","/courses/highest-enrolled-users-count","/instructor/{instructorId}/enrollment-count","/courses/{courseId}/enrollment-count","/instructor/{instructorId}","/feedback/instructor/{instructorId}/feedback-count", "/auth/signup","/feedback/course/{courseId}","/feedback/course/{courseId}/average-rating","/feedback/all","instructor/average-rating", "/courses", "/auth/check-username", "/auth/check-email", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
                 .anyRequest().authenticated()

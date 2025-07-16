@@ -1,150 +1,170 @@
+	
+	package com.example.e_learning.service;
+	
+	import java.util.List;
+	import java.util.stream.Collectors;
+	import org.slf4j.Logger;
+	import org.slf4j.LoggerFactory;
+	import org.springframework.beans.factory.annotation.Autowired;
+	import org.springframework.stereotype.Service;
+	import org.springframework.transaction.annotation.Transactional;
+	import com.example.e_learning.dto.InstructorApplicationDTO;
+	import com.example.e_learning.dto.InstructorApplicationRequestDTO;
+	import com.example.e_learning.dto.InstructorDetailsDTO;
+	import com.example.e_learning.entity.Course;
+	import com.example.e_learning.entity.InstructorApplication;
+	import com.example.e_learning.entity.User;
+	import com.example.e_learning.repository.CourseRepository;
+	import com.example.e_learning.repository.FeedbackRepository;
+	import com.example.e_learning.repository.InstructorApplicationRepository;
+	import com.example.e_learning.repository.UserRepository;
+	import jakarta.persistence.EntityNotFoundException;
+	
+	@Service
+	public class InstructorApplicationService {
+	
+	    private static final Logger logger = LoggerFactory.getLogger(InstructorApplicationService.class);
+	
+	    @Autowired
+	    private InstructorApplicationRepository instructorRepo;
+	
+	    @Autowired
+	    private UserRepository userRepo;
+	    
+	
+	    @Autowired
+	    private CourseRepository courseRepo;
+	    
+	    @Autowired
+	    private FeedbackRepository feedbackRepo;
+	
+	    @Transactional
+	    public void submitApplication(InstructorApplicationRequestDTO dto, String username) {
+	        User user = userRepo.findByUsername(username)
+	                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+	
+	        if (user.getRole().equals("INSTRUCTOR")) {
+	            throw new IllegalStateException("User is already an instructor");
+	        }
+	
+	        InstructorApplication application = new InstructorApplication();
+	        application.setName(user.getName());
+	        application.setEmail(user.getEmail());
+	        application.setQualifications(dto.getQualifications());
+	        application.setExperience(dto.getExperience());
+	        application.setCourses(dto.getCourses());
+	        application.setPhotoUrl(dto.getPhotoUrl());
+	        application.setAboutMe(dto.getAboutMe());
+	        application.setTwitterUrl(dto.getTwitterUrl());
+	        application.setGithubUrl(dto.getGithubUrl());
+	        application.setUser(user);
+	        application.setApproved(false);
+	
+	        instructorRepo.save(application);
+	        logger.info("Application submitted for user: {}, approved: {}", username, application.isApproved());
+	    }
+	
+	    public List<InstructorApplicationDTO> getAllApplications() {
+	        List<InstructorApplication> applications = instructorRepo.findAll();
+	        return applications.stream()
+	                .map(application -> {
+	                    InstructorApplicationDTO dto = new InstructorApplicationDTO();
+	                    dto.setId(application.getId());
+	                    dto.setName(application.getName());
+	                    dto.setEmail(application.getEmail());
+	                    dto.setQualifications(application.getQualifications());
+	                    dto.setExperience(application.getExperience());
+	                    dto.setCourses(application.getCourses());
+	                    dto.setPhotoUrl(application.getPhotoUrl());
+	                    dto.setAboutMe(application.getAboutMe());
+	                    dto.setTwitterUrl(application.getTwitterUrl());
+	                    dto.setGithubUrl(application.getGithubUrl());
+	                    dto.setApproved(application.isApproved());
+	                    logger.debug("Mapping application ID: {}, approved: {}", application.getId(), application.isApproved());
+	                    return dto;
+	                })
+	                .collect(Collectors.toList());
+	    }
+	
+	    @Transactional
+	    public void approveApplication(Long applicationId) {
+	        InstructorApplication application = instructorRepo.findById(applicationId)
+	                .orElseThrow(() -> new EntityNotFoundException("Application not found: " + applicationId));
+	
+	        User user = application.getUser();
+	        if (user == null) {
+	            throw new IllegalStateException("No user associated with application: " + applicationId);
+	        }
+	
+	        user.setRole("INSTRUCTOR");
+	        application.setApproved(true);
+	
+	        userRepo.save(user);
+	        instructorRepo.save(application);
+	        logger.info("Application ID: {} approved, courses: {}", applicationId, application.getCourses());
+	    }
+	    
+	    public InstructorDetailsDTO getInstructorDetailsById(Long instructorId) {
+	        InstructorApplication instructor = instructorRepo.findById(instructorId)
+	                .orElseThrow(() -> new IllegalArgumentException("Instructor application not found: " + instructorId));
 
-package com.example.e_learning.service;
+	        InstructorDetailsDTO dto = new InstructorDetailsDTO();
+	        dto.setName(instructor.getName());
+	        dto.setEmail(instructor.getEmail());
+	        dto.setQualifications(instructor.getQualifications());
+	        dto.setExperience(instructor.getExperience());
+	        dto.setCourses(instructor.getCourses());
+	        dto.setPhotoUrl(instructor.getPhotoUrl());
+	        dto.setAboutMe(instructor.getAboutMe());
+	        dto.setTwitterUrl(instructor.getTwitterUrl());
+	        dto.setGithubUrl(instructor.getGithubUrl());
 
-import java.util.List;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.example.e_learning.dto.InstructorApplicationDTO;
-import com.example.e_learning.dto.InstructorApplicationRequestDTO;
-import com.example.e_learning.entity.Course;
-import com.example.e_learning.entity.InstructorApplication;
-import com.example.e_learning.entity.User;
-import com.example.e_learning.repository.CourseRepository;
-import com.example.e_learning.repository.FeedbackRepository;
-import com.example.e_learning.repository.InstructorApplicationRepository;
-import com.example.e_learning.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+	        logger.info("Retrieved instructor details for ID: {}", instructorId);
+	        return dto;
+	    }
 
-@Service
-public class InstructorApplicationService {
-
-    private static final Logger logger = LoggerFactory.getLogger(InstructorApplicationService.class);
-
-    @Autowired
-    private InstructorApplicationRepository instructorRepo;
-
-    @Autowired
-    private UserRepository userRepo;
-    
-
-    @Autowired
-    private CourseRepository courseRepo;
-    
-    @Autowired
-    private FeedbackRepository feedbackRepo;
-
-    @Transactional
-    public void submitApplication(InstructorApplicationRequestDTO dto, String username) {
-        User user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
-
-        if (user.getRole().equals("INSTRUCTOR")) {
-            throw new IllegalStateException("User is already an instructor");
-        }
-
-        InstructorApplication application = new InstructorApplication();
-        application.setName(user.getName());
-        application.setEmail(user.getEmail());
-        application.setQualifications(dto.getQualifications());
-        application.setExperience(dto.getExperience());
-        application.setCourses(dto.getCourses());
-        application.setPhotoUrl(dto.getPhotoUrl());
-        application.setAboutMe(dto.getAboutMe());
-        application.setTwitterUrl(dto.getTwitterUrl());
-        application.setGithubUrl(dto.getGithubUrl());
-        application.setUser(user);
-        application.setApproved(false);
-
-        instructorRepo.save(application);
-        logger.info("Application submitted for user: {}, approved: {}", username, application.isApproved());
-    }
-
-    public List<InstructorApplicationDTO> getAllApplications() {
-        List<InstructorApplication> applications = instructorRepo.findAll();
-        return applications.stream()
-                .map(application -> {
-                    InstructorApplicationDTO dto = new InstructorApplicationDTO();
-                    dto.setId(application.getId());
-                    dto.setName(application.getName());
-                    dto.setEmail(application.getEmail());
-                    dto.setQualifications(application.getQualifications());
-                    dto.setExperience(application.getExperience());
-                    dto.setCourses(application.getCourses());
-                    dto.setPhotoUrl(application.getPhotoUrl());
-                    dto.setAboutMe(application.getAboutMe());
-                    dto.setTwitterUrl(application.getTwitterUrl());
-                    dto.setGithubUrl(application.getGithubUrl());
-                    dto.setApproved(application.isApproved());
-                    logger.debug("Mapping application ID: {}, approved: {}", application.getId(), application.isApproved());
-                    return dto;
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public void approveApplication(Long applicationId) {
-        InstructorApplication application = instructorRepo.findById(applicationId)
-                .orElseThrow(() -> new EntityNotFoundException("Application not found: " + applicationId));
-
-        User user = application.getUser();
-        if (user == null) {
-            throw new IllegalStateException("No user associated with application: " + applicationId);
-        }
-
-        user.setRole("INSTRUCTOR");
-        application.setApproved(true);
-
-        userRepo.save(user);
-        instructorRepo.save(application);
-        logger.info("Application ID: {} approved, courses: {}", applicationId, application.getCourses());
-    }
-    
-
-    public Double getInstructorAverageRating(Long instructorId) {
-        User instructor = userRepo.findById(instructorId)
-                .orElseThrow(() -> new EntityNotFoundException("Instructor not found: " + instructorId));
-
-        if (!instructor.getRole().equals("INSTRUCTOR")) {
-            throw new IllegalStateException("User is not an instructor: " + instructorId);
-        }
-
-        List<Course> courses = courseRepo.findByInstructorId(instructorId);
-        if (courses.isEmpty()) {
-            logger.info("No courses found for instructor ID: {}", instructorId);
-            return null;
-        }
-
-        double totalRating = 0.0;
-        int courseCount = 0;
-
-        for (Course course : courses) {
-            Double avgRating = feedbackRepo.findAverageRatingByCourseId(course.getId());
-            if (avgRating != null) {
-                totalRating += avgRating;
-                courseCount++;
-            }
-        }
-
-        if (courseCount == 0) {
-            logger.info("No feedback ratings found for courses of instructor ID: {}", instructorId);
-            return null;
-        }
-
-        double averageRating = totalRating / courseCount;
-        logger.info("Average rating for instructor ID {}: {}", instructorId, averageRating);
-        return averageRating;
-    }
-    
-    public Long getEnrollmentCountByInstructorId(Long instructorId) {
-        if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor application not found: " + instructorId);
-        }
-        Long count = instructorRepo.countEnrollmentsByInstructorId(instructorId);
-        logger.info("Enrollment count for instructor ID {}: {}", instructorId, count);
-        return count;
-    }
-}
+	
+	    public Double getInstructorAverageRating(Long instructorId) {
+	        User instructor = userRepo.findById(instructorId)
+	                .orElseThrow(() -> new EntityNotFoundException("Instructor not found: " + instructorId));
+	
+	        if (!instructor.getRole().equals("INSTRUCTOR")) {
+	            throw new IllegalStateException("User is not an instructor: " + instructorId);
+	        }
+	
+	        List<Course> courses = courseRepo.findByInstructorId(instructorId);
+	        if (courses.isEmpty()) {
+	            logger.info("No courses found for instructor ID: {}", instructorId);
+	            return null;
+	        }
+	
+	        double totalRating = 0.0;
+	        int courseCount = 0;
+	
+	        for (Course course : courses) {
+	            Double avgRating = feedbackRepo.findAverageRatingByCourseId(course.getId());
+	            if (avgRating != null) {
+	                totalRating += avgRating;
+	                courseCount++;
+	            }
+	        }
+	
+	        if (courseCount == 0) {
+	            logger.info("No feedback ratings found for courses of instructor ID: {}", instructorId);
+	            return null;
+	        }
+	
+	        double averageRating = totalRating / courseCount;
+	        logger.info("Average rating for instructor ID {}: {}", instructorId, averageRating);
+	        return averageRating;
+	    }
+	    
+	    public Long getEnrollmentCountByInstructorId(Long instructorId) {
+	        if (!instructorRepo.existsById(instructorId)) {
+	            throw new IllegalArgumentException("Instructor application not found: " + instructorId);
+	        }
+	        Long count = instructorRepo.countEnrollmentsByInstructorId(instructorId);
+	        logger.info("Enrollment count for instructor ID {}: {}", instructorId, count);
+	        return count;
+	    }
+	}

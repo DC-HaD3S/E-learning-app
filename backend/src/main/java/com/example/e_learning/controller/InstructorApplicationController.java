@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.e_learning.dto.AverageRatingResponseDTO;
 import com.example.e_learning.dto.InstructorApplicationDTO;
 import com.example.e_learning.dto.InstructorApplicationRequestDTO;
+import com.example.e_learning.dto.InstructorDetailsDTO;
 import com.example.e_learning.service.InstructorApplicationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -170,6 +171,35 @@ public class InstructorApplicationController {
         }
     }
     
+    @Operation(
+            summary = "Get instructor details by ID",
+            description = "Public endpoint to retrieve details of a specific instructor, identified by instructor application ID. Includes name, email, qualifications, experience, courses, photo URL, about me, Twitter URL, and GitHub URL. Accessible to all users, including unauthenticated users.",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Instructor details", 
+                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = InstructorDetailsDTO.class))),
+                @ApiResponse(responseCode = "400", description = "Invalid instructor ID", 
+                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+                @ApiResponse(responseCode = "500", description = "Server error", 
+                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+            }
+        )
+        @GetMapping("/{instructorId}")
+        public ResponseEntity<?> getInstructorDetailsById(
+            @Parameter(description = "ID of the instructor application to retrieve details for", required = true) 
+            @PathVariable Long instructorId) {
+            try {
+                InstructorDetailsDTO instructorDetails = service.getInstructorDetailsById(instructorId);
+                return ResponseEntity.ok(instructorDetails);
+            } catch (IllegalArgumentException e) {
+                logger.error("Invalid instructor ID {}: {}", instructorId, e.getMessage());
+                Map<String, String> errorResponse = Map.of("error", e.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            } catch (Exception e) {
+                logger.error("Failed to retrieve instructor details for ID {}: {}", instructorId, e.getMessage());
+                Map<String, String> errorResponse = Map.of("error", "Failed to retrieve instructor details: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            }
+        }
     private String getAuthenticatedUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {

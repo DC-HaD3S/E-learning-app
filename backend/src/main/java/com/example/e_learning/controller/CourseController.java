@@ -10,6 +10,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.e_learning.dto.CourseDTO;
 import com.example.e_learning.dto.EnrollmentDTO;
+import com.example.e_learning.dto.HighestEnrollmentDTO;
 import com.example.e_learning.entity.Course;
 import com.example.e_learning.entity.User;
 import com.example.e_learning.service.CourseService;
@@ -260,6 +262,38 @@ public class CourseController {
         }
     }
 
+
+    @Operation(
+        summary = "Get enrollment count for a specific course",
+        description = "Public endpoint to retrieve the total number of enrolled users for a specific course, identified by course ID. Accessible to all users, including unauthenticated users.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Enrollment count for the course", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class, example = "{\"count\": 10}"))),
+            @ApiResponse(responseCode = "400", description = "Invalid course ID", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Server error", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+        }
+    )
+    @GetMapping("/{courseId}/enrollment-count")
+    public ResponseEntity<?> getEnrollmentCountByCourseId(
+        @Parameter(description = "ID of the course to retrieve enrollment count for", required = true) 
+        @PathVariable Long courseId) {
+        try {
+            Long enrollmentCount = courseService.getEnrollmentCountByCourseId(courseId);
+            Map<String, Long> response = Map.of("count", enrollmentCount);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid course ID {}: {}", courseId, e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        } catch (Exception e) {
+            logger.error("Failed to retrieve enrollment count for course ID {}: {}", courseId, e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", "Failed to retrieve enrollment count: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
     @Operation(
         summary = "Get enrolled courses",
         description = "Allows a user or admin to view their enrolled courses.",
@@ -288,6 +322,29 @@ public class CourseController {
             return ResponseEntity.status(404).body(Collections.emptyList());
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Collections.emptyList());
+        }
+    }
+    @Operation(
+            summary = "Get course with highest enrolled users count",
+            description = "Public endpoint to retrieve the course ID and number of users enrolled in the course with the highest enrollment count. Accessible to all users, including unauthenticated users.",
+            responses = {
+                @ApiResponse(responseCode = "200", description = "Course ID and count of users enrolled in the course with the highest enrollments", 
+                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = HighestEnrollmentDTO.class, example = "{\"courseId\": 7, \"count\": 10}"))),
+                @ApiResponse(responseCode = "404", description = "No enrollments found", 
+                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class, example = "{\"courseId\": null, \"count\": 0}"))),
+                @ApiResponse(responseCode = "500", description = "Server error", 
+                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+            }
+        )
+    @GetMapping("/highest-enrolled-users-count")
+    public ResponseEntity<?> getHighestEnrolledUsersCount() {
+        try {
+            HighestEnrollmentDTO enrollment = courseService.getHighestEnrolledUsersCount();
+            return ResponseEntity.ok(enrollment);
+        } catch (Exception e) {
+            logger.error("Failed to retrieve highest enrolled users count: {}", e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", "Failed to retrieve highest enrolled users count: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }
