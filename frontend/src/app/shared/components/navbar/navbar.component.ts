@@ -16,6 +16,7 @@ import { clearRole, setUserDetails } from 'src/app/store/auth/auth.actions';
 })
 export class NavbarComponent {
     isMobileMenuOpen = false;
+    isUserDropdownOpen = false;
 
   isAuthenticated$: Observable<boolean>;
   role$: Observable<UserRole | null>;
@@ -40,15 +41,25 @@ toggleMobileMenu(): void {
 
   closeMobileMenu(): void {
     this.isMobileMenuOpen = false;
+    this.isUserDropdownOpen = false;
+  }
+
+  toggleUserDropdown(): void {
+    this.isUserDropdownOpen = !this.isUserDropdownOpen;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
     const mobileMenuContainer = target.closest('.mobile-nav-container');
+    const userDropdown = target.closest('.nav-item.dropdown');
     
     if (!mobileMenuContainer && this.isMobileMenuOpen) {
       this.closeMobileMenu();
+    }
+    
+    if (!userDropdown && this.isUserDropdownOpen) {
+      this.isUserDropdownOpen = false;
     }
   }
 
