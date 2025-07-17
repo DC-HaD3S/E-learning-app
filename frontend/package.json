@@ -34,6 +34,7 @@
     "bootstrap-icons": "^1.11.3",
     "jquery": "^3.7.1",
     "jwt-decode": "^4.0.0",
+    "ng-bootstrap": "^1.6.3",
     "popper.js": "^1.16.1",
     "rxjs": "^7.8.1",
     "tslib": "^2.6.3",

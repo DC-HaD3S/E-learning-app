@@ -9,22 +9,11 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     
-<<<<<<< HEAD
-=======
-    <!-- Collapsible Content -->
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
     <div class="collapse navbar-collapse" [class.show]="isMobileMenuOpen">
       <!-- Left side navigation -->
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-<<<<<<< HEAD
           <a class="nav-link" (click)="goToAboutUs(); closeMobileMenu()">About Us</a>
-=======
-          <a class="nav-link" (click)="goToAboutUs(); closeMobileMenu()">
-            <i class="fas fa-info-circle me-1"></i>
-            About Us
-          </a>
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
         </li>
       </ul>
       
@@ -37,37 +26,21 @@
             <ng-container *ngIf="role === 'admin'">
               <li class="nav-item">
                 <a class="nav-link" (click)="goToRegisteredUsers(); closeMobileMenu()">
-<<<<<<< HEAD
-=======
-                  <i class="fas fa-users me-1"></i>
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
                   Registered Users
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" (click)="goToAdminFeedbacks(); closeMobileMenu()">
-<<<<<<< HEAD
-=======
-                  <i class="fas fa-comments me-1"></i>
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
                   Feedbacks
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" (click)="goToAdminEnrolled(); closeMobileMenu()">
-<<<<<<< HEAD
-=======
-                  <i class="fas fa-user-graduate me-1"></i>
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
                   Enrolled
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" (click)="goToAdminManageCourses(); closeMobileMenu()">
-<<<<<<< HEAD
-=======
-                  <i class="fas fa-cogs me-1"></i>
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
                   Manage Courses
                 </a>
               </li>
@@ -77,12 +50,7 @@
             <ng-container *ngIf="role === 'user'">
               <li class="nav-item">
                 <a class="nav-link" (click)="goToUserEnrolled(); closeMobileMenu()">
-<<<<<<< HEAD
                   Enrolled Courses
-=======
-                  <i class="fas fa-book-open me-1"></i>
-                  My Courses
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
                 </a>
               </li>
             </ng-container>
@@ -90,25 +58,15 @@
           
           <!-- User dropdown -->
           <li class="nav-item dropdown">
-<<<<<<< HEAD
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" 
                role="button" data-bs-toggle="dropdown" aria-expanded="false"
                (click)="toggleUserDropdown()">
-=======
-            <a class="nav-link dropdown-toggle user-dropdown" href="#" id="navbarDropdown" 
-               role="button" (click)="toggleUserDropdown()" [attr.aria-expanded]="isUserDropdownOpen">
-              <i class="fas fa-user-circle me-1"></i>
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
               {{ username$ | async }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end" [class.show]="isUserDropdownOpen" 
                 aria-labelledby="navbarDropdown">
               <li>
                 <a class="dropdown-item" (click)="logout(); closeMobileMenu()">
-<<<<<<< HEAD
-=======
-                  <i class="fas fa-sign-out-alt me-2"></i>
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
                   Logout
                 </a>
               </li>
@@ -119,10 +77,6 @@
         <!-- Login button for non-authenticated users -->
         <li class="nav-item" *ngIf="!(isAuthenticated$ | async)">
           <a class="nav-link nav-login-btn" (click)="goToLogin(); closeMobileMenu()">
-<<<<<<< HEAD
-=======
-            <i class="fas fa-sign-in-alt me-1"></i>
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
             Login
           </a>
         </li>

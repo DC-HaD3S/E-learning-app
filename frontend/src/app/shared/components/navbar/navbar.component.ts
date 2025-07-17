@@ -14,17 +14,14 @@ import { clearRole, setUserDetails } from 'src/app/store/auth/auth.actions';
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
-<<<<<<< HEAD
   isMobileMenuOpen = false;
   isUserDropdownOpen = false;
-=======
-    isMobileMenuOpen = false;
-    isUserDropdownOpen = false;
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
 
   isAuthenticated$: Observable<boolean>;
   role$: Observable<UserRole | null>;
   username$: Observable<string>;
+
+  screenWidth = window.innerWidth;
 
   constructor(
     private router: Router,
@@ -40,65 +37,52 @@ export class NavbarComponent {
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    this.isUserDropdownOpen = false;
-  }
-
-  closeMobileMenu(): void {
-    this.isMobileMenuOpen = false;
-    this.isUserDropdownOpen = false;
-<<<<<<< HEAD
-=======
-  }
-
-  toggleUserDropdown(): void {
-    this.isUserDropdownOpen = !this.isUserDropdownOpen;
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
-  }
-
-    toggleUserDropdown(): void {
-    this.isUserDropdownOpen = !this.isUserDropdownOpen;
-  }
-  
-  // Close menus when clicking outside
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event): void {
-    const target = event.target as HTMLElement;
-<<<<<<< HEAD
-    const navbar = target.closest('.navbar');
-    const dropdown = target.closest('.dropdown');
-=======
-    const mobileMenuContainer = target.closest('.mobile-nav-container');
-    const userDropdown = target.closest('.nav-item.dropdown');
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
-    
-    if (!navbar) {
-      this.closeMobileMenu();
-    }
-    
-<<<<<<< HEAD
-    if (!dropdown && this.isUserDropdownOpen) {
-=======
-    if (!userDropdown && this.isUserDropdownOpen) {
->>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
+    if (this.screenWidth >= 800) {
       this.isUserDropdownOpen = false;
     }
   }
 
-  // Close mobile menu on window resize (when switching to desktop)
+  toggleUserDropdown(): void {
+    this.isUserDropdownOpen = !this.isUserDropdownOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+    if (this.screenWidth >= 800) {
+      this.isUserDropdownOpen = false;
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    const clickedInsideNavbar = target.closest('.navbar');
+    const clickedInsideDropdown = target.closest('.dropdown');
+
+    if (!clickedInsideNavbar) {
+      this.closeMobileMenu();
+    }
+
+    if (!clickedInsideDropdown && this.isUserDropdownOpen && this.screenWidth >= 800) {
+      this.isUserDropdownOpen = false;
+    }
+  }
+
   @HostListener('window:resize', ['$event'])
   onWindowResize(): void {
-    if (window.innerWidth > 767) { // Bootstrap md breakpoint
+    this.screenWidth = window.innerWidth;
+    if (this.screenWidth > 800) {
       this.closeMobileMenu();
     }
   }
 
-  // Close mobile menu on escape key
   @HostListener('document:keydown.escape', ['$event'])
   onEscapeKey(): void {
     if (this.isMobileMenuOpen) {
       this.closeMobileMenu();
     }
   }
+
   goToLogin(): void {
     this.router.navigate(['/login']);
     this.closeMobileMenu();
