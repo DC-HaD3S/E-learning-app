@@ -14,8 +14,13 @@ import { clearRole, setUserDetails } from 'src/app/store/auth/auth.actions';
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
+<<<<<<< HEAD
   isMobileMenuOpen = false;
   isUserDropdownOpen = false;
+=======
+    isMobileMenuOpen = false;
+    isUserDropdownOpen = false;
+>>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
 
   isAuthenticated$: Observable<boolean>;
   role$: Observable<UserRole | null>;
@@ -41,6 +46,13 @@ export class NavbarComponent {
   closeMobileMenu(): void {
     this.isMobileMenuOpen = false;
     this.isUserDropdownOpen = false;
+<<<<<<< HEAD
+=======
+  }
+
+  toggleUserDropdown(): void {
+    this.isUserDropdownOpen = !this.isUserDropdownOpen;
+>>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
   }
 
     toggleUserDropdown(): void {
@@ -51,14 +63,23 @@ export class NavbarComponent {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
+<<<<<<< HEAD
     const navbar = target.closest('.navbar');
     const dropdown = target.closest('.dropdown');
+=======
+    const mobileMenuContainer = target.closest('.mobile-nav-container');
+    const userDropdown = target.closest('.nav-item.dropdown');
+>>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
     
     if (!navbar) {
       this.closeMobileMenu();
     }
     
+<<<<<<< HEAD
     if (!dropdown && this.isUserDropdownOpen) {
+=======
+    if (!userDropdown && this.isUserDropdownOpen) {
+>>>>>>> 021d21d09be0e45787db2f30ea72e3cbd2909662
       this.isUserDropdownOpen = false;
     }
   }
