@@ -1,86 +1,86 @@
-<mat-toolbar color="primary">
-  <span routerLink="/" style="cursor: pointer;">E-Learning Platform</span>
-  
-  <div class="nav-buttons">
-    <!-- Desktop Navigation -->
-    <div class="desktop-nav">
-      <ng-container>
-        <button mat-button (click)="goToAboutUs()">About Us</button>
-      </ng-container>
+<nav class="navbar navbar-expand-md navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="/" style="cursor: pointer;">
+      E-Learning Platform
+    </a>
+    
+    <button class="navbar-toggler" type="button" (click)="toggleMobileMenu()" 
+            [attr.aria-expanded]="isMobileMenuOpen" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" [class.show]="isMobileMenuOpen">
+      <!-- Left side navigation -->
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" (click)="goToAboutUs(); closeMobileMenu()">About Us</a>
+        </li>
+      </ul>
       
-      <div *ngIf="isAuthenticated$ | async; else notLoggedIn">
-        <ng-container *ngIf="role$ | async as role">
-          <ng-container *ngIf="role === 'admin'">
-            <button mat-button (click)="goToRegisteredUsers()">Registered Users</button>
-            <button mat-button (click)="goToAdminFeedbacks()">Feedbacks</button>
-            <button mat-button (click)="goToAdminEnrolled()">Enrolled</button>
-            <button mat-button (click)="goToAdminManageCourses()">Manage Courses</button>
-          </ng-container>
-          
-          <ng-container *ngIf="role === 'user'">
-            <button mat-button (click)="goToUserEnrolled()">Enrolled Courses</button>
-          </ng-container>
-        </ng-container>
-        
-        <div class="username-container">
-          <button mat-button class="username-button" [attr.aria-label]="'User menu for ' + (username$ | async)">
-            {{ username$ | async }}
-          </button>
-          <div class="dropdown-menu">
-            <button class="dropdown-item" (click)="logout()">Logout</button>
-          </div>
-        </div>
-      </div>
-      
-      <ng-template #notLoggedIn>
-        <button mat-button class="login-button" (click)="goToLogin()">Login</button>
-      </ng-template>
-    </div>
-
-    <!-- Mobile Navigation -->
-    <div class="mobile-nav-container">
-      <button class="mobile-menu-toggle" (click)="toggleMobileMenu()" [attr.aria-label]="'Toggle mobile menu'">
-        ☰
-      </button>
-      
-      <div class="mobile-nav-dropdown" [class.show]="isMobileMenuOpen">
-        <!-- Always show About Us -->
-        <div class="mobile-nav-section">
-          <button class="mobile-nav-item" (click)="goToAboutUs(); closeMobileMenu()">About Us</button>
-        </div>
-        
-        <!-- Authenticated user options -->
-        <div *ngIf="isAuthenticated$ | async; else mobileNotLoggedIn" class="mobile-nav-section">
-          <!-- Show username -->
-          <div class="mobile-nav-username">{{ username$ | async }}</div>
-          
-          <!-- Role-based navigation -->
+      <!-- Right side navigation -->
+      <ul class="navbar-nav">
+        <!-- Admin/User specific navigation -->
+        <ng-container *ngIf="isAuthenticated$ | async">
           <ng-container *ngIf="role$ | async as role">
+            <!-- Admin Links -->
             <ng-container *ngIf="role === 'admin'">
-              <button class="mobile-nav-item" (click)="goToRegisteredUsers(); closeMobileMenu()">Registered Users</button>
-              <button class="mobile-nav-item" (click)="goToAdminFeedbacks(); closeMobileMenu()">Feedbacks</button>
-              <button class="mobile-nav-item" (click)="goToAdminEnrolled(); closeMobileMenu()">Enrolled</button>
-              <button class="mobile-nav-item" (click)="goToAdminManageCourses(); closeMobileMenu()">Manage Courses</button>
+              <li class="nav-item">
+                <a class="nav-link" (click)="goToRegisteredUsers(); closeMobileMenu()">
+                  Registered Users
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" (click)="goToAdminFeedbacks(); closeMobileMenu()">
+                  Feedbacks
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" (click)="goToAdminEnrolled(); closeMobileMenu()">
+                  Enrolled
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" (click)="goToAdminManageCourses(); closeMobileMenu()">
+                  Manage Courses
+                </a>
+              </li>
             </ng-container>
             
+            <!-- User Links -->
             <ng-container *ngIf="role === 'user'">
-              <button class="mobile-nav-item" (click)="goToUserEnrolled(); closeMobileMenu()">Enrolled Courses</button>
+              <li class="nav-item">
+                <a class="nav-link" (click)="goToUserEnrolled(); closeMobileMenu()">
+                  Enrolled Courses
+                </a>
+              </li>
             </ng-container>
           </ng-container>
           
-          <!-- Logout option -->
-          <div class="mobile-nav-section">
-            <button class="mobile-nav-item logout-item" (click)="logout(); closeMobileMenu()">Logout</button>
-          </div>
-        </div>
+          <!-- User dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" 
+               role="button" data-bs-toggle="dropdown" aria-expanded="false"
+               (click)="toggleUserDropdown()">
+              {{ username$ | async }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" [class.show]="isUserDropdownOpen" 
+                aria-labelledby="navbarDropdown">
+              <li>
+                <a class="dropdown-item" (click)="logout(); closeMobileMenu()">
+                  Logout
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ng-container>
         
-        <!-- Not logged in options -->
-        <ng-template #mobileNotLoggedIn>
-          <div class="mobile-nav-section">
-            <button class="mobile-nav-item login-item" (click)="goToLogin(); closeMobileMenu()">Login</button>
-          </div>
-        </ng-template>
-      </div>
+        <!-- Login button for non-authenticated users -->
+        <li class="nav-item" *ngIf="!(isAuthenticated$ | async)">
+          <a class="nav-link nav-login-btn" (click)="goToLogin(); closeMobileMenu()">
+            Login
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
-</mat-toolbar>
+</nav>

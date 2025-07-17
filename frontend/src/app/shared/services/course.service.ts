@@ -82,8 +82,6 @@ updateCourse(course: Course): Observable<{ message: string, data: Course }> {
   );
 }
 
-
-
   deleteCourse(courseId: number): Observable<{ message: string, data: null }> {
     return this.authService.isAuthenticated$().pipe(
       switchMap(isAuthenticated => {

@@ -1,4 +1,4 @@
-import { Component,HostListener } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -6,7 +6,6 @@ import { map, take } from 'rxjs/operators';
 import { UserRole } from '../../../enums/user-role.enum';
 import { AppState } from '../../../store/app.state';
 import { AuthService } from 'src/app/auth/auth.services';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { clearRole, setUserDetails } from 'src/app/store/auth/auth.actions';
 
 @Component({
@@ -15,7 +14,8 @@ import { clearRole, setUserDetails } from 'src/app/store/auth/auth.actions';
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
-    isMobileMenuOpen = false;
+  isMobileMenuOpen = false;
+  isUserDropdownOpen = false;
 
   isAuthenticated$: Observable<boolean>;
   role$: Observable<UserRole | null>;
@@ -24,86 +24,103 @@ export class NavbarComponent {
   constructor(
     private router: Router,
     private store: Store<AppState>,
-    private authService: AuthService,
-    private snackBar: MatSnackBar
+    private authService: AuthService
   ) {
     this.isAuthenticated$ = this.authService.isAuthenticated$();
     this.role$ = this.store.select(state => state.auth.role);
     this.username$ = this.store.select(state => state.auth.user?.username).pipe(
-      map(username => username || 'User') 
+      map(username => username || 'User')
     );
   }
-  
-toggleMobileMenu(): void {
+
+  toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.isUserDropdownOpen = false;
   }
 
   closeMobileMenu(): void {
     this.isMobileMenuOpen = false;
+    this.isUserDropdownOpen = false;
   }
 
+    toggleUserDropdown(): void {
+    this.isUserDropdownOpen = !this.isUserDropdownOpen;
+  }
+  
+  // Close menus when clicking outside
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
-    const mobileMenuContainer = target.closest('.mobile-nav-container');
+    const navbar = target.closest('.navbar');
+    const dropdown = target.closest('.dropdown');
     
-    if (!mobileMenuContainer && this.isMobileMenuOpen) {
+    if (!navbar) {
       this.closeMobileMenu();
+    }
+    
+    if (!dropdown && this.isUserDropdownOpen) {
+      this.isUserDropdownOpen = false;
     }
   }
 
   // Close mobile menu on window resize (when switching to desktop)
   @HostListener('window:resize', ['$event'])
   onWindowResize(): void {
-    if (window.innerWidth > 768) {
+    if (window.innerWidth > 767) { // Bootstrap md breakpoint
       this.closeMobileMenu();
     }
   }
-  
+
+  // Close mobile menu on escape key
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapeKey(): void {
+    if (this.isMobileMenuOpen) {
+      this.closeMobileMenu();
+    }
+  }
   goToLogin(): void {
     this.router.navigate(['/login']);
-  }
-
-  goToAdminHome(): void {
-    this.checkAuthAndNavigate('/admin/home');
-  }
-
-  goToAdminFeedbacks(): void {
-    this.checkAuthAndNavigate('/admin/feedbacks');
+    this.closeMobileMenu();
   }
 
   goToAboutUs(): void {
     this.router.navigate(['/about-us']);
+    this.closeMobileMenu();
+  }
+
+  goToAdminFeedbacks(): void {
+    this.checkAuthAndNavigate('/admin/feedbacks');
+    this.closeMobileMenu();
   }
 
   goToAdminEnrolled(): void {
     this.checkAuthAndNavigate('/admin/enrolled');
+    this.closeMobileMenu();
   }
 
   goToAdminManageCourses(): void {
     this.checkAuthAndNavigate('/admin/manage-courses');
-  }
-
-  goToUserFeedback(): void {
-    this.checkAuthAndNavigate('/user/feedback');
+    this.closeMobileMenu();
   }
 
   goToRegisteredUsers(): void {
     this.checkAuthAndNavigate('/admin/registered-users');
+    this.closeMobileMenu();
   }
 
   goToUserEnrolled(): void {
     this.checkAuthAndNavigate('/user/enrolled');
+    this.closeMobileMenu();
   }
 
-logout(): void {
-  this.authService.logout();
-  this.snackBar.open('Logged out successfully', 'Close', { duration: 3000 });
-  this.router.navigate(['/login']).then(() => {
-    this.store.dispatch(clearRole());
-    this.store.dispatch(setUserDetails({ userDetails: null }));
-  });
-}
+  logout(): void {
+    this.authService.logout();
+    this.closeMobileMenu();
+    this.router.navigate(['/login']).then(() => {
+      this.store.dispatch(clearRole());
+      this.store.dispatch(setUserDetails({ userDetails: null }));
+    });
+  }
 
   private checkAuthAndNavigate(path: string): void {
     this.isAuthenticated$.pipe(
