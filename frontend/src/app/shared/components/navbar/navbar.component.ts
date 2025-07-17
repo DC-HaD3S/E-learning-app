@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -15,6 +15,8 @@ import { clearRole, setUserDetails } from 'src/app/store/auth/auth.actions';
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
+    isMobileMenuOpen = false;
+
   isAuthenticated$: Observable<boolean>;
   role$: Observable<UserRole | null>;
   username$: Observable<string>;
@@ -31,7 +33,33 @@ export class NavbarComponent {
       map(username => username || 'User') 
     );
   }
+  
+toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
 
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    const mobileMenuContainer = target.closest('.mobile-nav-container');
+    
+    if (!mobileMenuContainer && this.isMobileMenuOpen) {
+      this.closeMobileMenu();
+    }
+  }
+
+  // Close mobile menu on window resize (when switching to desktop)
+  @HostListener('window:resize', ['$event'])
+  onWindowResize(): void {
+    if (window.innerWidth > 768) {
+      this.closeMobileMenu();
+    }
+  }
+  
   goToLogin(): void {
     this.router.navigate(['/login']);
   }

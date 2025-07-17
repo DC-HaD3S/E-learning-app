@@ -1,3 +1,4 @@
+/* Existing toolbar styles */
 mat-toolbar {
   display: flex;
   align-items: center;
@@ -16,7 +17,6 @@ mat-toolbar span[routerLink] {
   padding: 8px 12px;
   border-radius: 4px;
 }
-
 
 .nav-buttons {
   display: flex;
@@ -81,22 +81,10 @@ mat-toolbar button[mat-button]:not(.username-button):hover::after {
   transform: translateY(-1px);
 }
 
-/* Custom Dropdown Menu */
-/* .dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  min-width: 120px;
-  z-index: 3;
-} */
-
 .username-container:hover .dropdown-menu {
   display: block;
 }
+
 /* Custom Dropdown Menu */
 .dropdown-menu {
   display: none;
@@ -106,8 +94,8 @@ mat-toolbar button[mat-button]:not(.username-button):hover::after {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  min-width: 0; /* Remove minimum width */
-  width: 100%; /* Make it match parent width */
+  min-width: 0;
+  width: 100%;
   z-index: 3;
 }
 
@@ -126,8 +114,6 @@ mat-toolbar button[mat-button]:not(.username-button):hover::after {
   white-space: nowrap;  
 }
 
-
-
 /* Login Button Special Styling */
 mat-toolbar button[mat-button].login-button {
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -137,6 +123,98 @@ mat-toolbar button[mat-button].login-button {
 
 mat-toolbar button[mat-button].login-button:hover {
   background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile Menu Styles */
+.mobile-menu-toggle {
+  display: none !important;
+  background: none !important;
+  border: none !important;
+  color: white !important;
+  font-size: 1.5rem !important;
+  padding: 8px !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-menu-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px;
+}
+
+.mobile-nav-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.mobile-nav-dropdown.show {
+  display: block;
+}
+
+.mobile-nav-item {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  color: #424242;
+  background: none;
+  border: none;
+  text-align: left;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-nav-item:last-child {
+  border-bottom: none;
+}
+
+.mobile-nav-item:hover {
+  background-color: #f5f5f5;
+}
+
+.mobile-nav-item.login-item {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.mobile-nav-item.logout-item {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.mobile-nav-section {
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.mobile-nav-section:last-child {
+  border-bottom: none;
+}
+
+.mobile-nav-username {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  color: #666;
+  background-color: #f9f9f9;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Desktop navigation - show by default */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Responsive Adjustments */
@@ -155,18 +233,25 @@ mat-toolbar button[mat-button].login-button:hover {
 @media (max-width: 768px) {
   mat-toolbar {
     height: 56px;
+    position: relative;
   }
   
   mat-toolbar span[routerLink] {
     font-size: 1.1rem;
   }
   
-  .nav-buttons {
-    gap: 4px;
+  /* Hide desktop navigation */
+  .desktop-nav {
+    display: none;
   }
   
-  mat-toolbar button[mat-button]:not(.username-button):not(.login-button) {
-    display: none;
+  /* Show mobile menu toggle */
+  .mobile-menu-toggle {
+    display: block !important;
+  }
+  
+  .nav-buttons {
+    position: relative;
   }
 }
 
@@ -176,8 +261,37 @@ mat-toolbar button[mat-button].login-button:hover {
     padding: 6px 8px;
   }
   
-  .username-button {
-    padding: 4px 12px;
-    font-size: 0.85rem;
+  .mobile-nav-dropdown {
+    min-width: 180px;
+    right: -8px;
+  }
+}
+.navbar-brand {
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
+}
+
+.navbar-nav .nav-link {
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #0d6efd;
+}
+
+.dropdown-menu {
+  min-width: 160px;
+}
+
+.dropdown-item {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .navbar-nav .nav-link {
+    padding-left: 16px;
   }
 }

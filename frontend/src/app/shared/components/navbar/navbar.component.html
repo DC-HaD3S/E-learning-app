@@ -2,37 +2,85 @@
   <span routerLink="/" style="cursor: pointer;">E-Learning Platform</span>
   
   <div class="nav-buttons">
-         <ng-container>
-          <button mat-button (click)="goToAboutUs()">About Us</button>
-        </ng-container>
-    <div *ngIf="isAuthenticated$ | async; else notLoggedIn">
-      <ng-container *ngIf="role$ | async as role">
-        <ng-container *ngIf="role === 'admin'">
-          <button mat-button (click)="goToRegisteredUsers()">Registered Users</button>
-          <button mat-button (click)="goToAdminFeedbacks()">Feedbacks</button>
-          <button mat-button (click)="goToAdminEnrolled()">Enrolled</button>
-          <button mat-button (click)="goToAdminManageCourses()">Manage Courses</button>
-        </ng-container>
-        
-        <ng-container *ngIf="role === 'user'">
-          <button mat-button (click)="goToUserEnrolled()">Enrolled Courses</button>
-        </ng-container>
-   
-        
+    <!-- Desktop Navigation -->
+    <div class="desktop-nav">
+      <ng-container>
+        <button mat-button (click)="goToAboutUs()">About Us</button>
       </ng-container>
       
-      <div class="username-container">
-        <button mat-button class="username-button" [attr.aria-label]="'User menu for ' + (username$ | async)">
-          {{ username$ | async }}
-        </button>
-        <div class="dropdown-menu">
-          <button class="dropdown-item" (click)="logout()">Logout</button>
+      <div *ngIf="isAuthenticated$ | async; else notLoggedIn">
+        <ng-container *ngIf="role$ | async as role">
+          <ng-container *ngIf="role === 'admin'">
+            <button mat-button (click)="goToRegisteredUsers()">Registered Users</button>
+            <button mat-button (click)="goToAdminFeedbacks()">Feedbacks</button>
+            <button mat-button (click)="goToAdminEnrolled()">Enrolled</button>
+            <button mat-button (click)="goToAdminManageCourses()">Manage Courses</button>
+          </ng-container>
+          
+          <ng-container *ngIf="role === 'user'">
+            <button mat-button (click)="goToUserEnrolled()">Enrolled Courses</button>
+          </ng-container>
+        </ng-container>
+        
+        <div class="username-container">
+          <button mat-button class="username-button" [attr.aria-label]="'User menu for ' + (username$ | async)">
+            {{ username$ | async }}
+          </button>
+          <div class="dropdown-menu">
+            <button class="dropdown-item" (click)="logout()">Logout</button>
+          </div>
         </div>
       </div>
+      
+      <ng-template #notLoggedIn>
+        <button mat-button class="login-button" (click)="goToLogin()">Login</button>
+      </ng-template>
     </div>
-    
-    <ng-template #notLoggedIn>
-      <button mat-button class="login-button" (click)="goToLogin()">Login</button>
-    </ng-template>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav-container">
+      <button class="mobile-menu-toggle" (click)="toggleMobileMenu()" [attr.aria-label]="'Toggle mobile menu'">
+        ☰
+      </button>
+      
+      <div class="mobile-nav-dropdown" [class.show]="isMobileMenuOpen">
+        <!-- Always show About Us -->
+        <div class="mobile-nav-section">
+          <button class="mobile-nav-item" (click)="goToAboutUs(); closeMobileMenu()">About Us</button>
+        </div>
+        
+        <!-- Authenticated user options -->
+        <div *ngIf="isAuthenticated$ | async; else mobileNotLoggedIn" class="mobile-nav-section">
+          <!-- Show username -->
+          <div class="mobile-nav-username">{{ username$ | async }}</div>
+          
+          <!-- Role-based navigation -->
+          <ng-container *ngIf="role$ | async as role">
+            <ng-container *ngIf="role === 'admin'">
+              <button class="mobile-nav-item" (click)="goToRegisteredUsers(); closeMobileMenu()">Registered Users</button>
+              <button class="mobile-nav-item" (click)="goToAdminFeedbacks(); closeMobileMenu()">Feedbacks</button>
+              <button class="mobile-nav-item" (click)="goToAdminEnrolled(); closeMobileMenu()">Enrolled</button>
+              <button class="mobile-nav-item" (click)="goToAdminManageCourses(); closeMobileMenu()">Manage Courses</button>
+            </ng-container>
+            
+            <ng-container *ngIf="role === 'user'">
+              <button class="mobile-nav-item" (click)="goToUserEnrolled(); closeMobileMenu()">Enrolled Courses</button>
+            </ng-container>
+          </ng-container>
+          
+          <!-- Logout option -->
+          <div class="mobile-nav-section">
+            <button class="mobile-nav-item logout-item" (click)="logout(); closeMobileMenu()">Logout</button>
+          </div>
+        </div>
+        
+        <!-- Not logged in options -->
+        <ng-template #mobileNotLoggedIn>
+          <div class="mobile-nav-section">
+            <button class="mobile-nav-item login-item" (click)="goToLogin(); closeMobileMenu()">Login</button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
   </div>
 </mat-toolbar>

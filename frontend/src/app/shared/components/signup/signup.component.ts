@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,Optional } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/auth/auth.services';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -25,7 +25,7 @@ export class SignupComponent {
     private authService: AuthService,
     private snackBar: MatSnackBar,
     private router: Router,
-    public dialogRef?: MatDialogRef<SignupComponent>
+  @Optional() public dialogRef?: MatDialogRef<SignupComponent>
   ) { }
 
   checkUsername(): void {
