@@ -232,7 +232,7 @@ public class InstructorApplicationController {
     @Operation(
         summary = "Update instructor details",
         description = "Allows an authenticated instructor to update their own details (e.g., qualifications, experience, courses) for the specified instructor ID. The instructor must match the authenticated user.")
-    @PutMapping("/me")
+    @PutMapping
     public ResponseEntity<Map<String, String>> updateInstructorDetails(
             @Valid @RequestBody InstructorApplicationRequestDTO dto,
             Principal principal) {
