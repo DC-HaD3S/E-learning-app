@@ -1,0 +1,11 @@
+<div class="instructor-container">
+  <h1>Instructor Profile</h1>
+  <div *ngIf="instructorName; else noInstructor">
+    <h2>{{ instructorName }}</h2>
+    <p>This is a placeholder page for {{ instructorName }}'s profile.</p>
+    <p>Biography and course details will be added here in the future.</p>
+  </div>
+  <ng-template #noInstructor>
+    <p>No instructor information available.</p>
+  </ng-template>
+</div>

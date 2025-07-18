@@ -154,6 +154,7 @@ export class EnrolledCoursesComponent implements OnInit, OnDestroy {
     const course: Course = {
       id: enrollment.courseId,
       title: enrollment.courseName,
+      instructor: '',
       body: enrollment.body || '',
       price: enrollment.price ?? 0,
       imageUrl: enrollment.imageUrl || ''

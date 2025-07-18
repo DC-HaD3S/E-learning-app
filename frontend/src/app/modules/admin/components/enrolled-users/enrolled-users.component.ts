@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
@@ -40,7 +39,6 @@ export class EnrolledUsersComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private http: HttpClient, 
     private userService: UserService,
     private dialog: MatDialog
   ) {}
@@ -125,22 +123,9 @@ export class EnrolledUsersComponent implements OnInit {
     return this.enrolledUsers.reduce((total, user) => total + user.enrolledCourses.length, 0);
   }
 
-  getAverageCourses(): number {
-    if (this.enrolledUsers.length === 0) return 0;
-    const total = this.getTotalCourses();
-    return Math.round((total / this.enrolledUsers.length) * 10) / 10; // Round to 1 decimal place
-  }
 
-  // Helper method to get unique courses
-  getUniqueCourses(): string[] {
-    const courseSet = new Set<string>();
-    this.enrolledUsers.forEach(user => {
-      user.enrolledCourses.forEach(course => {
-        courseSet.add(course.courseName);
-      });
-    });
-    return Array.from(courseSet);
-  }
+
+
 
   // Method to open user details dialog
   openUserDetails(user: EnrolledUser): void {

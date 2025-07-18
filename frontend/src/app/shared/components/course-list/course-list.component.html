@@ -18,8 +18,6 @@
     </div>
   </div>
 
-
-
   <div *ngIf="error$ | async as error" class="error">{{ error }}</div>
   <div *ngIf="isLoading" class="loading">Loading courses...</div>
   <div *ngIf="!isLoading && !hasCourses && !(error$ | async)" class="no-courses">
@@ -30,6 +28,12 @@
     <mat-card *ngFor="let course of pagedCourses; trackBy: trackByCourseId" class="course-card">
       <mat-card-header>
         <mat-card-title>{{ course.title }}</mat-card-title>
+        <mat-card-subtitle>
+          <span class="instructor-name" (click)="navigateToInstructor(course.instructor)">
+            {{ course.instructor || 'Unknown Instructor' }}
+          </span>
+          <span *ngIf="isBestSelling(course.id)" class="best-selling-tag">Best Selling</span>
+        </mat-card-subtitle>
       </mat-card-header>
 
       <img mat-card-image [src]="course.imageUrl" [alt]="course.title" *ngIf="course.imageUrl" />
