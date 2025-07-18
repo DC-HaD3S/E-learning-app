@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../services/admin.service';
-import { UserDetailsDialogComponent } from './user-details-dialog.component';
+import { UserDetailsDialogComponent } from '../user-details-dialog.component/user-details-dialog.component';
 
 interface RawEnrollment {
   username: string;

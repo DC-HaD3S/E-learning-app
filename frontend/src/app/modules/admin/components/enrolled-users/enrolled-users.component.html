@@ -11,10 +11,6 @@
       <div class="stat-number">{{ getTotalCourses() }}</div>
       <div class="stat-label">Total Enrollments</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-number">{{ getAverageCourses() }}</div>
-      <div class="stat-label">Avg Courses per User</div>
-    </div>
   </div>
 
   <!-- Search and Filter Controls -->
@@ -28,23 +24,7 @@
         (input)="applyFilter()"
         class="search-input">
     </div>
-    
-    <div class="view-toggle">
-      <button 
-        class="toggle-btn"
-        [class.active]="viewMode === 'cards'"
-        (click)="setViewMode('cards')">
-        <mat-icon>view_module</mat-icon>
-        Cards
-      </button>
-      <button 
-        class="toggle-btn"
-        [class.active]="viewMode === 'table'"
-        (click)="setViewMode('table')">
-        <mat-icon>table_view</mat-icon>
-        Table
-      </button>
-    </div>
+
   </div>
 
   <!-- Error Message -->
@@ -72,22 +52,7 @@
         </div>
       </div>
       
-      <div class="card-body">
-        <div class="courses-section">
-          <h4>Enrolled Courses</h4>
-          <div class="courses-list">
-            <div *ngFor="let course of user.enrolledCourses" class="course-chip">
-              <mat-icon class="course-icon">school</mat-icon>
-              <span class="course-name">{{ course.courseName }}</span>
-            </div>
-          </div>
-          
-          <div *ngIf="user.enrolledCourses.length === 0" class="no-courses">
-            <mat-icon>info</mat-icon>
-            No courses enrolled
-          </div>
-        </div>
-      </div>
+
 
       <div class="card-actions">
         <button 
@@ -99,91 +64,6 @@
           View Details
         </button>
       </div>
-    </div>
-  </div>
-
-  <!-- Table View -->
-  <div *ngIf="!loading && !error && viewMode === 'table'" class="table-container">
-    <div class="mat-elevation-z4">
-      <table mat-table [dataSource]="tableDataSource" class="modern-table" matSort>
-
-        <ng-container matColumnDef="username">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            <mat-icon class="header-icon">person</mat-icon>
-            Username
-          </th>
-          <td mat-cell *matCellDef="let user">
-            <div class="cell-content">
-              <strong>{{ user.username }}</strong>
-            </div>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            <mat-icon class="header-icon">email</mat-icon>
-            Email
-          </th>
-          <td mat-cell *matCellDef="let user">
-            <div class="cell-content">
-              {{ user.email }}
-            </div>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="courseCount">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            <mat-icon class="header-icon">trending_up</mat-icon>
-            Course Count
-          </th>
-          <td mat-cell *matCellDef="let user">
-            <div class="cell-content">
-              <span class="count-badge">{{ user.enrolledCourses.length }}</span>
-            </div>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="courses">
-          <th mat-header-cell *matHeaderCellDef>
-            <mat-icon class="header-icon">school</mat-icon>
-            Enrolled Courses
-          </th>
-          <td mat-cell *matCellDef="let user">
-            <div class="courses-cell">
-              <div *ngFor="let course of user.enrolledCourses" class="course-item-table">
-                <mat-icon class="mini-icon">book</mat-icon>
-                {{ course.courseName }}
-              </div>
-              <div *ngIf="user.enrolledCourses.length === 0" class="no-courses-table">
-                <mat-icon class="mini-icon">info</mat-icon>
-                No enrollments
-              </div>
-            </div>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>
-            <mat-icon class="header-icon">settings</mat-icon>
-            Actions
-          </th>
-          <td mat-cell *matCellDef="let user">
-            <div class="actions-cell">
-              <button 
-                mat-raised-button 
-                color="primary" 
-                (click)="openUserDetails(user)"
-                class="table-details-button">
-                <mat-icon>visibility</mat-icon>
-                Details
-              </button>
-            </div>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
-      </table>
     </div>
   </div>
 

@@ -143,6 +143,7 @@ h1 {
 .user-card {
   background: white;
   border-radius: 16px;
+  height: 125%;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
