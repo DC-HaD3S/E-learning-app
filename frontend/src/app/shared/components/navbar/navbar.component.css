@@ -9,6 +9,22 @@
   background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
 }
 
+/* Override Bootstrap's navbar-expand-md behavior */
+.navbar-expand-md .navbar-collapse {
+  display: none !important;
+}
+
+.navbar-expand-md .navbar-collapse.show {
+  display: block !important;
+}
+
+/* Always show toggler button up to 950px */
+@media (max-width: 950px) {
+  .navbar-toggler {
+    display: block !important;
+  }
+}
+
 /* Navbar Brand/Logo */
 .navbar-brand {
   font-weight: 700;
@@ -22,7 +38,8 @@
   text-decoration: none;
 }
 
-@media (max-width: 799.98px) {
+/* Mobile/Tablet styles - now applies up to 950px */
+@media (max-width: 950px) {
   .navbar-collapse {
     position: absolute;
     top: 100%;
@@ -51,8 +68,201 @@
   .navbar-collapse.show {
     display: block;
   }
+
+  /* Nav Links for mobile/tablet */
+  .navbar-nav .nav-link {
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.9) !important;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    color: white !important;
+  }
+
+  /* User Dropdown Specific for mobile/tablet */
+  .nav-item.dropdown .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-transform: capitalize;
+    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-item.dropdown .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Dropdown Menu for mobile/tablet */
+  .dropdown-menu {
+    position: static !important;
+    transform: none !important;
+    min-width: 180px;
+    box-shadow: none;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin: 8px 0;
+    border-left: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    overflow: hidden;
+    animation: fadeInDown 0.3s ease-out;
+  }
+
+  .dropdown-item {
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: white !important;
+    text-decoration: none;
+    border-radius: 6px;
+    margin: 4px 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+    transform: translateY(-1px);
+  }
+
+  /* Login Button for mobile/tablet */
+  .navbar-nav .nav-item .nav-link.nav-login-btn {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 20px;
+    padding: 0.75rem 1.2rem;
+    margin: 8px 0 0 0 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
+  }
+
+  .navbar-nav .nav-item .nav-link.nav-login-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 }
 
+/* Desktop styles for screens larger than 950px */
+@media (min-width: 951px) {
+  /* Override Bootstrap and show horizontal navbar for desktop */
+  .navbar-expand-md .navbar-collapse {
+    display: flex !important;
+    flex-basis: auto;
+  }
+  
+  .navbar-toggler {
+    display: none !important;
+  }
+  
+  .navbar-collapse {
+    position: static;
+    background: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    animation: none;
+    backdrop-filter: none;
+  }
+
+  .navbar-nav {
+    text-align: left;
+    width: auto;
+    flex-direction: row;
+  }
+
+  .navbar-nav .nav-item {
+    margin: 0 0.25rem;
+    width: auto;
+  }
+
+  .navbar-nav .nav-link {
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.9) !important;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 1px solid transparent;
+  }
+
+  .navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white !important;
+  }
+
+  /* Desktop dropdown styles */
+  .nav-item.dropdown .dropdown-menu {
+    position: absolute !important;
+    top: 100%;
+    left: 0;
+    transform: translateY(0);
+    min-width: 180px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(13, 110, 253, 0.95);
+    margin: 0;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    animation: fadeInDown 0.3s ease-out;
+  }
+
+  .nav-item.dropdown .dropdown-item {
+    padding: 0.75rem 1rem;
+    margin: 2px;
+    color: white;
+    background-color: transparent;
+    border: none;
+    justify-content: flex-start;
+  }
+
+  .nav-item.dropdown .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+  }
+}
 
 .navbar-brand:hover {
   transform: translateY(-2px);
@@ -63,63 +273,6 @@
 .container-fluid {
   position: relative;
   padding: 0 1rem;
-}
-
-/* Navbar Collapse */
-.navbar-collapse {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-  padding: 1.5rem 1rem;
-  margin: 0 -1rem;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0 0 12px 12px;
-  animation: slideDown 0.3s ease-out;
-  backdrop-filter: blur(10px);
-}
-
-.navbar-collapse.show {
-  display: block;
-}
-
-/* Nav Links */
-.navbar-nav {
-  text-align: center;
-  width: 100%;
-}
-
-.navbar-nav .nav-item {
-  margin: 6px 0;
-  width: 100%;
-}
-
-.navbar-nav .nav-link {
-  font-weight: 500;
-  font-size: 1rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.9) !important;
-  text-decoration: none;
-  white-space: nowrap;
-  background-color: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.navbar-nav .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  color: white !important;
 }
 
 /* Active Link Indicator */
@@ -134,90 +287,13 @@
   display: none;
 }
 
-/* Dropdown Menu */
-.dropdown-menu {
-  position: static !important;
-  transform: none !important;
-  min-width: 180px;
-  box-shadow: none;
-  border: none;
-  background-color: rgba(0, 0, 0, 0.1);
-  margin: 8px 0;
-  border-left: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  backdrop-filter: blur(5px);
-  overflow: hidden;
-  animation: fadeInDown 0.3s ease-out;
-}
-
-.dropdown-item {
-  cursor: pointer;
-  padding: 0.75rem 1rem;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: white !important;
-  text-decoration: none;
-  border-radius: 6px;
-  margin: 4px 8px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dropdown-item:hover {
-  background-color: rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
-  transform: translateY(-1px);
-}
-
 .dropdown-item:active {
   background-color: rgba(255, 255, 255, 0.2);
-}
-
-/* User Dropdown Specific */
-.nav-item.dropdown .nav-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-transform: capitalize;
-  font-weight: 600;
-  background-color: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  padding: 0.75rem 1rem;
-}
-
-.nav-item.dropdown .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .nav-item.dropdown .nav-link::after {
   transition: all 0.2s ease;
   margin-left: 0.5rem;
-}
-
-/* Login Button */
-.navbar-nav .nav-item .nav-link.nav-login-btn {
-  background-color: rgba(255, 255, 255, 0.15) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  border-radius: 20px;
-  padding: 0.75rem 1.2rem;
-  margin: 8px 0 0 0 !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-weight: 600;
-}
-
-.navbar-nav .nav-item .nav-link.nav-login-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Navbar Toggler */
@@ -239,4 +315,27 @@
 
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

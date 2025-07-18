@@ -35,9 +35,20 @@ export class NavbarComponent {
     );
   }
 
+  // Check if current screen size should use mobile/dropdown behavior
+  private isMobileView(): boolean {
+    return this.screenWidth <= 950;
+  }
+
+  // Check if current screen size is in the 768-800px range
+  private isTabletView(): boolean {
+    return this.screenWidth >= 768 && this.screenWidth <= 950;
+  }
+
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    if (this.screenWidth >= 800) {
+    // Close user dropdown when mobile menu is toggled
+    if (this.isMobileView()) {
       this.isUserDropdownOpen = false;
     }
   }
@@ -48,7 +59,8 @@ export class NavbarComponent {
 
   closeMobileMenu(): void {
     this.isMobileMenuOpen = false;
-    if (this.screenWidth >= 800) {
+    // Close user dropdown when mobile menu is closed
+    if (this.isMobileView()) {
       this.isUserDropdownOpen = false;
     }
   }
@@ -63,7 +75,8 @@ export class NavbarComponent {
       this.closeMobileMenu();
     }
 
-    if (!clickedInsideDropdown && this.isUserDropdownOpen && this.screenWidth >= 800) {
+    // Close user dropdown if clicked outside for all mobile/tablet views
+    if (!clickedInsideDropdown && this.isUserDropdownOpen && this.isMobileView()) {
       this.isUserDropdownOpen = false;
     }
   }
@@ -71,7 +84,8 @@ export class NavbarComponent {
   @HostListener('window:resize', ['$event'])
   onWindowResize(): void {
     this.screenWidth = window.innerWidth;
-    if (this.screenWidth > 800) {
+    // Close mobile menu when resizing above 950px
+    if (this.screenWidth > 950) {
       this.closeMobileMenu();
     }
   }
