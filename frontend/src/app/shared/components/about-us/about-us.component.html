@@ -7,6 +7,7 @@
 </head>
 <body>
   <div class="page-wrapper">
+    <!-- Hero Section -->
     <div class="hero">
       <div class="container">
         <div class="hero-content">
@@ -21,9 +22,10 @@
       </div>
     </div>
 
+    <!-- Mission Section -->
     <section class="section mission">
       <div class="container">
-        <mat-card>
+        <mat-card class="mission-card">
           <mat-card-header>
             <mat-card-title>Our Mission</mat-card-title>
           </mat-card-header>
@@ -36,13 +38,16 @@
       </div>
     </section>
 
+    <!-- Values Section -->
     <section class="section values">
       <div class="container">
         <h2>Our Core Values</h2>
-        <div class="slider-container values-slider" #valuesSlider>
-          <mat-grid-list cols="3" rowHeight="300px" gutterSize="2px" class="values-grid">
-            <mat-grid-tile *ngFor="let value of values; let i = index" [ngClass]="{'active-slide': i === currentValueSlide}">
-              <mat-card class="value-card ">
+        <div class="cards-container">
+          <div class="cards-grid" [class.mobile-slider]="isMobileView">
+            <div class="card-wrapper" 
+                 *ngFor="let value of values; let i = index" 
+                 [class.active-slide]="i === currentValueSlide">
+              <mat-card class="value-card">
                 <mat-card-header>
                   <mat-card-title>{{ value.title }}</mat-card-title>
                 </mat-card-header>
@@ -50,50 +55,82 @@
                   <p>{{ value.description }}</p>
                 </mat-card-content>
               </mat-card>
-            </mat-grid-tile>
-          </mat-grid-list>
-          <button class="slider-nav prev" (click)="prevSlide('values')" [disabled]="currentValueSlide === 0">&lsaquo;</button>
-          <button class="slider-nav next" (click)="nextSlide('values')" [disabled]="currentValueSlide === values.length - 1">&rsaquo;</button>
-          <div class="slider-dots">
-            <span *ngFor="let value of values; let i = index" 
-                  class="dot" 
-                  [ngClass]="{'active': i === currentValueSlide}"
-                  (click)="goToSlide('values', i)"></span>
+            </div>
+          </div>
+          
+          <!-- Mobile Navigation -->
+          <div class="mobile-navigation" *ngIf="isMobileView">
+            <button class="slider-nav prev" 
+                    (click)="prevSlide('values')" 
+                    [disabled]="currentValueSlide === 0">
+              &#8249;
+            </button>
+            <button class="slider-nav next" 
+                    (click)="nextSlide('values')" 
+                    [disabled]="currentValueSlide === values.length - 1">
+              &#8250;
+            </button>
+            <div class="slider-dots">
+              <span *ngFor="let value of values; let i = index" 
+                    class="dot" 
+                    [class.active]="i === currentValueSlide"
+                    (click)="goToSlide('values', i)">
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- Team Section -->
     <section class="section team">
       <div class="container">
         <h2>Meet Our Team</h2>
         <p class="team-intro">
           Our dedicated team of educators, technologists, and visionaries is committed to revolutionizing online learning.
         </p>
-        <div class="slider-container team-slider" #teamSlider>
-          <mat-grid-list cols="3" rowHeight="350px" gutterSize="20px" class="team-grid">
-            <mat-grid-tile *ngFor="let member of team; let i = index" [ngClass]="{'active-slide': i === currentTeamSlide}">
+        <div class="cards-container">
+          <div class="cards-grid" [class.mobile-slider]="isMobileView">
+            <div class="card-wrapper" 
+                 *ngFor="let member of team; let i = index"
+                 [class.active-slide]="i === currentTeamSlide">
               <mat-card class="team-card">
-                <img mat-card-image [src]="member.image" alt="Team Member">
+                <div class="team-image-container">
+                  <img [src]="member.image" [alt]="member.name" class="team-image">
+                </div>
                 <mat-card-header>
                   <mat-card-title>{{ member.name }}</mat-card-title>
                   <mat-card-subtitle>{{ member.role }}</mat-card-subtitle>
                 </mat-card-header>
               </mat-card>
-            </mat-grid-tile>
-          </mat-grid-list>
-          <button class="slider-nav prev" (click)="prevSlide('team')" [disabled]="currentTeamSlide === 0">&lsaquo;</button>
-          <button class="slider-nav next" (click)="nextSlide('team')" [disabled]="currentTeamSlide === team.length - 1">&rsaquo;</button>
-          <div class="slider-dots">
-            <span *ngFor="let member of team; let i = index" 
-                  class="dot" 
-                  [ngClass]="{'active': i === currentTeamSlide}"
-                  (click)="goToSlide('team', i)"></span>
+            </div>
+          </div>
+          
+          <!-- Mobile Navigation -->
+          <div class="mobile-navigation" *ngIf="isMobileView">
+            <button class="slider-nav prev" 
+                    (click)="prevSlide('team')" 
+                    [disabled]="currentTeamSlide === 0">
+              &#8249;
+            </button>
+            <button class="slider-nav next" 
+                    (click)="nextSlide('team')" 
+                    [disabled]="currentTeamSlide === team.length - 1">
+              &#8250;
+            </button>
+            <div class="slider-dots">
+              <span *ngFor="let member of team; let i = index" 
+                    class="dot" 
+                    [class.active]="i === currentTeamSlide"
+                    (click)="goToSlide('team', i)">
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- Footer -->
     <footer class="footer">
       <div class="container">
         <p>© 2025 E-learning platform. All rights reserved.</p>
