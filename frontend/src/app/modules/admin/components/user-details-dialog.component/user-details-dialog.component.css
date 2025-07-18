@@ -1,11 +1,8 @@
 
-.dialog-container {
-  max-width: 600px;
-  width: 100%;
-  position: relative;
-  z-index: 1050 !important; 
-}
-
+    .dialog-container {
+      max-width: 600px;
+      width: 100%;
+    }
 
     .dialog-header {
       display: flex;
@@ -14,11 +11,6 @@
       padding: 16px 24px;
       border-bottom: 1px solid #e0e0e0;
     }
-
-.cdk-overlay-container .cdk-overlay-pane {
-  z-index: 1050 !important;
-}
-
 
     .dialog-header h2 {
       display: flex;
