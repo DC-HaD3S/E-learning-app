@@ -4,7 +4,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { UserService } from '../../services/admin.service';
 
-
 interface RawEnrollment {
   username: string;
   courseId: number;
@@ -24,22 +23,47 @@ interface EnrolledUser {
   styleUrls: ['./enrolled-users.component.css']
 })
 export class EnrolledUsersComponent implements OnInit {
-  displayedColumns: string[] = ['username', 'email', 'courses'];
+  displayedColumns: string[] = ['username', 'email', 'courseCount', 'courses'];
   dataSource = new MatTableDataSource<EnrolledUser>();
+  tableDataSource = new MatTableDataSource<EnrolledUser>();
+  
+  // New properties for enhanced functionality
+  enrolledUsers: EnrolledUser[] = [];
+  filteredUsers: EnrolledUser[] = [];
+  searchTerm: string = '';
+  viewMode: 'cards' | 'table' = 'cards';
+  loading: boolean = true;
+  error: string | null = null;
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private http: HttpClient,private userService: UserService) {}
-
+  constructor(private http: HttpClient, private userService: UserService) {}
 
   ngOnInit(): void {
+    this.loadEnrolledUsers();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.sort = this.sort;
+    this.tableDataSource.sort = this.sort;
+  }
+
+  loadEnrolledUsers(): void {
+    this.loading = true;
+    this.error = null;
+
     this.userService.getEnrolledUsers().subscribe({
       next: (data) => {
-        this.dataSource.data = this.groupEnrollmentsByUser(data);
-        this.dataSource.sort = this.sort;
+        this.enrolledUsers = this.groupEnrollmentsByUser(data);
+        this.dataSource.data = this.enrolledUsers;
+        this.filteredUsers = [...this.enrolledUsers];
+        this.tableDataSource.data = this.enrolledUsers;
+        this.loading = false;
       },
-      error: () => {
-        console.error('Failed to load enrolled users');
+      error: (err) => {
+        console.error('Failed to load enrolled users:', err);
+        this.error = 'Failed to load enrolled users. Please try again.';
+        this.loading = false;
       }
     });
   }
@@ -51,7 +75,7 @@ export class EnrolledUsersComponent implements OnInit {
       if (!userMap[enrollment.username]) {
         userMap[enrollment.username] = {
           name: enrollment.username,
-          email: `${enrollment.username}@example.com`,
+          email: `${enrollment.username}@example.com`, // You might want to get real emails
           username: enrollment.username,
           enrolledCourses: []
         };
@@ -63,5 +87,52 @@ export class EnrolledUsersComponent implements OnInit {
     });
 
     return Object.values(userMap);
+  }
+
+  // Search and filter functionality
+  applyFilter(): void {
+    if (!this.searchTerm.trim()) {
+      this.filteredUsers = [...this.enrolledUsers];
+    } else {
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      this.filteredUsers = this.enrolledUsers.filter(user => {
+        const usernameMatch = user.username.toLowerCase().includes(searchLower);
+        const emailMatch = user.email.toLowerCase().includes(searchLower);
+        const coursesMatch = user.enrolledCourses.some(course => 
+          course.courseName.toLowerCase().includes(searchLower)
+        );
+        return usernameMatch || emailMatch || coursesMatch;
+      });
+    }
+
+    // Update table data source for table view
+    this.tableDataSource.data = this.filteredUsers;
+  }
+
+  // View mode toggle
+  setViewMode(mode: 'cards' | 'table'): void {
+    this.viewMode = mode;
+  }
+
+  // Statistics methods
+  getTotalCourses(): number {
+    return this.enrolledUsers.reduce((total, user) => total + user.enrolledCourses.length, 0);
+  }
+
+  getAverageCourses(): number {
+    if (this.enrolledUsers.length === 0) return 0;
+    const total = this.getTotalCourses();
+    return Math.round((total / this.enrolledUsers.length) * 10) / 10; // Round to 1 decimal place
+  }
+
+  // Helper method to get unique courses
+  getUniqueCourses(): string[] {
+    const courseSet = new Set<string>();
+    this.enrolledUsers.forEach(user => {
+      user.enrolledCourses.forEach(course => {
+        courseSet.add(course.courseName);
+      });
+    });
+    return Array.from(courseSet);
   }
 }
