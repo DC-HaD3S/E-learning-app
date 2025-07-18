@@ -2,7 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
+import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../services/admin.service';
+import { UserDetailsDialogComponent } from './user-details-dialog.component';
 
 interface RawEnrollment {
   username: string;
@@ -23,7 +25,7 @@ interface EnrolledUser {
   styleUrls: ['./enrolled-users.component.css']
 })
 export class EnrolledUsersComponent implements OnInit {
-  displayedColumns: string[] = ['username', 'email', 'courseCount', 'courses'];
+  displayedColumns: string[] = ['username', 'email', 'courseCount', 'courses', 'actions'];
   dataSource = new MatTableDataSource<EnrolledUser>();
   tableDataSource = new MatTableDataSource<EnrolledUser>();
   
@@ -37,7 +39,11 @@ export class EnrolledUsersComponent implements OnInit {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private http: HttpClient, private userService: UserService) {}
+  constructor(
+    private http: HttpClient, 
+    private userService: UserService,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.loadEnrolledUsers();
@@ -134,5 +140,21 @@ export class EnrolledUsersComponent implements OnInit {
       });
     });
     return Array.from(courseSet);
+  }
+
+  // Method to open user details dialog
+  openUserDetails(user: EnrolledUser): void {
+    const dialogRef = this.dialog.open(UserDetailsDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      data: user,
+      panelClass: 'user-details-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Dialog closed with result:', result);
+      }
+    });
   }
 }

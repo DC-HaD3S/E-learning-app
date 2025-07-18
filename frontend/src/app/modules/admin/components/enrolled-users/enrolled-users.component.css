@@ -522,3 +522,75 @@ h1 {
     font-size: 0.8rem;
   }
 }
+
+/* Card Actions */
+.card-actions {
+  padding: 16px 20px;
+  border-top: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  border-radius: 0 0 16px 16px;
+}
+
+.details-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  font-weight: 500;
+  padding: 12px 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.details-button:hover {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.details-button mat-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+/* Dialog Panel Custom Styles */
+::ng-deep .user-details-dialog {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+::ng-deep .user-details-dialog .mat-dialog-container {
+  padding: 0;
+  border-radius: 12px;
+}
+
+/* Table Actions */
+.actions-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+}
+
+.table-details-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.table-details-button:hover {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.table-details-button mat-icon {
+  margin-right: 4px;
+  font-size: 16px;
+}
