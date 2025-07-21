@@ -147,13 +147,21 @@ public class CourseService {
         dto.setImageUrl(course.getImageUrl());
         dto.setPrice(course.getPrice());
         dto.setInstructorId(course.getInstructor() != null ? course.getInstructor().getId() : null);
+        
+        // Set instructor name
+        if (course.getInstructor() != null) {
+            User instructorUser = course.getInstructor().getUser();
+            dto.setInstructor(instructorUser != null ? instructorUser.getUsername() : "Unknown Instructor");
+        } else {
+            dto.setInstructor("Unknown Instructor");
+        }
+        
         return dto;
     }
 
     public List<Course> getCoursesByInstructorId(Long instructorId) {
         return courseRepository.findByInstructorId(instructorId);
     }
-    
     
     public Long getEnrollmentCountByCourseId(Long courseId) {
         if (!courseRepository.existsById(courseId)) {
@@ -163,7 +171,6 @@ public class CourseService {
         logger.info("Enrollment count for course ID {}: {}", courseId, count);
         return count;
     }
-
 
     public HighestEnrollmentDTO getHighestEnrolledUsersCount() {
         List<Object[]> results = enrollmentRepository.findCourseWithHighestEnrolledUsersCount();
@@ -202,8 +209,9 @@ public class CourseService {
         return dto;
     }
     
+    public List<InstructorHighestEnrollmentDTO>
 
-    public List<InstructorHighestEnrollmentDTO> getInstructorCoursesWithHighestEnrollments(Long instructorId) {
+ getInstructorCoursesWithHighestEnrollments(Long instructorId) {
         if (!instructorApplicationRepository.existsById(instructorId)) {
             logger.warn("Instructor ID {} does not exist", instructorId);
             throw new IllegalArgumentException("Instructor not found: " + instructorId);
@@ -239,5 +247,4 @@ public class CourseService {
 
         return dtos;
     }
-
 }

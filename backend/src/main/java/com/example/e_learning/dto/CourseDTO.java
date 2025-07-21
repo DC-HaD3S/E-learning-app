@@ -7,10 +7,12 @@ public class CourseDTO {
     private String title;
     private String body;
     private String imageUrl;
-	@Min(value = 0, message = "Price cannot be negative")
+    @Min(value = 0, message = "Price cannot be negative")
     private double price;
     private Long instructorId;
+    private String instructor; 
 
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -57,5 +59,13 @@ public class CourseDTO {
 
     public void setInstructorId(Long instructorId) {
         this.instructorId = instructorId;
+    }
+
+    public String getInstructor() {
+        return instructor;
+    }
+
+    public void setInstructor(String instructor) {
+        this.instructor = instructor;
     }
 }

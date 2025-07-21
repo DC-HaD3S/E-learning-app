@@ -92,11 +92,6 @@ export class CourseListComponent implements OnInit, OnDestroy {
           this.resetCourseLists();
           return of([]);
         }
-
-        // Log courses to debug instructor data
-        console.log('Fetched courses:', courses);
-
-        // Ensure instructor field is populated; fallback to 'Unknown Instructor' if missing
         this.originalCourses = courses.map(course => ({
           ...course,
           instructor: course.instructor || 'Unknown Instructor'
@@ -104,7 +99,6 @@ export class CourseListComponent implements OnInit, OnDestroy {
         this.filteredCourses = [...this.originalCourses];
         this.hasCourses = this.filteredCourses.length > 0;
 
-        // Determine the course with the highest enrollment
         if (highestEnrollments.length > 0) {
           const highest = highestEnrollments.reduce((prev, curr) => (prev.count > curr.count ? prev : curr));
           this.highestEnrolledCourseId = highest.courseId;
