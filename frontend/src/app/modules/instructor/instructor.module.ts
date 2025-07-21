@@ -8,7 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatTextareaModule } from '@angular/material/textarea';
+// MatTextareaModule is not available in Angular Material 16, use MatInputModule with textarea
 import { MatTabsModule } from '@angular/material/tabs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -34,7 +34,7 @@ import { InstructorCoursesComponent } from './components/instructor-courses/inst
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTextareaModule,
+    // MatTextareaModule - not available, using MatInputModule instead
     MatTabsModule,
     FontAwesomeModule,
     InstructorRoutingModule

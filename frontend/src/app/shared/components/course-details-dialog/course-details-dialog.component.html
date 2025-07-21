@@ -50,6 +50,10 @@
         Submit Feedback
       </button>
       <button mat-raised-button color="primary" disabled>Enrolled</button>
+      <button mat-raised-button color="primary" (click)="gotoCourse()">
+        <mat-icon>school</mat-icon>
+        {{ showCourseContent ? 'Hide Course Content' : 'Go to Course' }}
+      </button>
     </ng-container>
     
     <ng-template #notEnrolled>
@@ -59,7 +63,19 @@
               (click)="applyForCourse()">
         Apply
       </button>
+      <button mat-raised-button color="primary" (click)="gotoCourse()">
+        <mat-icon>preview</mat-icon>
+        {{ showCourseContent ? 'Hide Course Content' : 'Preview Course Content' }}
+      </button>
     </ng-template>
+  </div>
+
+  <!-- Course Content Section -->
+  <div class="course-content-section" *ngIf="showCourseContent && course">
+    <app-course-content-viewer 
+      [courseId]="course.id!" 
+      [isEnrolled]="(isEnrolled$ | async) || false">
+    </app-course-content-viewer>
   </div>
 
   <div class="feedback-table-container">

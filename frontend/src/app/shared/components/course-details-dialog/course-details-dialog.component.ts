@@ -36,6 +36,7 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
   username$: Observable<string | null>;
   allowApply: boolean = false;
   averageRating: number | null = null;
+  showCourseContent: boolean = false;
   private destroy$ = new Subject<void>();
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -342,5 +343,9 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
 
   goBack(): void {
     this.router.navigate(['/courses']);
+  }
+
+  gotoCourse(): void {
+    this.showCourseContent = !this.showCourseContent;
   }
 }

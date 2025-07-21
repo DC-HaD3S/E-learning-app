@@ -18,7 +18,10 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatOptionModule } from '@angular/material/core'; 
 import { MatProgressBarModule } from '@angular/material/progress-bar'; 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { DetailsCardComponent } from './components/details-card/details-card.component';
+import { CourseContentViewerComponent } from './components/course-content-viewer/course-content-viewer.component';
 import { CourseApplyDialogComponent } from '../modules/user/components/course-apply-dialog/course-apply-dialog.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
@@ -26,7 +29,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
   declarations: [
     DetailsCardComponent,
     CourseApplyDialogComponent,
-    
+    CourseContentViewerComponent,
     ConfirmDialogComponent,
   ],
   imports: [
@@ -51,6 +54,8 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
  
     MatProgressBarModule, 
     MatProgressSpinnerModule,
+    MatChipsModule,
+    MatExpansionModule,
   ],
   exports: [
     CommonModule,
@@ -74,8 +79,11 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
 
     MatProgressBarModule,
     MatProgressSpinnerModule,
+    MatChipsModule,
+    MatExpansionModule,
     DetailsCardComponent,
     CourseApplyDialogComponent,
+    CourseContentViewerComponent,
     ConfirmDialogComponent,
   ],
 })

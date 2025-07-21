@@ -1,0 +1,76 @@
+<div class="course-content-container">
+  <div class="content-header">
+    <h3>Course Content</h3>
+    <div class="content-summary" *ngIf="courseContent.length > 0">
+      <span class="sections-count">{{ courseContent.length }} sections</span>
+      <span class="lessons-count">• {{ getTotalLessons() }} lessons</span>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading course content...</p>
+  </div>
+
+  <div *ngIf="!isLoading && courseContent.length === 0" class="no-content">
+    <mat-icon>school</mat-icon>
+    <p>No course content available yet.</p>
+  </div>
+
+  <div *ngIf="!isLoading && courseContent.length > 0" class="content-list">
+    <mat-expansion-panel 
+      *ngFor="let topic of courseContent; let i = index" 
+      class="topic-panel"
+      [expanded]="isTopicExpanded(topic.id || i)"
+      (opened)="toggleTopic(topic.id || i)"
+      (closed)="toggleTopic(topic.id || i)">
+      
+      <mat-expansion-panel-header class="topic-header">
+        <mat-panel-title class="topic-title">
+          <mat-icon class="topic-icon">folder</mat-icon>
+          <span class="topic-name">{{ topic.topic }}</span>
+        </mat-panel-title>
+        <mat-panel-description class="topic-description">
+          {{ getTopicLessonsCount(topic) }} {{ getTopicLessonsCount(topic) === 1 ? 'lesson' : 'lessons' }}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="subtopics-container">
+        <div 
+          *ngFor="let subtopic of topic.subtopics; let j = index" 
+          class="subtopic-item"
+          [class.accessible]="isEnrolled"
+          [class.locked]="!isEnrolled"
+          (click)="onSubtopicClick(subtopic)">
+          
+          <div class="subtopic-content">
+            <mat-icon class="subtopic-icon" [class.locked-icon]="!isEnrolled">
+              {{ isEnrolled ? 'play_circle_outline' : 'lock' }}
+            </mat-icon>
+            
+            <div class="subtopic-info">
+              <span class="subtopic-name">{{ subtopic.name }}</span>
+              <span class="subtopic-type" *ngIf="subtopic.url">
+                <mat-icon class="small-icon">link</mat-icon>
+                {{ getContentType(subtopic.url) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="subtopic-actions" *ngIf="isEnrolled">
+            <mat-icon class="action-icon">open_in_new</mat-icon>
+          </div>
+        </div>
+
+        <div *ngIf="topic.subtopics?.length === 0" class="no-subtopics">
+          <p>No lessons in this section yet.</p>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </div>
+
+  <div class="enrollment-notice" *ngIf="!isEnrolled && courseContent.length > 0">
+    <mat-icon>info</mat-icon>
+    <p>Enroll in this course to access all lessons and materials.</p>
+  </div>
+</div>

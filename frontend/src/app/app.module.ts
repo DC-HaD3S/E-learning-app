@@ -1,5 +1,6 @@
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -32,6 +33,7 @@ import { AuthService } from './auth/auth.services';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { CourseDetailsComponent } from './shared/components/course-details-dialog/course-details-dialog.component';
+import { InstructorPageComponent } from './shared/components/instructor-page/instructor-page.component';
 import { MatTooltipModule } from '@angular/material/tooltip'; 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -50,10 +52,12 @@ export function appInitializer(authService: AuthService) {
     SignupComponent,
     HomeComponent,
     CourseListComponent,
-    CourseDetailsComponent
+    CourseDetailsComponent,
+    InstructorPageComponent
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     FontAwesomeModule,
     MatPaginatorModule,
