@@ -8,6 +8,7 @@ import { RegisteredUsersComponent } from './components/registered-users/register
 import { EnrolledUsersComponent } from './components/enrolled-users/enrolled-users.component';
 import { ManageCoursesComponent } from './components/manage-courses/manage-courses.component';
 import { UserDetailsDialogComponent } from './components/user-details-dialog.component/user-details-dialog.component';
+import { InstructorApplicationsComponent } from './components/instructor-applications/instructor-applications.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { UserDetailsDialogComponent } from './components/user-details-dialog.com
     EnrolledUsersComponent,
     ManageCoursesComponent,
     UserDetailsDialogComponent,
+    InstructorApplicationsComponent,
   ],
   imports: [
     SharedModule,

@@ -1,0 +1,85 @@
+<div class="edit-profile-container">
+  <div class="header">
+    <h1>Edit Instructor Profile</h1>
+    <p>Update your profile information and settings</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <mat-spinner></mat-spinner>
+    <p>Loading profile...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="form-container">
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" placeholder="Your full name">
+          <mat-error *ngIf="profileForm.get('name')?.hasError('required')">
+            Name is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="your.email@example.com">
+          <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
+            Email is required
+          </mat-error>
+          <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
+            Please enter a valid email address
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Profile Image URL</mat-label>
+          <input matInput formControlName="profileImageUrl" placeholder="https://example.com/your-photo.jpg">
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Bio</mat-label>
+          <textarea matInput rows="5" formControlName="bio" placeholder="Tell us about yourself, your experience, and expertise..."></textarea>
+          <mat-error *ngIf="profileForm.get('bio')?.hasError('required')">
+            Bio is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="social-section">
+        <h3>Social Links</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Twitter Handle</mat-label>
+            <input matInput formControlName="twitterHandle" placeholder="your_twitter_handle">
+            <span matPrefix>@</span>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>GitHub Username</mat-label>
+            <input matInput formControlName="githubHandle" placeholder="your-github-username">
+            <span matPrefix>github.com/</span>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button type="button" mat-stroked-button (click)="cancel()" [disabled]="isSaving">
+          Cancel
+        </button>
+        <button type="submit" mat-raised-button color="primary" [disabled]="profileForm.invalid || isSaving">
+          <mat-spinner *ngIf="isSaving" diameter="20"></mat-spinner>
+          <span *ngIf="!isSaving">Save Changes</span>
+          <span *ngIf="isSaving">Saving...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

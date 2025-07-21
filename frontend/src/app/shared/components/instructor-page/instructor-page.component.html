@@ -1,11 +1,131 @@
 <div class="instructor-container">
-  <h1>Instructor Profile</h1>
-  <div *ngIf="instructorName; else noInstructor">
-    <h2>{{ instructorName }}</h2>
-    <p>This is a placeholder page for {{ instructorName }}'s profile.</p>
-    <p>Biography and course details will be added here in the future.</p>
+  <div *ngIf="isLoading" class="loading">
+    <mat-spinner></mat-spinner>
+    <p>Loading instructor profile...</p>
   </div>
+
+  <div *ngIf="!isLoading && instructor; else noInstructor" class="instructor-profile">
+    <!-- Header Section -->
+    <div class="instructor-header">
+      <div class="instructor-avatar">
+        <img *ngIf="instructor.profileImageUrl" [src]="instructor.profileImageUrl" [alt]="instructor.name">
+        <mat-icon *ngIf="!instructor.profileImageUrl">person</mat-icon>
+      </div>
+      <div class="instructor-info">
+        <h1>{{ instructor.name }}</h1>
+        <p class="instructor-email">{{ instructor.email }}</p>
+        <div class="instructor-stats">
+          <div class="stat">
+            <span class="stat-number">{{ instructor.totalLearners }}</span>
+            <span class="stat-label">Total Learners</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">{{ instructor.totalReviews }}</span>
+            <span class="stat-label">Total Reviews</span>
+          </div>
+          <div class="stat">
+            <div class="rating-display">
+              <ng-container *ngFor="let i of [1,2,3,4,5]">
+                <fa-icon [icon]="getStarIcon(instructor.averageRating, i)" [ngStyle]="{ color: getStarColor(instructor.averageRating, i) }"></fa-icon>
+              </ng-container>
+              <span class="rating-number">({{ instructor.averageRating | number:'1.1-1' }}/5)</span>
+            </div>
+            <span class="stat-label">Average Rating</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="about-section">
+      <h2>About Me</h2>
+      <p>{{ instructor.bio }}</p>
+    </div>
+
+    <!-- Social Links -->
+    <div class="social-links" *ngIf="instructor.twitterHandle || instructor.githubHandle">
+      <h2>Connect With Me</h2>
+      <div class="social-buttons">
+        <a *ngIf="instructor.twitterHandle" 
+           [href]="'https://twitter.com/' + instructor.twitterHandle" 
+           target="_blank" 
+           mat-raised-button 
+           class="twitter-btn">
+          <mat-icon>link</mat-icon>
+          Twitter
+        </a>
+        <a *ngIf="instructor.githubHandle" 
+           [href]="'https://github.com/' + instructor.githubHandle" 
+           target="_blank" 
+           mat-raised-button 
+           class="github-btn">
+          <mat-icon>code</mat-icon>
+          GitHub
+        </a>
+      </div>
+    </div>
+
+    <!-- Courses Section -->
+    <div class="courses-section">
+      <h2>My Courses</h2>
+      <div *ngIf="instructor.courses && instructor.courses.length > 0; else noCourses" class="courses-grid">
+        <mat-card *ngFor="let course of instructor.courses" class="course-card">
+          <div class="image-container">
+            <img mat-card-image [src]="course.imageUrl" [alt]="course.title" *ngIf="course.imageUrl" />
+            <div *ngIf="course.bestSelling" class="best-selling-overlay">
+              <span class="best-selling-badge">BEST SELLER</span>
+            </div>
+          </div>
+          
+          <mat-card-header>
+            <mat-card-title>{{ course.title }}</mat-card-title>
+            <mat-card-subtitle *ngIf="course.bestSelling" class="best-seller-subtitle">
+              <mat-chip color="accent" selected>Best Seller</mat-chip>
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <p>{{ course.body | slice: 0:100 }}...</p>
+            
+            <div class="course-stats">
+              <div *ngIf="course.averageRating" class="course-rating">
+                <ng-container *ngFor="let i of [1,2,3,4,5]">
+                  <fa-icon [icon]="getStarIcon(course.averageRating, i)" [ngStyle]="{ color: getStarColor(course.averageRating, i) }"></fa-icon>
+                </ng-container>
+                <span>({{ course.averageRating | number:'1.1-1' }}/5)</span>
+              </div>
+              
+              <p class="price">
+                {{ course.price === 0 ? 'Free' : 'Rs.' + course.price }}
+              </p>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions>
+            <button mat-stroked-button color="primary" (click)="viewCourseDetails(course)">
+              View Details
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+      
+      <ng-template #noCourses>
+        <div class="no-courses">
+          <mat-icon>school</mat-icon>
+          <p>This instructor hasn't created any courses yet.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
   <ng-template #noInstructor>
-    <p>No instructor information available.</p>
+    <div class="no-instructor">
+      <mat-icon>person_off</mat-icon>
+      <h2>Instructor Not Found</h2>
+      <p>The instructor profile you're looking for doesn't exist or couldn't be loaded.</p>
+      <button mat-raised-button color="primary" routerLink="/courses">
+        Browse Courses
+      </button>
+    </div>
   </ng-template>
 </div>

@@ -5,4 +5,8 @@ export interface Course {
   imageUrl: string;
   price: number;
   instructor: string;
+  bestSelling?: boolean;
+  totalLearners?: number;
+  averageRating?: number;
+  totalReviews?: number;
 }

@@ -32,10 +32,18 @@
           <span class="instructor-name" (click)="navigateToInstructor(course.instructor)">
             {{ course.instructor || 'Unknown Instructor' }}
           </span>
+          <span *ngIf="course.bestSelling" class="best-selling-tag">
+            Best Seller
+          </span>
         </mat-card-subtitle>
       </mat-card-header>
 
-      <img mat-card-image [src]="course.imageUrl" [alt]="course.title" *ngIf="course.imageUrl" />
+      <div class="image-container">
+        <img mat-card-image [src]="course.imageUrl" [alt]="course.title" *ngIf="course.imageUrl" />
+        <div *ngIf="course.bestSelling" class="best-selling-overlay">
+          <span class="best-selling-badge">BEST SELLER</span>
+        </div>
+      </div>
 
       <mat-card-content>
         <p>{{ course.body | slice: 0:100 }}...</p>

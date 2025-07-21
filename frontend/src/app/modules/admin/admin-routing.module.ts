@@ -4,6 +4,7 @@ import { FeedbackListComponent } from './components/feedback-list/feedback-list.
 import { EnrolledUsersComponent } from './components/enrolled-users/enrolled-users.component';
 import { ManageCoursesComponent } from './components/manage-courses/manage-courses.component';
 import { RegisteredUsersComponent } from './components/registered-users/registered-users.component';
+import { InstructorApplicationsComponent } from './components/instructor-applications/instructor-applications.component';
 import { AuthGuard } from 'src/app/auth/auth.guards';
 
 const routes: Routes = [
@@ -17,6 +18,7 @@ const routes: Routes = [
       { path: 'manage-courses', component: ManageCoursesComponent },
       { path: 'enrolled', component: EnrolledUsersComponent },
       { path: 'registered-users', component: RegisteredUsersComponent },
+      { path: 'instructor-applications', component: InstructorApplicationsComponent },
     ],
   },
 ];
