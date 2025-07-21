@@ -1,5 +1,9 @@
 <div class="page-container" *ngIf="course">
+  <div class="d-flex justify-content-end mb-3"> 
+    <button mat-raised-button class="back-button" (click)="goBack()">Back to Courses</button>
+  </div>
   <h1>{{ course.title || 'No Title' }}</h1>
+
   <div class="content-container">
     <div class="image-container" *ngIf="course.imageUrl; else noImage">
       <img [src]="course.imageUrl" [alt]="course.title || 'Course Image'" class="course-image" loading="lazy" />
@@ -36,7 +40,6 @@
     </div>
   </div>
   <div class="actions-container">
-    <button mat-raised-button class="back-button" (click)="goBack()">Back to Courses</button>
     
     <ng-container *ngIf="(isEnrolled$ | async); else notEnrolled">
       <button mat-raised-button color="accent" (click)="openFeedbackDialog()">

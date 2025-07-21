@@ -3,30 +3,27 @@
     <a class="navbar-brand" routerLink="/" style="cursor: pointer;">
       E-Learning Platform
     </a>
-    
-    <button class="navbar-toggler" type="button" (click)="toggleMobileMenu()" 
-            [attr.aria-expanded]="isMobileMenuOpen" aria-label="Toggle navigation">
+
+    <button class="navbar-toggler" type="button" (click)="toggleMobileMenu()" [attr.aria-expanded]="isMobileMenuOpen"
+      aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    
+
     <div class="collapse navbar-collapse" [class.show]="isMobileMenuOpen">
-      <!-- Left side navigation -->
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
           <a class="nav-link" (click)="goToAboutUs(); closeMobileMenu()">About Us</a>
         </li>
       </ul>
-      
-      <!-- Right side navigation -->
+
       <ul class="navbar-nav">
-        <!-- Admin/User specific navigation -->
         <ng-container *ngIf="isAuthenticated$ | async">
           <ng-container *ngIf="role$ | async as role">
-            <!-- Admin Links -->
             <ng-container *ngIf="role === 'admin'">
+
               <li class="nav-item">
-                <a class="nav-link" (click)="goToRegisteredUsers(); closeMobileMenu()">
-                  Registered Users
+                <a class="nav-link" (click)="goToAdminEnrolled(); closeMobileMenu()">
+                  Enrolled
                 </a>
               </li>
               <li class="nav-item">
@@ -35,18 +32,18 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" (click)="goToAdminEnrolled(); closeMobileMenu()">
-                  Enrolled
-                </a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link" (click)="goToAdminManageCourses(); closeMobileMenu()">
                   Manage Courses
                 </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" (click)="goToRegisteredUsers(); closeMobileMenu()">
+                  Registered Users
+                </a>
+              </li>
+
             </ng-container>
-            
-            <!-- User Links -->
+
             <ng-container *ngIf="role === 'user'">
               <li class="nav-item">
                 <a class="nav-link" (click)="goToUserEnrolled(); closeMobileMenu()">
@@ -55,16 +52,14 @@
               </li>
             </ng-container>
           </ng-container>
-          
-          <!-- User dropdown -->
+
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" 
-               role="button" aria-expanded="false"
-               (click)="toggleUserDropdown(); $event.preventDefault()">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" aria-expanded="false"
+              (click)="toggleUserDropdown(); $event.preventDefault()">
               {{ username$ | async }}
             </a>
-            <ul class="dropdown-menu dropdown-menu-end" [class.show]="isUserDropdownOpen" 
-                aria-labelledby="navbarDropdown">
+            <ul class="dropdown-menu dropdown-menu-end" [class.show]="isUserDropdownOpen"
+              aria-labelledby="navbarDropdown">
               <li>
                 <a class="dropdown-item" (click)="logout(); closeMobileMenu()">
                   Logout
@@ -73,8 +68,7 @@
             </ul>
           </li>
         </ng-container>
-        
-        <!-- Login button for non-authenticated users -->
+
         <li class="nav-item" *ngIf="!(isAuthenticated$ | async)">
           <a class="nav-link nav-login-btn" (click)="goToLogin(); closeMobileMenu()">
             Login

@@ -22,7 +22,6 @@
         (input)="applyFilter()"
         class="search-input">
     </div>
-
   </div>
 
   <div *ngIf="error" class="error-message">
@@ -36,20 +35,17 @@
   </div>
 
   <div *ngIf="!loading && !error && viewMode === 'cards'" class="users-grid">
-    <div *ngFor="let user of filteredUsers" class="user-card">
-      <div class="card-header">
-        <div class="user-info">
+    <mat-card *ngFor="let user of filteredUsers" class="user-card">
+      <mat-card-header class="card-header">
+        <mat-card-title class="user-info">
           <h3>{{ user.username }}</h3>
-          <p class="user-email">{{ user.email }}</p>
-        </div>
+        </mat-card-title>
+        <mat-card-subtitle class="user-email">{{ user.email }}</mat-card-subtitle>
         <div class="enrollment-badge">
           {{ user.enrolledCourses.length }} course{{ user.enrolledCourses.length !== 1 ? 's' : '' }}
         </div>
-      </div>
-      
-
-
-      <div class="card-actions">
+      </mat-card-header>
+      <mat-card-actions class="card-actions">
         <button 
           mat-raised-button 
           color="primary" 
@@ -58,8 +54,8 @@
           <mat-icon>visibility</mat-icon>
           View Details
         </button>
-      </div>
-    </div>
+      </mat-card-actions>
+    </mat-card>
   </div>
 
   <div *ngIf="!loading && !error && filteredUsers.length === 0" class="empty-state">
