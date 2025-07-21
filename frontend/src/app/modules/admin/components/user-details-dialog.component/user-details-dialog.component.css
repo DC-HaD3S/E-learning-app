@@ -222,7 +222,6 @@
       background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
     }
 
-    /* Responsive design */
     @media (max-width: 600px) {
       .dialog-container {
         max-width: 95vw;

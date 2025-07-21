@@ -32,7 +32,6 @@
           <span class="instructor-name" (click)="navigateToInstructor(course.instructor)">
             {{ course.instructor || 'Unknown Instructor' }}
           </span>
-          <span *ngIf="isBestSelling(course.id)" class="best-selling-tag">Best Selling</span>
         </mat-card-subtitle>
       </mat-card-header>
 

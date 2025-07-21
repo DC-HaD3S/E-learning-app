@@ -1,7 +1,6 @@
 <div class="enrolled-users-container">
   <h1>Enrolled Users</h1>
 
-  <!-- Stats Summary -->
   <div class="stats-container">
     <div class="stat-card">
       <div class="stat-number">{{ dataSource.data.length }}</div>
@@ -13,13 +12,12 @@
     </div>
   </div>
 
-  <!-- Search and Filter Controls -->
   <div class="controls-container">
     <div class="search-box">
       <mat-icon class="search-icon">search</mat-icon>
       <input 
         type="text" 
-        placeholder="Search users or courses..." 
+        placeholder="Search for users..." 
         [(ngModel)]="searchTerm"
         (input)="applyFilter()"
         class="search-input">
@@ -27,19 +25,16 @@
 
   </div>
 
-  <!-- Error Message -->
   <div *ngIf="error" class="error-message">
     <mat-icon>error</mat-icon>
     {{ error }}
   </div>
 
-  <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">
     <mat-spinner diameter="50"></mat-spinner>
     <p>Loading enrolled users...</p>
   </div>
 
-  <!-- Cards View -->
   <div *ngIf="!loading && !error && viewMode === 'cards'" class="users-grid">
     <div *ngFor="let user of filteredUsers" class="user-card">
       <div class="card-header">
@@ -67,7 +62,6 @@
     </div>
   </div>
 
-  <!-- Empty State -->
   <div *ngIf="!loading && !error && filteredUsers.length === 0" class="empty-state">
     <mat-icon class="empty-icon">school_off</mat-icon>
     <h3>No Enrolled Users Found</h3>
