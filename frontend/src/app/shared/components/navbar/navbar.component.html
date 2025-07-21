@@ -41,7 +41,25 @@
                   Registered Users
                 </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" (click)="goToInstructorApplications(); closeMobileMenu()">
+                  Instructor Applications
+                </a>
+              </li>
 
+            </ng-container>
+
+            <ng-container *ngIf="role === 'instructor'">
+              <li class="nav-item">
+                <a class="nav-link" (click)="goToInstructorProfile(); closeMobileMenu()">
+                  My Profile
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" (click)="goToInstructorEdit(); closeMobileMenu()">
+                  Edit Profile
+                </a>
+              </li>
             </ng-container>
 
             <ng-container *ngIf="role === 'user'">

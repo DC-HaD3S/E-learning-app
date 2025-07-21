@@ -127,6 +127,21 @@ export class NavbarComponent {
     this.closeMobileMenu();
   }
 
+  goToInstructorApplications(): void {
+    this.checkAuthAndNavigate('/admin/instructor-applications');
+    this.closeMobileMenu();
+  }
+
+  goToInstructorProfile(): void {
+    this.checkAuthAndNavigate('/instructor/profile');
+    this.closeMobileMenu();
+  }
+
+  goToInstructorEdit(): void {
+    this.checkAuthAndNavigate('/instructor/edit');
+    this.closeMobileMenu();
+  }
+
   goToUserEnrolled(): void {
     this.checkAuthAndNavigate('/user/enrolled');
     this.closeMobileMenu();
