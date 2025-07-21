@@ -52,11 +52,11 @@ export class InstructorApplicationsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && application.id) {
-        this.instructorService.reviewApplication(application.id, 'approved').subscribe({
+        this.instructorService.approveApplication(application.id).subscribe({
           next: () => {
             this.loadApplications();
           },
-          error: (error) => {
+          error: (error: any) => {
             console.error('Error approving application:', error);
           }
         });
@@ -77,14 +77,8 @@ export class InstructorApplicationsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && application.id) {
-        this.instructorService.reviewApplication(application.id, 'rejected').subscribe({
-          next: () => {
-            this.loadApplications();
-          },
-          error: (error) => {
-            console.error('Error rejecting application:', error);
-          }
-        });
+        // For now, we only support approval. Rejection can be added later if needed.
+        console.log('Rejection functionality not implemented yet');
       }
     });
   }

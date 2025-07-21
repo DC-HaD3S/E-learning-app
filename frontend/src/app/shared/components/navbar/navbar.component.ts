@@ -142,6 +142,11 @@ export class NavbarComponent {
     this.closeMobileMenu();
   }
 
+  goToInstructorCourses(): void {
+    this.checkAuthAndNavigate('/instructor/courses');
+    this.closeMobileMenu();
+  }
+
   goToUserEnrolled(): void {
     this.checkAuthAndNavigate('/user/enrolled');
     this.closeMobileMenu();

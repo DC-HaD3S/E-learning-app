@@ -16,6 +16,8 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import java.security.Key;
 import com.example.e_learning.repository.UserRepository;
+import com.example.e_learning.repository.InstructorApplicationRepository;
+import com.example.e_learning.entity.InstructorApplication;
 import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,6 +45,9 @@ public class JwtService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private InstructorApplicationRepository instructorApplicationRepository;
+
     private Key getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8); 
         return Keys.hmacShaKeyFor(keyBytes);
@@ -56,14 +61,23 @@ public class JwtService {
             role = "USER"; 
         }
 
-        return Jwts.builder()
+        var tokenBuilder = Jwts.builder()
                 .claim("username", username) 
                 .claim("role", "ROLE_" + role.toUpperCase())
+                .claim("userId", user.getId())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
+                .setExpiration(new Date(System.currentTimeMillis() + expiration));
+
+        // Add instructor ID if user is an instructor
+        if ("INSTRUCTOR".equalsIgnoreCase(role)) {
+            var instructorApp = instructorApplicationRepository.findByUserId(user.getId());
+            if (instructorApp.isPresent() && instructorApp.get().isApproved()) {
+                tokenBuilder.claim("instructorId", instructorApp.get().getId());
+            }
         }
+
+        return tokenBuilder.signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+    }
 
     public String extractUsername(String token) {
         try {

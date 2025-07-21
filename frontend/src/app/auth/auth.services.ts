@@ -79,6 +79,44 @@ export class AuthService {
     return '';
   }
 
+  // New method to get instructor ID from token or API
+  getInstructorId(): Observable<number> {
+    return this.isAuthenticated$().pipe(
+      switchMap(isAuthenticated => {
+        if (!isAuthenticated || !this.isInstructor()) {
+          return of(0);
+        }
+        
+        // Try to get instructor ID from token first
+        const token = this.getToken();
+        if (token) {
+          const decoded = this.decodeToken(token);
+          if (decoded?.instructorId) {
+            return of(Number(decoded.instructorId));
+          }
+        }
+        
+        // If not in token, get from instructor applications API (fallback for old tokens)
+        const username = this.getUsername();
+        return this.http.get<any[]>(`${this.apiUrl}/instructor/applications`, { headers: this.getHeaders() }).pipe(
+          map(applications => {
+            // Find the approved application for the current user
+            const userApp = applications.find((app: any) => {
+              // Check both username and name fields since they might differ
+              return (app.name === username || app.username === username) && app.approved === true;
+            });
+            return userApp?.id || 0;
+          }),
+          catchError(error => {
+            console.error('Error fetching instructor ID:', error);
+            // If API call fails, instructor might need to log out and log back in to get new token
+            return of(0);
+          })
+        );
+      })
+    );
+  }
+
   private getHeaders(): HttpHeaders {
     const token = this.getToken();
     return new HttpHeaders({
@@ -117,6 +155,39 @@ export class AuthService {
     return false;
   }
 
+  isInstructor(): boolean {
+    const token = this.getToken();
+    if (token) {
+      const decoded = this.decodeToken(token);
+      const rawRole = decoded?.role || decoded?.authorities || 'USER';
+      const normalizedRole = (typeof rawRole === 'string' ? rawRole : rawRole[0] || 'USER')
+        .replace('ROLE_', '')
+        .toLowerCase();
+      return normalizedRole.includes('instructor');
+    }
+    return false;
+  }
+
+  getUserRole(): UserRole {
+    const token = this.getToken();
+    if (token) {
+      const decoded = this.decodeToken(token);
+      const rawRole = decoded?.role || decoded?.authorities || 'USER';
+      const normalizedRole = (typeof rawRole === 'string' ? rawRole : rawRole[0] || 'USER')
+        .replace('ROLE_', '')
+        .toLowerCase();
+      
+      if (normalizedRole.includes('admin')) {
+        return UserRole.ADMIN;
+      } else if (normalizedRole.includes('instructor')) {
+        return UserRole.INSTRUCTOR;
+      } else {
+        return UserRole.USER;
+      }
+    }
+    return UserRole.USER;
+  }
+
   initializeApp(): void {
     const token = this.getToken();
     if (token && this.isValidToken(token)) {
@@ -125,7 +196,16 @@ export class AuthService {
       const normalizedRole = (typeof rawRole === 'string' ? rawRole : rawRole[0] || 'USER')
         .replace('ROLE_', '')
         .toLowerCase();
-      const role = normalizedRole.includes('admin') ? UserRole.ADMIN : UserRole.USER;
+      
+      let role: UserRole;
+      if (normalizedRole.includes('admin')) {
+        role = UserRole.ADMIN;
+      } else if (normalizedRole.includes('instructor')) {
+        role = UserRole.INSTRUCTOR;
+      } else {
+        role = UserRole.USER;
+      }
+      
       const userDetails: UserDetails = {
         id: 0,
         email: decoded?.email || '',
@@ -156,7 +236,16 @@ export class AuthService {
         const normalizedRole = (typeof rawRole === 'string' ? rawRole : rawRole[0] || 'USER')
           .replace('ROLE_', '')
           .toLowerCase();
-        const role = normalizedRole.includes('admin') ? UserRole.ADMIN : UserRole.USER;
+        
+        let role: UserRole;
+        if (normalizedRole.includes('admin')) {
+          role = UserRole.ADMIN;
+        } else if (normalizedRole.includes('instructor')) {
+          role = UserRole.INSTRUCTOR;
+        } else {
+          role = UserRole.USER;
+        }
+        
         const userDetails = {
           id: Number(decoded?.userId) || 0,
           email: decoded?.email || '',

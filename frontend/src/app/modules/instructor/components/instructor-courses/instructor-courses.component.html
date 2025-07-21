@@ -1,4 +1,133 @@
-<div class="courses-container">
-  <h1>My Courses</h1>
-  <p>Course management functionality will be implemented here.</p>
+<div class="instructor-courses-container">
+  <div class="header-section">
+    <button class="btn btn-secondary back-btn" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> Back to Profile
+    </button>
+    <h1 class="page-title">Manage My Courses</h1>
+    <button class="btn btn-primary add-course-btn" (click)="openCourseForm()">
+      <i class="fas fa-plus"></i> Add New Course
+    </button>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Loading your courses...</p>
+  </div>
+
+  <!-- Course Form Modal -->
+  <div *ngIf="showCourseForm" class="modal-overlay" (click)="closeCourseForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ courseForm.id ? 'Edit' : 'Add' }} Course</h3>
+        <button class="btn-close" (click)="closeCourseForm()">×</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="saveCourse()">
+          <div class="form-group">
+            <label for="title">Course Title *</label>
+            <input 
+              type="text" 
+              id="title" 
+              class="form-control" 
+              [(ngModel)]="courseForm.title" 
+              name="title" 
+              required
+              placeholder="Enter course title">
+          </div>
+          
+          <div class="form-group">
+            <label for="price">Price ($) *</label>
+            <input 
+              type="number" 
+              id="price" 
+              class="form-control" 
+              [(ngModel)]="courseForm.price" 
+              name="price" 
+              min="0" 
+              step="0.01"
+              required
+              placeholder="0.00">
+          </div>
+          
+          <div class="form-group">
+            <label for="body">Course Description *</label>
+            <textarea 
+              id="body" 
+              class="form-control" 
+              [(ngModel)]="courseForm.body" 
+              name="body" 
+              rows="4" 
+              required
+              placeholder="Enter course description"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="imageUrl">Course Image URL</label>
+            <input 
+              type="url" 
+              id="imageUrl" 
+              class="form-control" 
+              [(ngModel)]="courseForm.imageUrl" 
+              name="imageUrl"
+              placeholder="https://example.com/image.jpg">
+          </div>
+          
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeCourseForm()">Cancel</button>
+            <button type="submit" class="btn btn-primary">
+              {{ courseForm.id ? 'Update' : 'Create' }} Course
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Courses List -->
+  <div *ngIf="!isLoading" class="courses-section">
+    <div *ngIf="courses.length === 0" class="no-courses">
+      <div class="empty-state">
+        <i class="fas fa-book fa-3x text-muted"></i>
+        <h3>No Courses Yet</h3>
+        <p>You haven't created any courses yet. Click "Add New Course" to get started!</p>
+      </div>
+    </div>
+
+    <div *ngIf="courses.length > 0" class="courses-grid">
+      <div *ngFor="let course of courses" class="course-card">
+        <div class="course-image">
+          <img 
+            [src]="course.imageUrl || '/assets/images/default-course.jpg'" 
+            [alt]="course.title"
+            (error)="($event.target as HTMLImageElement).src='/assets/images/default-course.jpg'">
+        </div>
+        
+        <div class="course-content">
+          <h3 class="course-title">{{ course.title }}</h3>
+          <p class="course-description">{{ course.body | slice:0:100 }}{{ course.body.length > 100 ? '...' : '' }}</p>
+          <div class="course-price">
+            <span class="price">${{ course.price }}</span>
+          </div>
+        </div>
+        
+        <div class="course-actions">
+          <button class="btn btn-sm btn-outline-primary" (click)="viewCourseDetails(course)">
+            <i class="fas fa-eye"></i> View
+          </button>
+          <button class="btn btn-sm btn-outline-warning" (click)="openCourseForm(course)">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="btn btn-sm btn-outline-info" (click)="viewCourseContent(course)">
+            <i class="fas fa-list"></i> Content
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="deleteCourse(course)">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

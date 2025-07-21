@@ -14,7 +14,12 @@ export class AuthInterceptor implements HttpInterceptor {
     const isProtectedEndpoint = req.url.includes('/users') ||
       req.url.includes('/auth/me') ||
       req.url.includes('/feedback/') ||
-      req.url.includes('/courses/');
+      req.url.includes('/courses/') ||
+      req.url.includes('/instructor/apply') ||
+      req.url.includes('/instructor/applications') ||
+      req.url.includes('/instructor/approve') ||
+      req.url.includes('/instructor/average-rating') ||
+      (req.url.includes('/instructor') && (req.method === 'PUT' || req.method === 'POST' || req.method === 'DELETE'));
 
     if (token && isProtectedEndpoint) {
       const cloned = req.clone({

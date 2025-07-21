@@ -65,6 +65,25 @@ export class CourseService {
     this.coursesRefresh$.next();
   }
 
+  // Get instructor's courses
+  getInstructorCourses(): Observable<Course[]> {
+    return this.authService.isAuthenticated$().pipe(
+      switchMap(isAuthenticated => {
+        if (!isAuthenticated) {
+          return of([]);
+        }
+        return this.http.get<Course[]>(`${this.apiUrl}/courses/my-courses`).pipe(
+          map(courses => courses || []),
+          catchError(error => {
+            console.error('Instructor Courses API Error:', error);
+            this.snackBar.open(`Error fetching instructor courses: ${error.error?.message || 'Unknown error'}`, 'Close', { duration: 5000 });
+            return of([]);
+          })
+        );
+      })
+    );
+  }
+
   getHighestEnrolledCourses(): Observable<HighestEnrollmentDTO[]> {
     if (this.highestEnrollmentsCache) {
       return of(this.highestEnrollmentsCache);

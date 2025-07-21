@@ -72,12 +72,12 @@ export class InstructorEditProfileComponent implements OnInit {
         ...this.profileForm.value
       };
 
-      this.instructorService.updateInstructor(updatedInstructor).subscribe({
+      this.instructorService.updateInstructorDetails(updatedInstructor).subscribe({
         next: () => {
           this.isSaving = false;
           this.router.navigate(['/instructor/profile']);
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error updating profile:', error);
           this.isSaving = false;
         }
