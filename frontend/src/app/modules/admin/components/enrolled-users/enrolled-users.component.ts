@@ -28,7 +28,6 @@ export class EnrolledUsersComponent implements OnInit {
   dataSource = new MatTableDataSource<EnrolledUser>();
   tableDataSource = new MatTableDataSource<EnrolledUser>();
   
-  // New properties for enhanced functionality
   enrolledUsers: EnrolledUser[] = [];
   filteredUsers: EnrolledUser[] = [];
   searchTerm: string = '';
@@ -79,7 +78,7 @@ export class EnrolledUsersComponent implements OnInit {
       if (!userMap[enrollment.username]) {
         userMap[enrollment.username] = {
           name: enrollment.username,
-          email: `${enrollment.username}@example.com`, // You might want to get real emails
+          email: `${enrollment.username}@example.com`, 
           username: enrollment.username,
           enrolledCourses: []
         };
@@ -93,7 +92,6 @@ export class EnrolledUsersComponent implements OnInit {
     return Object.values(userMap);
   }
 
-  // Search and filter functionality
   applyFilter(): void {
     if (!this.searchTerm.trim()) {
       this.filteredUsers = [...this.enrolledUsers];
@@ -108,26 +106,16 @@ export class EnrolledUsersComponent implements OnInit {
         return usernameMatch || emailMatch || coursesMatch;
       });
     }
-
-    // Update table data source for table view
     this.tableDataSource.data = this.filteredUsers;
   }
 
-  // View mode toggle
   setViewMode(mode: 'cards' | 'table'): void {
     this.viewMode = mode;
   }
 
-  // Statistics methods
   getTotalCourses(): number {
     return this.enrolledUsers.reduce((total, user) => total + user.enrolledCourses.length, 0);
   }
-
-
-
-
-
-  // Method to open user details dialog
   openUserDetails(user: EnrolledUser): void {
     const dialogRef = this.dialog.open(UserDetailsDialogComponent, {
       width: '600px',
