@@ -1,0 +1,96 @@
+<div class="instructor-applications-container">
+  <div class="header">
+    <h1>Instructor Applications</h1>
+    <p>Review and approve instructor applications</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <mat-spinner></mat-spinner>
+    <p>Loading applications...</p>
+  </div>
+
+  <div *ngIf="!isLoading && applications.length === 0" class="no-applications">
+    <mat-icon>assignment</mat-icon>
+    <h2>No Applications Found</h2>
+    <p>There are currently no instructor applications to review.</p>
+  </div>
+
+  <div *ngIf="!isLoading && applications.length > 0" class="applications-content">
+    <div class="applications-grid">
+      <mat-card *ngFor="let application of applications" class="application-card">
+        <mat-card-header>
+          <div mat-card-avatar class="avatar">
+            <img *ngIf="application.profileImageUrl" [src]="application.profileImageUrl" [alt]="application.name">
+            <mat-icon *ngIf="!application.profileImageUrl">person</mat-icon>
+          </div>
+          <mat-card-title>{{ application.name }}</mat-card-title>
+          <mat-card-subtitle>{{ application.email }}</mat-card-subtitle>
+          <div class="status-badge">
+            <mat-chip [color]="getStatusColor(application.status)" selected>
+              {{ application.status | titlecase }}
+            </mat-chip>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="info-section">
+            <h4>Bio</h4>
+            <p>{{ application.bio }}</p>
+          </div>
+
+          <div class="info-section">
+            <h4>Experience</h4>
+            <p>{{ application.experience }}</p>
+          </div>
+
+          <div class="info-section">
+            <h4>Qualifications</h4>
+            <p>{{ application.qualifications }}</p>
+          </div>
+
+          <div class="social-links" *ngIf="application.twitterHandle || application.githubHandle">
+            <h4>Social Links</h4>
+            <div class="links">
+              <a *ngIf="application.twitterHandle" 
+                 [href]="'https://twitter.com/' + application.twitterHandle" 
+                 target="_blank" 
+                 mat-button>
+                <mat-icon>link</mat-icon>
+                Twitter
+              </a>
+              <a *ngIf="application.githubHandle" 
+                 [href]="'https://github.com/' + application.githubHandle" 
+                 target="_blank" 
+                 mat-button>
+                <mat-icon>link</mat-icon>
+                GitHub
+              </a>
+            </div>
+          </div>
+
+          <div class="dates">
+            <p><strong>Applied:</strong> {{ formatDate(application.appliedAt) }}</p>
+            <p *ngIf="application.reviewedAt"><strong>Reviewed:</strong> {{ formatDate(application.reviewedAt) }}</p>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions *ngIf="application.status === 'pending'">
+          <button mat-raised-button color="primary" (click)="approveApplication(application)">
+            <mat-icon>check</mat-icon>
+            Approve
+          </button>
+          <button mat-raised-button color="warn" (click)="rejectApplication(application)">
+            <mat-icon>close</mat-icon>
+            Reject
+          </button>
+        </mat-card-actions>
+
+        <mat-card-actions *ngIf="application.status !== 'pending'">
+          <button mat-stroked-button disabled>
+            {{ application.status | titlecase }}
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>

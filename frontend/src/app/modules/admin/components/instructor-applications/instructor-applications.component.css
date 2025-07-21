@@ -1,0 +1,210 @@
+.instructor-applications-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  color: #1e3a8a;
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+}
+
+.loading mat-spinner {
+  margin-bottom: 16px;
+}
+
+.no-applications {
+  text-align: center;
+  padding: 64px;
+  color: #6b7280;
+}
+
+.no-applications mat-icon {
+  font-size: 64px;
+  height: 64px;
+  width: 64px;
+  margin-bottom: 16px;
+  color: #d1d5db;
+}
+
+.applications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+}
+
+.application-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.application-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+mat-card-header {
+  padding: 24px 24px 16px 24px;
+  position: relative;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar mat-icon {
+  color: #6b7280;
+  font-size: 24px;
+}
+
+.status-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+mat-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+mat-card-subtitle {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+mat-card-content {
+  padding: 0 24px 16px 24px;
+}
+
+.info-section {
+  margin-bottom: 20px;
+}
+
+.info-section h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-section p {
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.social-links h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.links a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+}
+
+.dates {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dates p {
+  margin: 4px 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+mat-card-actions {
+  padding: 16px 24px 24px 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+mat-card-actions button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 100px;
+}
+
+mat-card-actions button mat-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .instructor-applications-container {
+    padding: 16px;
+  }
+  
+  .applications-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .application-card {
+    margin-bottom: 16px;
+  }
+  
+  mat-card-actions {
+    flex-direction: column;
+  }
+  
+  mat-card-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
