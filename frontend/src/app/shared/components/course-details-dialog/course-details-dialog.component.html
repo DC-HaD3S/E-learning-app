@@ -13,6 +13,11 @@
     </ng-template>
     <div class="text-container">
       <p class="description">{{ course.body || 'No description available.' }}</p>
+      <p class="instructor">
+        <span class="instructor-name" (click)="navigateToInstructor(course.instructor)">
+          {{ course.instructor || 'Unknown Instructor' }}
+        </span>
+      </p>
       <p class="price">Price: {{ course.price != null ? (course.price === 0 ? 'Free' : 'Rs.' + course.price) : 'N/A' }}</p>
       <p class="average-rating" *ngIf="averageRating != null">
         Average Rating:
@@ -40,7 +45,6 @@
     </div>
   </div>
   <div class="actions-container">
-    
     <ng-container *ngIf="(isEnrolled$ | async); else notEnrolled">
       <button mat-raised-button color="accent" (click)="openFeedbackDialog()">
         Submit Feedback
@@ -75,13 +79,12 @@
             <mat-option value="comments">Comments</mat-option>
           </mat-select>
         </mat-form-field>
-        
       </div>
       <button mat-icon-button (click)="toggleSortOrder()"
-          matTooltip="{{ sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending' }}"
-          aria-label="Toggle sort order">
-          <mat-icon>{{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-        </button>
+              matTooltip="{{ sortOrder === 'asc' ? 'Sort Descending' : 'Sort Ascending' }}"
+              aria-label="Toggle sort order">
+        <mat-icon>{{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+      </button>
     </div>
     <table mat-table [dataSource]="dataSource" matSort class="mat-table" aria-label="Feedback table">
       <ng-container matColumnDef="username">

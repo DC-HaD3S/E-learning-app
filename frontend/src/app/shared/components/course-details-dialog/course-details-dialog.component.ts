@@ -177,6 +177,11 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
     this.destroy$.complete();
   }
 
+  navigateToInstructor(instructor: string | undefined): void {
+    const instructorName = instructor || 'Unknown Instructor';
+    this.router.navigate(['/instructor', encodeURIComponent(instructorName)]);
+  }
+
   loadFeedbacks(courseId: number): void {
     this.feedbackService.getFeedbacksByCourseId(courseId).pipe(
       takeUntil(this.destroy$)
@@ -334,6 +339,7 @@ export class CourseDetailsComponent implements OnInit, AfterViewInit, OnDestroy 
       }
     });
   }
+
   goBack(): void {
     this.router.navigate(['/courses']);
   }

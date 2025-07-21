@@ -12,6 +12,25 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.instructor-name {
+  color: #3b82f6;
+  margin-left: 5%;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.instructor-name:hover {
+  text-decoration: underline;
+}
+
+
+.instructor {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
 .page-container {
   max-width: 1200px;
   margin: 2rem auto;

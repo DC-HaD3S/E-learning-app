@@ -29,9 +29,7 @@
       <mat-card-header>
         <mat-card-title>{{ course.title }}</mat-card-title>
         <mat-card-subtitle>
-          <span class="instructor-name" (click)="navigateToInstructor(course.instructor)">
-            {{ course.instructor || 'Unknown Instructor' }}
-          </span>
+
         </mat-card-subtitle>
       </mat-card-header>
 
@@ -39,6 +37,9 @@
 
       <mat-card-content>
         <p>{{ course.body | slice: 0:100 }}...</p>
+                  <span class="instructor-name" (click)="navigateToInstructor(course.instructor)">
+            {{ course.instructor || 'Unknown Instructor' }}
+          </span>
 
         <div *ngIf="course.id != null" class="average-rating">
           <span>Average Rating:</span>
