@@ -16,6 +16,7 @@ const routes: Routes = [
   { path: 'course-details/:id', component: CourseDetailsComponent },
   { path: 'about-us', component: AboutUsComponent },
   { path: 'instructor/:name', component: InstructorPageComponent },
+  { path: 'instructor/:instructorId', component: InstructorPageComponent },
   {
     path: 'admin',
     loadChildren: () => import('./modules/admin/admin.module').then(m => m.AdminModule),

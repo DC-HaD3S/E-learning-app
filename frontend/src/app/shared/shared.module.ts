@@ -21,11 +21,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DetailsCardComponent } from './components/details-card/details-card.component';
 import { CourseApplyDialogComponent } from '../modules/user/components/course-apply-dialog/course-apply-dialog.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { InstructorPageComponent } from './components/instructor-page/instructor-page.component';
 
 @NgModule({
   declarations: [
     DetailsCardComponent,
     CourseApplyDialogComponent,
+    InstructorPageComponent,
     
     ConfirmDialogComponent,
   ],

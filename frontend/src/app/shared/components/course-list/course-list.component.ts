@@ -153,11 +153,14 @@ export class CourseListComponent implements OnInit, OnDestroy {
     return courseId !== undefined && courseId === this.highestEnrolledCourseId;
   }
 
-  navigateToInstructor(instructor: string | undefined): void {
-    const instructorName = instructor || 'Unknown Instructor';
-    this.router.navigate(['/instructor', encodeURIComponent(instructorName)]);
+navigateToInstructor(instructorId: number): void {
+    if (instructorId && !isNaN(instructorId) && instructorId > 0) {
+      console.log('Navigating to instructor ID:', instructorId);
+      this.router.navigate(['/instructor', instructorId]);
+    } else {
+      console.error('Cannot navigate: Invalid instructor ID', instructorId);
+    }
   }
-
   getStarIcon(rating: number, index: number) {
     if (rating >= index) return solidStar;
     if (rating >= index - 0.5) return faStarHalfAlt;

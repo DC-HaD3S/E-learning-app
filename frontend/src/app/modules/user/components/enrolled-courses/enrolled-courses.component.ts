@@ -157,6 +157,7 @@ export class EnrolledCoursesComponent implements OnInit, OnDestroy {
       instructor: '',
       body: enrollment.body || '',
       price: enrollment.price ?? 0,
+      instructorId:0,
       imageUrl: enrollment.imageUrl || ''
     };
 

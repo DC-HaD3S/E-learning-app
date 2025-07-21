@@ -36,6 +36,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { SharedModule } from './shared/shared.module';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 
 
 export function appInitializer(authService: AuthService) {
@@ -97,4 +99,10 @@ export function appInitializer(authService: AuthService) {
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule {
+
+  constructor(iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
+    iconRegistry.addSvgIcon('twitter', sanitizer.bypassSecurityTrustResourceUrl('assets/twitter.svg'));
+    iconRegistry.addSvgIcon('github', sanitizer.bypassSecurityTrustResourceUrl('assets/github.svg'));
+  }
+}
