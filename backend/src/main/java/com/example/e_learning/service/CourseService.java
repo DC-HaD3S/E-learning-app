@@ -138,6 +138,7 @@ public class CourseService {
         }
         courseRepository.deleteById(courseId);
     }
+    
 
     public CourseDTO convertToDTO(Course course) {
         CourseDTO dto = new CourseDTO();
@@ -159,8 +160,23 @@ public class CourseService {
         return dto;
     }
 
-    public List<Course> getCoursesByInstructorId(Long instructorId) {
-        return courseRepository.findByInstructorId(instructorId);
+    public List<CourseDTO> getCoursesByInstructorId(Long instructorId) {
+        logger.debug("Fetching courses for instructorId: {}", instructorId);
+        List<Course> courses = courseRepository.findByInstructorId(instructorId);
+        if (courses.isEmpty()) {
+            logger.warn("No courses found for instructorId: {}", instructorId);
+        }
+        return courses.stream().map(course -> {
+            CourseDTO dto = new CourseDTO();
+            dto.setId(course.getId());
+            dto.setTitle(course.getTitle());
+            dto.setBody(course.getBody());
+            dto.setImageUrl(course.getImageUrl());
+            dto.setPrice(course.getPrice());
+            dto.setInstructorId(course.getInstructor().getId());
+            dto.setInstructor(course.getInstructor().getName());
+            return dto;
+        }).collect(Collectors.toList());
     }
     
     public Long getEnrollmentCountByCourseId(Long courseId) {

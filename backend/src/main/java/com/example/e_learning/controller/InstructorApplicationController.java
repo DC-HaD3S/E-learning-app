@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.e_learning.dto.AverageRatingResponseDTO;
+import com.example.e_learning.dto.CourseDTO;
 import com.example.e_learning.dto.InstructorApplicationDTO;
 import com.example.e_learning.dto.InstructorApplicationRequestDTO;
 import com.example.e_learning.dto.InstructorDetailsDTO;
@@ -235,6 +236,36 @@ public class InstructorApplicationController {
         }
     }
 
+
+    @Operation(
+        summary = "Get courses by instructor ID",
+        description = "Public endpoint to retrieve details of all courses taught by a specific instructor, identified by instructor application ID. Includes course ID, title, body, image URL, price, instructor ID, and instructor name. Accessible to all users, including unauthenticated users.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "List of course details", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CourseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid instructor ID", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Server error", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+        }
+    )
+    @GetMapping("/{instructorId}/courses")
+    public ResponseEntity<?> getCoursesByInstructorId(
+        @Parameter(description = "ID of the instructor application to retrieve courses for", required = true) 
+        @PathVariable Long instructorId) {
+        try {
+            List<CourseDTO> courses = courseService.getCoursesByInstructorId(instructorId);
+            return ResponseEntity.ok(courses);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid instructor ID {}: {}", instructorId, e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        } catch (Exception e) {
+            logger.error("Failed to retrieve courses for instructor ID {}: {}", instructorId, e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", "Failed to retrieve courses: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
     @Operation(
         summary = "Update instructor details",
         description = "Allows an authenticated instructor to update their own details (e.g., qualifications, experience, courses) for the specified instructor ID. The instructor must match the authenticated user.")

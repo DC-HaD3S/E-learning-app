@@ -14,7 +14,7 @@
     <div class="text-container">
       <p class="description">{{ course.body || 'No description available.' }}</p>
       <p class="instructor">
-        <span class="instructor-name" (click)="navigateToInstructor(course.instructor)">
+        <span class="instructor-name" [ngClass]="{'disabled': !course.instructorId}" (click)="navigateToInstructor(course.instructorId)">
           {{ course.instructor || 'Unknown Instructor' }}
         </span>
       </p>

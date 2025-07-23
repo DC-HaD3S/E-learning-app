@@ -22,13 +22,14 @@ import { DetailsCardComponent } from './components/details-card/details-card.com
 import { CourseApplyDialogComponent } from '../modules/user/components/course-apply-dialog/course-apply-dialog.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { InstructorPageComponent } from './components/instructor-page/instructor-page.component';
+import { AsyncFeedbackCountPipe } from './components/pipes/async-feedback-count';
 
 @NgModule({
   declarations: [
     DetailsCardComponent,
     CourseApplyDialogComponent,
     InstructorPageComponent,
-    
+    AsyncFeedbackCountPipe,    
     ConfirmDialogComponent,
   ],
   imports: [
@@ -50,7 +51,6 @@ import { InstructorPageComponent } from './components/instructor-page/instructor
     MatTableModule,
     MatSortModule,
     MatOptionModule,
- 
     MatProgressBarModule, 
     MatProgressSpinnerModule,
   ],
@@ -59,6 +59,7 @@ import { InstructorPageComponent } from './components/instructor-page/instructor
     FormsModule,
     ReactiveFormsModule,
     FontAwesomeModule,
+    
     MatCardModule,
     MatButtonModule,
     MatDialogModule,

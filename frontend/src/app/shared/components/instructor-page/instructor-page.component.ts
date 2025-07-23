@@ -1,107 +1,254 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { InstructorService } from '../../services/instructor.service';
-import { InstructorDetails } from '../../models/instructor-details.model';
+import { Store } from '@ngrx/store';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Observable, Subject, combineLatest, of } from 'rxjs';
+import { catchError, map, shareReplay, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { InstructorService } from '../../services/instructor.service';
+import { FeedbackService } from 'src/app/shared/services/feedback.service';
+import { AuthService } from 'src/app/auth/auth.services';
+import { InstructorDetails, CourseDTO } from '../../models/instructor-details.model';
+import { Feedback } from 'src/app/shared/models/feedback.model';
+import { AppState } from 'src/app/store/app.state';
+import { UserRole } from 'src/app/enums/user-role.enum';
+import { faStar as solidStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons';
+import { faStar as emptyStar } from '@fortawesome/free-regular-svg-icons';
+import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 @Component({
   selector: 'app-instructor-page',
   templateUrl: './instructor-page.component.html',
   styleUrls: ['./instructor-page.component.css']
 })
-export class InstructorPageComponent implements OnInit {
+export class InstructorPageComponent implements OnInit, OnDestroy {
   instructorDetails: InstructorDetails | null = null;
+  courses: CourseDTO[] = [];
   averageRating: number | null = null;
   enrollmentCount: number | null = null;
   error: string | null = null;
+  isLoading = true;
+  pageSize = 9;
+  currentPage = 0;
+
+  solidStar = solidStar;
+  faStarHalfAlt = faStarHalfAlt;
+  emptyStar = emptyStar;
+  faTwitter: IconProp = faTwitter as IconProp; // Explicit cast to IconProp
+  faGithub: IconProp = faGithub as IconProp;   // Explicit cast to IconProp
+
+  private destroy$ = new Subject<void>();
+  private averageRatingCache = new Map<number, Observable<number>>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private instructorService: InstructorService,
+    private feedbackService: FeedbackService,
+    private authService: AuthService,
+    private store: Store<AppState>,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const rawInstructorId = params.get('instructorId');
-      const instructorId = Number(rawInstructorId);
-      if (rawInstructorId && !isNaN(instructorId) && instructorId > 0) {
-        this.loadInstructorData(instructorId);
-      } else {
-        this.error = `Invalid instructor ID: '${rawInstructorId || 'not provided'}'. Expected a positive number.`;
-        console.error(this.error);
-        this.snackBar.open('Invalid instructor ID', 'Close', { duration: 5000 });
-        this.router.navigate(['/courses']);
-        this.cdr.detectChanges();
-      }
-    });
+    this.route.paramMap.pipe(
+      takeUntil(this.destroy$),
+      switchMap(params => {
+        const rawInstructorId = params.get('instructorId');
+        console.log('Raw instructorId from route:', rawInstructorId);
+        const instructorId = Number(rawInstructorId);
+        console.log('Parsed instructorId:', instructorId);
+        if (rawInstructorId && !isNaN(instructorId) && instructorId > 0) {
+          return this.loadInstructorData(instructorId);
+        } else {
+          this.error = `Invalid instructor ID: '${rawInstructorId || 'not provided'}'. Expected a positive number.`;
+          console.error(this.error);
+          this.snackBar.open('Invalid instructor ID', 'Close', { duration: 5000 });
+          this.router.navigate(['/courses']);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          return of(null);
+        }
+      })
+    ).subscribe();
   }
 
-  private loadInstructorData(instructorId: number): void {
-    this.instructorService.getInstructorDetails(instructorId).subscribe({
-      next: (details) => {
+  private loadInstructorData(instructorId: number): Observable<void> {
+    return combineLatest([
+      this.instructorService.getInstructorDetails(instructorId),
+      this.instructorService.getCoursesByInstructorId(instructorId),
+      this.instructorService.getInstructorAverageRating(instructorId),
+      this.instructorService.getEnrollmentCount(instructorId)
+    ]).pipe(
+      takeUntil(this.destroy$),
+      tap(([details, courses, rating, count]) => {
+        console.log('Instructor details received:', details);
+        console.log('Courses received:', courses);
+        console.log('Average rating received:', rating);
+        console.log('Enrollment count received:', count);
 
         this.instructorDetails = details;
-        // Preload image to detect issues early
-        const img = new Image();
-        img.src = details.photoUrl || 'assets/default-instructor.jpg';
-
-        img.onerror = (err) => {
-          console.error('Image failed to load:', img.src);
-          console.error('Error details:', err);
-        };
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        if (err.status === 400 && err.error?.message?.includes('User is not an instructor')) {
-          this.snackBar.open('Instructor not found', 'Close', { duration: 5000 });
-          this.router.navigate(['/courses']);
-        } else {
-          this.error = `Failed to load instructor details: ${err.message}`;
-          console.error(this.error);
-        }
-        this.cdr.detectChanges();
-      }
-    });
-
-    this.instructorService.getInstructorAverageRating(instructorId).subscribe({
-      next: (rating) => {
+        this.courses = courses.filter((course): course is CourseDTO => course.id !== undefined);
         this.averageRating = rating;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        if (err.status === 400) {
-          this.averageRating = null;
-        } else {
-          this.error = `Failed to load average rating: ${err.message}`;
-          console.error(this.error);
-        }
-        this.cdr.detectChanges();
-      }
-    });
-
-    this.instructorService.getEnrollmentCount(instructorId).subscribe({
-      next: (count) => {
         this.enrollmentCount = count;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        if (err.status === 400) {
-          this.enrollmentCount = 0;
-        } else {
-          this.error = `Failed to load enrollment count: ${err.message}`;
-          console.error(this.error);
+        this.isLoading = false;
+
+        // Preload instructor photo
+        if (details.photoUrl) {
+          fetch(details.photoUrl, { method: 'GET', mode: 'no-cors' })
+            .then(response => {
+              if (response.ok) {
+                console.log('Image fetch successful:', details.photoUrl);
+                const img = new Image();
+                img.src = details.photoUrl;
+                img.onload = () => {
+                  console.log('Image loaded successfully:', img.src);
+                  console.log('Image dimensions:', img.width, 'x', img.height);
+                };
+                img.onerror = () => {
+                  console.error('Image failed to load:', img.src);
+                  console.log('Falling back to default image: assets/default-instructor.jpg');
+                };
+              } else {
+                console.error('Image fetch failed:', details.photoUrl, 'Status:', response.status);
+              }
+            })
+            .catch(err => {
+              console.error('Image fetch error:', details.photoUrl, 'Error:', err.message);
+              console.log('Possible CORS or network issue');
+            });
         }
+
+        // Preload course images
+        this.courses.forEach(course => {
+          if (course.imageUrl) {
+            fetch(course.imageUrl, { method: 'GET', mode: 'no-cors' })
+              .then(response => {
+                if (response.ok) {
+                  console.log('Course image fetch successful:', course.imageUrl);
+                  const img = new Image();
+                  img.src = course.imageUrl;
+                  img.onload = () => {
+                    console.log('Course image loaded successfully:', img.src);
+                    console.log('Course image dimensions:', img.width, 'x', img.height);
+                  };
+                  img.onerror = () => {
+                    console.error('Course image failed to load:', img.src);
+                    console.log('Falling back to default image: assets/default-instructor.jpg');
+                  };
+                } else {
+                  console.error('Course image fetch failed:', course.imageUrl, 'Status:', response.status);
+                }
+              })
+              .catch(err => {
+                console.error('Course image fetch error:', course.imageUrl, 'Error:', err.message);
+                console.log('Possible CORS or network issue');
+              });
+          }
+        });
+
         this.cdr.detectChanges();
-      }
-    });
+      }),
+      catchError(err => {
+        console.error('Failed to load instructor data:', err);
+        this.error = `Failed to load instructor data: ${err.message}`;
+        this.snackBar.open(this.error, 'Close', { duration: 5000 });
+        this.isLoading = false;
+        this.cdr.detectChanges();
+        return of(null);
+      }),
+      map(() => void 0)
+    );
+  }
+
+  getAverageRating$(courseId: number): Observable<number> {
+    if (!this.averageRatingCache.has(courseId)) {
+      const avg$ = this.feedbackService.getFeedbacksByCourseId(courseId).pipe(
+        map((feedbacks: Feedback[]) => {
+          if (!feedbacks.length) return 0;
+          const sum = feedbacks.reduce((acc, f) => acc + Number(f.rating), 0);
+          return Math.round((sum / feedbacks.length) * 2) / 2;
+        }),
+        catchError(err => {
+          console.error('Rating fetch failed:', err);
+          this.snackBar.open('Failed to load average rating', 'Close', { duration: 5000 });
+          return of(0);
+        }),
+        shareReplay(1)
+      );
+      this.averageRatingCache.set(courseId, avg$);
+    }
+    return this.averageRatingCache.get(courseId)!;
+  }
+
+  getStarIcon(rating: number, index: number) {
+    if (rating >= index) return solidStar;
+    if (rating >= index - 0.5) return faStarHalfAlt;
+    return emptyStar;
+  }
+
+  getStarColor(rating: number, index: number): string {
+    if (rating >= index || rating >= index - 0.5) {
+      return 'gold';
+    }
+    return '#d1d5db';
   }
 
   handleImageError(event: any): void {
     console.error('Image load failed in UI:', event.target.src);
     console.error('Error event details:', event);
+    console.log('Falling back to default image: assets/default-instructor.jpg');
     event.target.src = 'assets/default-instructor.jpg';
+  }
+
+  navigateToCourseDetails(courseId: number): void {
+    if (courseId == null) {
+      this.snackBar.open('Error: Course ID is missing', 'Close', { duration: 5000 });
+      return;
+    }
+    this.router.navigate(['/course-details', courseId.toString()]);
+  }
+
+  navigateToInstructor(instructorId: number): void {
+    if (instructorId && !isNaN(instructorId) && instructorId > 0) {
+      console.log('Navigating to instructor ID:', instructorId);
+      this.router.navigate(['/instructor', instructorId]);
+    } else {
+      console.error('Cannot navigate: Invalid instructor ID', instructorId);
+      this.snackBar.open('Instructor information is not available', 'Close', { duration: 5000 });
+    }
+  }
+
+  trackByCourseId(index: number, course: CourseDTO): number {
+    return course.id;
+  }
+
+  get pagedCourses(): CourseDTO[] {
+    const start = this.currentPage * this.pageSize;
+    return this.courses.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.courses.length / this.pageSize);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.cdr.detectChanges();
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.cdr.detectChanges();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

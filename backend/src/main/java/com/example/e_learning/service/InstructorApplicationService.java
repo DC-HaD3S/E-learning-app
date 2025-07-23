@@ -19,6 +19,7 @@ import com.example.e_learning.repository.FeedbackRepository;
 import com.example.e_learning.repository.InstructorApplicationRepository;
 import com.example.e_learning.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.regex.*;
 
 @Service
 public class InstructorApplicationService {
@@ -263,7 +264,7 @@ public class InstructorApplicationService {
             "id=([^&]+)"                 // Matches id=FILE_ID
         };
         for (String pattern : patterns) {
-            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(url);
+            Matcher matcher = Pattern.compile(pattern).matcher(url);
             if (matcher.find()) {
                 return matcher.group(1);
             }
