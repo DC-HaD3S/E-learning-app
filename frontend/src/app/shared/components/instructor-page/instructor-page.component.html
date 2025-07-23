@@ -1,62 +1,205 @@
-<div class="instructor-container">
-  <div *ngIf="error" class="error-container">
-    <mat-icon color="warn">error</mat-icon>
-    <p>{{ error }}</p>
+<!-- Loading State -->
+<div *ngIf="isLoading" class="loading-container">
+  <div class="loading-spinner">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p class="loading-text">Loading instructor profile...</p>
   </div>
+</div>
 
-  <div *ngIf="instructorDetails; else loading">
-    <mat-card class="profile-card">
-      <div class="profile-header">
+<!-- Error State -->
+<div *ngIf="error && !isLoading" class="error-container">
+  <mat-icon class="error-icon">error_outline</mat-icon>
+  <h2>Oops! Something went wrong</h2>
+  <p>{{ error }}</p>
+  <button mat-raised-button color="primary" (click)="retryLoad()">Try Again</button>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="instructorDetails && !isLoading" class="instructor-page">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="instructor-avatar">
         <img [src]="instructorDetails.photoUrl || 'assets/default-instructor.jpg'" 
-             onerror="this.src='assets/default-instructor.jpg'" 
+             (error)="handleImageError($event)" 
              alt="Instructor Photo" 
              class="profile-photo" />
-        <div class="header-info">
-          <h1 class="instructor-name">{{ instructorDetails.name || 'Unknown Instructor' }}</h1>
-          <p class="instructor-email">{{ instructorDetails.email || 'No email provided' }}</p>
-          
-        <div class="stats-container">
-          <div class="stat-item">
-            <mat-icon>star</mat-icon>
-            <span>{{ averageRating != null ? (averageRating | number:'1.1-2') + ' Average Rating' : 'No ratings' }}</span>
-          </div>
+      </div>
+      
+      <div class="instructor-info">
+        <div class="instructor-header">
+          <h1 class="instructor-name">{{ instructorDetails.name }}</h1>
+          <p class="instructor-title">Expert Instructor</p>
+        </div>
+        
+        <div class="instructor-stats">
           <div class="stat-item">
             <mat-icon>school</mat-icon>
-            <span>{{ enrollmentCount != null ? (enrollmentCount + ' Students Enrolled') : '0 Students Enrolled' }}</span>
+            <span class="stat-label">Experience</span>
+            <span class="stat-value">{{ instructorDetails.experience }} years</span>
+          </div>
+          
+          <div class="stat-item" *ngIf="averageRating !== null">
+            <mat-icon>star</mat-icon>
+            <span class="stat-label">Rating</span>
+            <span class="stat-value">{{ averageRating | number:'1.1-1' }}/5</span>
+          </div>
+          
+          <div class="stat-item" *ngIf="enrollmentCount !== null">
+            <mat-icon>people</mat-icon>
+            <span class="stat-label">Students</span>
+            <span class="stat-value">{{ enrollmentCount | number }}</span>
+          </div>
+          
+          <div class="stat-item">
+            <mat-icon>book</mat-icon>
+            <span class="stat-label">Courses</span>
+            <span class="stat-value">{{ courses.length }}</span>
           </div>
         </div>
-          <div class="social-links">
-            <a *ngIf="instructorDetails.twitterUrl" [href]="instructorDetails.twitterUrl" target="_blank" mat-icon-button aria-label="Twitter profile">
-              <mat-icon svgIcon="twitter"></mat-icon>
-            </a>
-            <a *ngIf="instructorDetails.githubUrl" [href]="instructorDetails.githubUrl" target="_blank" mat-icon-button aria-label="GitHub profile">
-              <mat-icon svgIcon="github"></mat-icon>
-            </a>
+        
+                 <div class="social-links" *ngIf="instructorDetails.twitterUrl || instructorDetails.githubUrl">
+           <a *ngIf="instructorDetails.twitterUrl" 
+              [href]="instructorDetails.twitterUrl" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="social-link twitter">
+             <mat-icon>link</mat-icon>
+             <span>Twitter</span>
+           </a>
+           
+           <a *ngIf="instructorDetails.githubUrl" 
+              [href]="instructorDetails.githubUrl" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="social-link github">
+             <mat-icon>code</mat-icon>
+             <span>GitHub</span>
+           </a>
+         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="content-section">
+    <div class="container">
+      
+      <!-- About Section -->
+      <div class="about-section">
+        <h2 class="section-title">About {{ instructorDetails.name }}</h2>
+        <div class="about-content">
+          <div class="about-text">
+            <p class="about-description">{{ instructorDetails.aboutMe }}</p>
+            
+            <div class="qualifications">
+              <h3>Qualifications</h3>
+              <p>{{ instructorDetails.qualifications }}</p>
+            </div>
+            
+            <div class="contact-info">
+              <h3>Contact Information</h3>
+              <p><mat-icon>email</mat-icon> {{ instructorDetails.email }}</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <mat-card-content>
-        <h2 class="section-title">About Me</h2>
-        <p class="section-content">{{ instructorDetails.aboutMe || 'No bio available.' }}</p>
-
-        <h2 class="section-title">Qualifications</h2>
-        <p class="section-content">{{ instructorDetails.qualifications || 'No qualifications listed.' }}</p>
-
-        <h2 class="section-title">Experience</h2>
-        <p class="section-content">{{ instructorDetails.experience ? instructorDetails.experience + ' years' : 'No experience listed.' }}</p>
-
-        <h2 class="section-title">Courses</h2>
-        <p class="section-content">{{ instructorDetails.courses || 'No courses listed.' }}</p>
-
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <ng-template #loading>
-    <div class="loading-container">
-      <mat-spinner></mat-spinner>
-      <p>Loading instructor details...</p>
+      <!-- Courses Section -->
+      <div class="courses-section">
+        <div class="section-header">
+          <h2 class="section-title">Courses by {{ instructorDetails.name }}</h2>
+          <div class="course-count">
+            <span class="count-badge">{{ courses.length }} Course{{ courses.length !== 1 ? 's' : '' }}</span>
+          </div>
+        </div>
+        
+        <div *ngIf="courses.length === 0" class="no-courses">
+          <mat-icon class="no-courses-icon">school</mat-icon>
+          <h3>No courses available</h3>
+          <p>This instructor hasn't published any courses yet.</p>
+        </div>
+        
+        <div class="course-grid" *ngIf="courses.length > 0">
+          <mat-card *ngFor="let course of pagedCourses; trackBy: trackByCourseId" class="course-card">
+            <div class="course-image-container">
+              <img mat-card-image 
+                   [src]="course.imageUrl || 'assets/default-course.jpg'" 
+                   (error)="handleImageError($event)" 
+                   [alt]="course.title" 
+                   class="course-image" />
+              <div class="course-overlay">
+                <button mat-fab color="primary" class="preview-btn" (click)="previewCourse(course.id!)">
+                  <mat-icon>play_arrow</mat-icon>
+                </button>
+              </div>
+            </div>
+            
+            <mat-card-content class="course-content">
+              <h3 class="course-title" [title]="course.title">{{ course.title }}</h3>
+              
+              <p class="course-description">{{ course.body | slice:0:120 }}{{ (course.body && course.body.length > 120) ? '...' : '' }}</p>
+              
+              <div class="course-meta">
+                <div class="rating-section" *ngIf="course.id">
+                  <div class="star-rating">
+                    <ng-container *ngIf="getAverageRating$(course.id) | async as rating; else noRating">
+                      <div class="stars">
+                        <ng-container *ngFor="let i of [1,2,3,4,5]">
+                          <fa-icon [icon]="getStarIcon(rating, i)" 
+                                   [ngStyle]="{ color: getStarColor(rating, i) }"
+                                   class="star"></fa-icon>
+                        </ng-container>
+                      </div>
+                      <span class="rating-text">({{ rating | number:'1.1-1' }})</span>
+                    </ng-container>
+                    <ng-template #noRating>
+                      <div class="stars">
+                        <ng-container *ngFor="let i of [1,2,3,4,5]">
+                          <fa-icon [icon]="faStar" class="star empty-star"></fa-icon>
+                        </ng-container>
+                      </div>
+                      <span class="rating-text">No ratings yet</span>
+                    </ng-template>
+                  </div>
+                </div>
+                
+                <div class="course-price" *ngIf="course.price !== undefined">
+                  <span class="price">${{ course.price | number:'1.2-2' }}</span>
+                </div>
+              </div>
+              
+              <div class="course-actions">
+                <button mat-raised-button 
+                        color="primary" 
+                        class="enroll-btn"
+                        (click)="enrollInCourse(course.id!)">
+                  <mat-icon>add_shopping_cart</mat-icon>
+                  Enroll Now
+                </button>
+                
+                <button mat-button 
+                        class="details-btn"
+                        (click)="viewCourseDetails(course.id!)">
+                  <mat-icon>info</mat-icon>
+                  Details
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination-container" *ngIf="courses.length > pageSize">
+          <mat-paginator [length]="courses.length"
+                        [pageSize]="pageSize"
+                        [pageSizeOptions]="pageSizeOptions"
+                        [pageIndex]="currentPage"
+                        (page)="onPageChange($event)"
+                        showFirstLastButtons>
+          </mat-paginator>
+        </div>
+      </div>
     </div>
-  </ng-template>
+  </div>
 </div>

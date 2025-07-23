@@ -279,4 +279,25 @@ export class CourseService {
       })
     );
   }
+
+  getCoursesByInstructor(instructorId: number): Observable<Course[]> {
+    return this.http.get<Course[]>(`${this.apiUrl}/courses/instructor/${instructorId}`).pipe(
+      map(courses => courses || []),
+      catchError(error => {
+        console.error('Get Courses by Instructor API Error:', error);
+        // Don't show snackbar for this as it might be normal for instructors with no courses
+        return of([]);
+      })
+    );
+  }
+
+  getAverageRating(courseId: number): Observable<number> {
+    return this.http.get<{ averageRating: number }>(`${this.apiUrl}/feedbacks/average-rating/${courseId}`).pipe(
+      map(response => response?.averageRating || 0),
+      catchError(error => {
+        console.error('Get Average Rating API Error:', error);
+        return of(0);
+      })
+    );
+  }
 }

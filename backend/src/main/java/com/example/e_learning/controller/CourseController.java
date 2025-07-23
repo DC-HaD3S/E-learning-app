@@ -347,4 +347,33 @@ public class CourseController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
+    @Operation(
+        summary = "Get courses by instructor ID",
+        description = "Public endpoint to get all courses taught by a specific instructor. Returns course details including title, body, image URL, price, and instructor information.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "List of courses by the instructor", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = CourseDTO.class, type = "array"))),
+            @ApiResponse(responseCode = "404", description = "No courses found for the instructor", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "500", description = "Server error", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+        }
+    )
+    @GetMapping("/instructor/{instructorId}")
+    public ResponseEntity<?> getCoursesByInstructor(
+        @Parameter(description = "The instructor ID to get courses for") 
+        @PathVariable Long instructorId) {
+        try {
+            List<Course> courses = courseService.getCoursesByInstructorId(instructorId);
+            List<CourseDTO> courseDTOs = courses.stream()
+                .map(courseService::convertToDTO)
+                .toList();
+            return ResponseEntity.ok(courseDTOs);
+        } catch (Exception e) {
+            logger.error("Failed to retrieve courses for instructor {}: {}", instructorId, e.getMessage());
+            Map<String, String> errorResponse = Map.of("error", "Failed to retrieve courses for instructor: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
 }
