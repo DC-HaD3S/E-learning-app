@@ -37,6 +37,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataAccessException;
+import java.net.URL;
+import java.net.HttpURLConnection;
+import java.io.InputStream;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 
 @Tag(name = "instructor", description = "Endpoints for managing instructor applications and approvals")
 @RestController
@@ -266,4 +272,36 @@ public class InstructorApplicationController {
             return principal.toString();
         }
     }
+    
+
+    @GetMapping("/proxy-image")
+    public ResponseEntity<Resource> proxyImage(@RequestParam String url) {
+        try {
+            logger.debug("Proxying image from: {}", url);
+            URL imageUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) imageUrl.openConnection();
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+            int responseCode = connection.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                logger.error("Failed to fetch image from {}: HTTP {}", url, responseCode);
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+            }
+            InputStream inputStream = connection.getInputStream();
+            InputStreamResource resource = new InputStreamResource(inputStream);
+            String contentType = connection.getContentType();
+            if (contentType == null || contentType.isEmpty()) {
+                contentType = "image/jpeg"; // Fallback content type
+            }
+            logger.debug("Serving image with content type: {}", contentType);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
+                    .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                    .header(HttpHeaders.CACHE_CONTROL, "no-cache")
+                    .body(resource);
+        } catch (Exception e) {
+            logger.error("Error proxying image from {}: {}", url, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

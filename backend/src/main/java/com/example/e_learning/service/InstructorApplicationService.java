@@ -1,4 +1,3 @@
-
 package com.example.e_learning.service;
 
 import java.security.Principal;
@@ -24,195 +23,251 @@ import jakarta.persistence.EntityNotFoundException;
 @Service
 public class InstructorApplicationService {
 
-	private static final Logger logger = LoggerFactory.getLogger(InstructorApplicationService.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstructorApplicationService.class);
 
-	@Autowired
-	private InstructorApplicationRepository instructorRepo;
+    @Autowired
+    private InstructorApplicationRepository instructorRepo;
 
-	@Autowired
-	private UserRepository userRepo;
+    @Autowired
+    private UserRepository userRepo;
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private CourseRepository courseRepo;
 
-	@Autowired
-	private InstructorApplicationRepository instructorApplicationRepository;
+    @Autowired
+    private FeedbackRepository feedbackRepo;
 
-	@Autowired
-	private CourseRepository courseRepo;
+    @Transactional
+    public void submitApplication(InstructorApplicationRequestDTO dto, String username) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
 
-	@Autowired
-	private FeedbackRepository feedbackRepo;
+        if (user.getRole().equals("INSTRUCTOR")) {
+            throw new IllegalStateException("User is already an instructor");
+        }
 
-	@Transactional
-	public void submitApplication(InstructorApplicationRequestDTO dto, String username) {
-		User user = userRepo.findByUsername(username)
-				.orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+        InstructorApplication application = new InstructorApplication();
+        application.setName(user.getName());
+        application.setEmail(user.getEmail());
+        application.setQualifications(dto.getQualifications());
+        application.setExperience(dto.getExperience());
+        application.setCourses(dto.getCourses());
+        // Transform Google Drive shareable URL to direct URL
+        String photoUrl = dto.getPhotoUrl();
+        if (photoUrl != null && photoUrl.contains("drive.google.com/file/d/")) {
+            String fileId = extractGoogleDriveFileId(photoUrl);
+            if (fileId != null) {
+                photoUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
+                logger.debug("Transformed photoUrl for submission: {}", photoUrl);
+            } else {
+                logger.warn("Could not extract file ID from photoUrl: {}", photoUrl);
+                photoUrl = null; // Set to null if invalid
+            }
+        }
+        application.setPhotoUrl(photoUrl);
+        application.setAboutMe(dto.getAboutMe());
+        application.setTwitterUrl(dto.getTwitterUrl());
+        application.setGithubUrl(dto.getGithubUrl());
+        application.setUser(user);
+        application.setApproved(false);
 
-		if (user.getRole().equals("INSTRUCTOR")) {
-			throw new IllegalStateException("User is already an instructor");
-		}
+        instructorRepo.save(application);
+        logger.info("Application submitted for user: {}, approved: {}", username, application.isApproved());
+    }
 
-		InstructorApplication application = new InstructorApplication();
-		application.setName(user.getName());
-		application.setEmail(user.getEmail());
-		application.setQualifications(dto.getQualifications());
-		application.setExperience(dto.getExperience());
-		application.setCourses(dto.getCourses());
-		application.setPhotoUrl(dto.getPhotoUrl());
-		application.setAboutMe(dto.getAboutMe());
-		application.setTwitterUrl(dto.getTwitterUrl());
-		application.setGithubUrl(dto.getGithubUrl());
-		application.setUser(user);
-		application.setApproved(false);
+    public List<InstructorApplicationDTO> getAllApplications() {
+        List<InstructorApplication> applications = instructorRepo.findAll();
+        return applications.stream().map(application -> {
+            InstructorApplicationDTO dto = new InstructorApplicationDTO();
+            dto.setId(application.getId());
+            dto.setName(application.getName());
+            dto.setEmail(application.getEmail());
+            dto.setQualifications(application.getQualifications());
+            dto.setExperience(application.getExperience());
+            dto.setCourses(application.getCourses());
+            // Transform Google Drive shareable URL to direct URL
+            String photoUrl = application.getPhotoUrl();
+            if (photoUrl != null && photoUrl.contains("drive.google.com/file/d/")) {
+                String fileId = extractGoogleDriveFileId(photoUrl);
+                if (fileId != null) {
+                    photoUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
+                    logger.debug("Transformed photoUrl for application ID {}: {}", application.getId(), photoUrl);
+                } else {
+                    logger.warn("Could not extract file ID from photoUrl: {}", photoUrl);
+                    photoUrl = null;
+                }
+            }
+            dto.setPhotoUrl(photoUrl);
+            dto.setAboutMe(application.getAboutMe());
+            dto.setTwitterUrl(application.getTwitterUrl());
+            dto.setGithubUrl(application.getGithubUrl());
+            dto.setApproved(application.isApproved());
+            logger.debug("Mapping application ID: {}, approved: {}", application.getId(), application.isApproved());
+            return dto;
+        }).collect(Collectors.toList());
+    }
 
-		instructorRepo.save(application);
-		logger.info("Application submitted for user: {}, approved: {}", username, application.isApproved());
-	}
+    @Transactional
+    public void approveApplication(Long applicationId) {
+        InstructorApplication application = instructorRepo.findById(applicationId)
+                .orElseThrow(() -> new EntityNotFoundException("Application not found: " + applicationId));
 
-	public List<InstructorApplicationDTO> getAllApplications() {
-		List<InstructorApplication> applications = instructorRepo.findAll();
-		return applications.stream().map(application -> {
-			InstructorApplicationDTO dto = new InstructorApplicationDTO();
-			dto.setId(application.getId());
-			dto.setName(application.getName());
-			dto.setEmail(application.getEmail());
-			dto.setQualifications(application.getQualifications());
-			dto.setExperience(application.getExperience());
-			dto.setCourses(application.getCourses());
-			dto.setPhotoUrl(application.getPhotoUrl());
-			dto.setAboutMe(application.getAboutMe());
-			dto.setTwitterUrl(application.getTwitterUrl());
-			dto.setGithubUrl(application.getGithubUrl());
-			dto.setApproved(application.isApproved());
-			logger.debug("Mapping application ID: {}, approved: {}", application.getId(), application.isApproved());
-			return dto;
-		}).collect(Collectors.toList());
-	}
+        User user = application.getUser();
+        if (user == null) {
+            throw new IllegalStateException("No user associated with application: " + applicationId);
+        }
 
-	@Transactional
-	public void approveApplication(Long applicationId) {
-		InstructorApplication application = instructorRepo.findById(applicationId)
-				.orElseThrow(() -> new EntityNotFoundException("Application not found: " + applicationId));
+        user.setRole("INSTRUCTOR");
+        application.setApproved(true);
 
-		User user = application.getUser();
-		if (user == null) {
-			throw new IllegalStateException("No user associated with application: " + applicationId);
-		}
+        userRepo.save(user);
+        instructorRepo.save(application);
+        logger.info("Application ID: {} approved, courses: {}", applicationId, application.getCourses());
+    }
 
-		user.setRole("INSTRUCTOR");
-		application.setApproved(true);
+    public InstructorDetailsDTO getInstructorDetailsById(Long instructorId) {
+        InstructorApplication instructor = instructorRepo.findById(instructorId)
+                .orElseThrow(() -> new IllegalArgumentException("Instructor application not found: " + instructorId));
 
-		userRepo.save(user);
-		instructorRepo.save(application);
-		logger.info("Application ID: {} approved, courses: {}", applicationId, application.getCourses());
-	}
+        InstructorDetailsDTO dto = new InstructorDetailsDTO();
+        dto.setName(instructor.getName());
+        dto.setEmail(instructor.getEmail());
+        dto.setQualifications(instructor.getQualifications());
+        dto.setExperience(instructor.getExperience());
+        dto.setCourses(instructor.getCourses());
+        // Transform Google Drive shareable URL to direct URL
+        String photoUrl = instructor.getPhotoUrl();
+        if (photoUrl != null && photoUrl.contains("drive.google.com")) {
+            String fileId = extractGoogleDriveFileId(photoUrl);
+            if (fileId != null) {
+                photoUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
+                logger.debug("Transformed photoUrl for instructor ID {}: {}", instructorId, photoUrl);
+            } else {
+                logger.warn("Could not extract file ID from photoUrl: {}", photoUrl);
+                photoUrl = null;
+            }
+        }
+        dto.setPhotoUrl(photoUrl);
+        dto.setAboutMe(instructor.getAboutMe());
+        dto.setTwitterUrl(instructor.getTwitterUrl());
+        dto.setGithubUrl(instructor.getGithubUrl());
 
-	public InstructorDetailsDTO getInstructorDetailsById(Long instructorId) {
-		InstructorApplication instructor = instructorRepo.findById(instructorId)
-				.orElseThrow(() -> new IllegalArgumentException("Instructor application not found: " + instructorId));
+        logger.info("Retrieved instructor details for ID: {}", instructorId);
+        return dto;
+    }
 
-		InstructorDetailsDTO dto = new InstructorDetailsDTO();
-		dto.setName(instructor.getName());
-		dto.setEmail(instructor.getEmail());
-		dto.setQualifications(instructor.getQualifications());
-		dto.setExperience(instructor.getExperience());
-		dto.setCourses(instructor.getCourses());
-		dto.setPhotoUrl(instructor.getPhotoUrl());
-		dto.setAboutMe(instructor.getAboutMe());
-		dto.setTwitterUrl(instructor.getTwitterUrl());
-		dto.setGithubUrl(instructor.getGithubUrl());
+    public Double getInstructorAverageRating(Long instructorId) {
+        User instructor = userRepo.findById(instructorId)
+                .orElseThrow(() -> new EntityNotFoundException("Instructor not found: " + instructorId));
 
-		logger.info("Retrieved instructor details for ID: {}", instructorId);
-		return dto;
-	}
+        if (!instructor.getRole().equals("INSTRUCTOR")) {
+            throw new IllegalStateException("User is not an instructor: " + instructorId);
+        }
 
-	public Double getInstructorAverageRating(Long instructorId) {
-		User instructor = userRepo.findById(instructorId)
-				.orElseThrow(() -> new EntityNotFoundException("Instructor not found: " + instructorId));
+        List<Course> courses = courseRepo.findByInstructorId(instructorId);
+        if (courses.isEmpty()) {
+            logger.info("No courses found for instructor ID: {}", instructorId);
+            return null;
+        }
 
-		if (!instructor.getRole().equals("INSTRUCTOR")) {
-			throw new IllegalStateException("User is not an instructor: " + instructorId);
-		}
+        double totalRating = 0.0;
+        int courseCount = 0;
 
-		List<Course> courses = courseRepo.findByInstructorId(instructorId);
-		if (courses.isEmpty()) {
-			logger.info("No courses found for instructor ID: {}", instructorId);
-			return null;
-		}
+        for (Course course : courses) {
+            Double avgRating = feedbackRepo.findAverageRatingByCourseId(course.getId());
+            if (avgRating != null) {
+                totalRating += avgRating;
+                courseCount++;
+            }
+        }
 
-		double totalRating = 0.0;
-		int courseCount = 0;
+        if (courseCount == 0) {
+            logger.info("No feedback ratings found for courses of instructor ID: {}", instructorId);
+            return null;
+        }
 
-		for (Course course : courses) {
-			Double avgRating = feedbackRepo.findAverageRatingByCourseId(course.getId());
-			if (avgRating != null) {
-				totalRating += avgRating;
-				courseCount++;
-			}
-		}
+        double averageRating = totalRating / courseCount;
+        logger.info("Average rating for instructor ID {}: {}", instructorId, averageRating);
+        return averageRating;
+    }
 
-		if (courseCount == 0) {
-			logger.info("No feedback ratings found for courses of instructor ID: {}", instructorId);
-			return null;
-		}
+    public void updateInstructorDetails(InstructorApplicationRequestDTO dto, Principal principal) {
+        String username = principal.getName();
+        User currentUser = userRepo.findByUsername(username).orElseThrow(() -> {
+            logger.error("User not found: {}", username);
+            return new IllegalStateException("User not found: " + username);
+        });
 
-		double averageRating = totalRating / courseCount;
-		logger.info("Average rating for instructor ID {}: {}", instructorId, averageRating);
-		return averageRating;
-	}
+        if (!currentUser.getRole().equals("INSTRUCTOR")) {
+            logger.error("User {} is not an instructor", username);
+            throw new IllegalStateException("Only instructors can update their details");
+        }
 
-	public void updateInstructorDetails(InstructorApplicationRequestDTO dto, Principal principal) {
-		String username = principal.getName();
-		User currentUser = userRepository.findByUsername(username).orElseThrow(() -> {
-			logger.error("User not found: {}", username);
-			return new IllegalStateException("User not found: " + username);
-		});
+        InstructorApplication instructorApplication = instructorRepo.findByUserId(currentUser.getId())
+                .orElseThrow(() -> {
+                    logger.error("Instructor application not found for user ID: {}", currentUser.getId());
+                    return new IllegalArgumentException("Instructor application not found for user: " + username);
+                });
 
-		if (!currentUser.getRole().equals("INSTRUCTOR")) {
-			logger.error("User {} is not an instructor", username);
-			throw new IllegalStateException("Only instructors can update their details");
-		}
+        if (dto.getQualifications() != null) {
+            instructorApplication.setQualifications(dto.getQualifications());
+        }
+        if (dto.getExperience() >= 0) {
+            instructorApplication.setExperience(dto.getExperience());
+        }
+        if (dto.getCourses() != null) {
+            instructorApplication.setCourses(dto.getCourses());
+        }
+        if (dto.getPhotoUrl() != null) {
+            String photoUrl = dto.getPhotoUrl();
+            if (photoUrl.contains("drive.google.com")) {
+                String fileId = extractGoogleDriveFileId(photoUrl);
+                if (fileId != null) {
+                    photoUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
+                    logger.debug("Transformed photoUrl for update: {}", photoUrl);
+                } else {
+                    logger.warn("Could not extract file ID from photoUrl: {}", photoUrl);
+                    photoUrl = null;
+                }
+            }
+            instructorApplication.setPhotoUrl(photoUrl);
+        }
+        if (dto.getAboutMe() != null) {
+            instructorApplication.setAboutMe(dto.getAboutMe());
+        }
+        if (dto.getTwitterUrl() != null) {
+            instructorApplication.setTwitterUrl(dto.getTwitterUrl());
+        }
+        if (dto.getGithubUrl() != null) {
+            instructorApplication.setGithubUrl(dto.getGithubUrl());
+        }
 
-		InstructorApplication instructorApplication = instructorApplicationRepository.findByUserId(currentUser.getId())
-				.orElseThrow(() -> {
-					logger.error("Instructor application not found for user ID: {}", currentUser.getId());
-					return new IllegalArgumentException("Instructor application not found for user: " + username);
-				});
+        instructorRepo.save(instructorApplication);
+        logger.info("Updated instructor details for user {} (instructor application ID: {})", username,
+                instructorApplication.getId());
+    }
 
-		if (dto.getQualifications() != null) {
-			instructorApplication.setQualifications(dto.getQualifications());
-		}
-		if (dto.getExperience() >= 0) {
-			instructorApplication.setExperience(dto.getExperience());
-		}
-		if (dto.getCourses() != null) {
-			instructorApplication.setCourses(dto.getCourses());
-		}
-		if (dto.getPhotoUrl() != null) {
-			instructorApplication.setPhotoUrl(dto.getPhotoUrl());
-		}
-		if (dto.getAboutMe() != null) {
-			instructorApplication.setAboutMe(dto.getAboutMe());
-		}
-		if (dto.getTwitterUrl() != null) {
-			instructorApplication.setTwitterUrl(dto.getTwitterUrl());
-		}
-		if (dto.getGithubUrl() != null) {
-			instructorApplication.setGithubUrl(dto.getGithubUrl());
-		}
+    public Long getEnrollmentCountByInstructorId(Long instructorId) {
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Instructor application not found: " + instructorId);
+        }
+        Long count = instructorRepo.countEnrollmentsByInstructorId(instructorId);
+        logger.info("Enrollment count for instructor ID {}: {}", instructorId, count);
+        return count;
+    }
 
-		instructorApplicationRepository.save(instructorApplication);
-		logger.info("Updated instructor details for user {} (instructor application ID: {})", username,
-				instructorApplication.getId());
-	}
-
-	public Long getEnrollmentCountByInstructorId(Long instructorId) {
-		if (!instructorRepo.existsById(instructorId)) {
-			throw new IllegalArgumentException("Instructor application not found: " + instructorId);
-		}
-		Long count = instructorRepo.countEnrollmentsByInstructorId(instructorId);
-		logger.info("Enrollment count for instructor ID {}: {}", instructorId, count);
-		return count;
-	}
+    private String extractGoogleDriveFileId(String url) {
+        if (url == null) return null;
+        String[] patterns = {
+            "/file/d/([^/]+)/",           // Matches /file/d/FILE_ID/
+            "id=([^&]+)"                 // Matches id=FILE_ID
+        };
+        for (String pattern : patterns) {
+            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(url);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+        }
+        return null;
+    }
 }

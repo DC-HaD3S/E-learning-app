@@ -7,10 +7,24 @@
   <div *ngIf="instructorDetails; else loading">
     <mat-card class="profile-card">
       <div class="profile-header">
-        <img [src]="instructorDetails.photoUrl || 'assets/default-instructor.jpg'" alt="Instructor Photo" class="profile-photo" />
+        <img [src]="instructorDetails.photoUrl || 'assets/default-instructor.jpg'" 
+             onerror="this.src='assets/default-instructor.jpg'" 
+             alt="Instructor Photo" 
+             class="profile-photo" />
         <div class="header-info">
           <h1 class="instructor-name">{{ instructorDetails.name || 'Unknown Instructor' }}</h1>
           <p class="instructor-email">{{ instructorDetails.email || 'No email provided' }}</p>
+          
+        <div class="stats-container">
+          <div class="stat-item">
+            <mat-icon>star</mat-icon>
+            <span>{{ averageRating != null ? (averageRating | number:'1.1-2') + ' Average Rating' : 'No ratings' }}</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>school</mat-icon>
+            <span>{{ enrollmentCount != null ? (enrollmentCount + ' Students Enrolled') : '0 Students Enrolled' }}</span>
+          </div>
+        </div>
           <div class="social-links">
             <a *ngIf="instructorDetails.twitterUrl" [href]="instructorDetails.twitterUrl" target="_blank" mat-icon-button aria-label="Twitter profile">
               <mat-icon svgIcon="twitter"></mat-icon>
@@ -35,17 +49,6 @@
         <h2 class="section-title">Courses</h2>
         <p class="section-content">{{ instructorDetails.courses || 'No courses listed.' }}</p>
 
-        <h2 class="section-title">Statistics</h2>
-        <div class="stats-container">
-          <div class="stat-item">
-            <mat-icon>star</mat-icon>
-            <span>{{ averageRating ? (averageRating | number:'1.1-2') : 'N/A' }} Average Rating</span>
-          </div>
-          <div class="stat-item">
-            <mat-icon>school</mat-icon>
-            <span>{{ enrollmentCount || 0 }} Students Enrolled</span>
-          </div>
-        </div>
       </mat-card-content>
     </mat-card>
   </div>

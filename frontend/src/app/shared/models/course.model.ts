@@ -5,5 +5,5 @@ export interface Course {
   imageUrl: string;
   price: number;
   instructor: string;
-  instructorId: number;
+instructorId: number | null; 
 }

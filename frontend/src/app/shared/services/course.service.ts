@@ -88,6 +88,53 @@ export class CourseService {
     );
   }
 
+  getEnrolledCourses(): Observable<Enrollment[]> {
+    return this.authService.isAuthenticated$().pipe(
+      switchMap(isAuthenticated => {
+        if (!isAuthenticated) return of([]);
+
+        if (this.enrollmentCache) return of(this.enrollmentCache);
+
+        return this.enrollmentRefresh$.pipe(
+          switchMap(() =>
+            this.http.get<Enrollment[]>(`${this.apiUrl}/courses/enrolled-courses`).pipe(
+              switchMap(enrollments => {
+                // Fetch course details to get instructorId and instructor
+                return this.getCourses().pipe(
+                  map(courses => {
+                    const cleaned = (enrollments || []).map(e => {
+                      const course = courses.find(c => c.id === e.courseId);
+                      return {
+                        username: e.username || '',
+                        courseId: Number(e.courseId),
+                        courseName: e.courseName || '',
+                        body: course?.body || '',
+                        price: course?.price ?? 0,
+                        imageUrl: course?.imageUrl || '',
+                        instructorId: course?.instructorId ?? null,
+                        instructor: course?.instructor || 'Unknown Instructor'
+                      };
+                    });
+                    this.enrollmentCache = cleaned;
+                    return cleaned;
+                  })
+                );
+              }),
+              catchError(error => {
+                console.error('Enrolled Courses API Error:', error);
+                if (error.status === 403) {
+                  this.snackBar.open('Access denied: Please log in.', 'Close', { duration: 5000 });
+                }
+                return of([]);
+              }),
+              shareReplay(1)
+            )
+          )
+        );
+      })
+    );
+  }
+
   addCourse(course: Course): Observable<{ message: string, data: Course }> {
     return this.authService.isAuthenticated$().pipe(
       switchMap(isAuthenticated => {
@@ -97,7 +144,7 @@ export class CourseService {
         }
         return this.http.post<{ message: string, data: Course }>(`${this.apiUrl}/courses`, course).pipe(
           tap(() => {
-            this.clearCoursesCache(); // Clear cache on course addition
+            this.clearCoursesCache();
           }),
           catchError(error => {
             console.error('Add Course API Error:', error);
@@ -127,7 +174,7 @@ export class CourseService {
 
         return this.http.put<{ message: string, data: Course }>(`${this.apiUrl}/courses/${course.id}`, courseDTO).pipe(
           tap(() => {
-            this.clearCoursesCache(); // Clear cache on course update
+            this.clearCoursesCache();
           }),
           catchError(error => {
             console.error('Update Course API Error:', error);
@@ -148,7 +195,7 @@ export class CourseService {
         }
         return this.http.delete<{ message: string, data: null }>(`${this.apiUrl}/courses/${courseId}`).pipe(
           tap(() => {
-            this.clearCoursesCache(); // Clear cache on course deletion
+            this.clearCoursesCache();
           }),
           catchError(error => {
             console.error('Delete Course API Error:', error);
@@ -228,40 +275,6 @@ export class CourseService {
               finalize(() => this.enrollingCourses.delete(courseId))
             );
           })
-        );
-      })
-    );
-  }
-
-  getEnrolledCourses(): Observable<Enrollment[]> {
-    return this.authService.isAuthenticated$().pipe(
-      switchMap(isAuthenticated => {
-        if (!isAuthenticated) return of([]);
-
-        if (this.enrollmentCache) return of(this.enrollmentCache);
-
-        return this.enrollmentRefresh$.pipe(
-          switchMap(() =>
-            this.http.get<Enrollment[]>(`${this.apiUrl}/courses/enrolled-courses`).pipe(
-              map(enrollments => {
-                const cleaned = (enrollments || []).map(e => ({
-                  username: e.username || '',
-                  courseId: Number(e.courseId),
-                  courseName: e.courseName || ''
-                }));
-                this.enrollmentCache = cleaned;
-                return cleaned;
-              }),
-              catchError(error => {
-                console.error('Enrolled Courses API Error:', error);
-                if (error.status === 403) {
-                  this.snackBar.open('Access denied: Please log in.', 'Close', { duration: 5000 });
-                }
-                return of([]);
-              }),
-              shareReplay(1)
-            )
-          )
         );
       })
     );

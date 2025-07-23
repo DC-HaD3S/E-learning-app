@@ -5,16 +5,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Observable, of, combineLatest, Subject, BehaviorSubject } from 'rxjs';
 import { take, catchError, map, switchMap, tap, shareReplay, takeUntil } from 'rxjs/operators';
-
 import { Course } from 'src/app/shared/models/course.model';
 import { Feedback } from 'src/app/shared/models/feedback.model';
 import { UserRole } from 'src/app/enums/user-role.enum';
 import { AppState } from 'src/app/store/app.state';
-
 import { CourseApplyDialogComponent } from 'src/app/modules/user/components/course-apply-dialog/course-apply-dialog.component';
 import { loadCourses } from 'src/app/store/course/course.actions';
 import { selectCourses, selectCourseError, selectEnrollments, selectCourseById } from 'src/app/store/course/course.selectors';
-
 import { CourseService, HighestEnrollmentDTO } from 'src/app/shared/services/course.service';
 import { FeedbackService } from 'src/app/shared/services/feedback.service';
 import { AuthService } from 'src/app/auth/auth.services';
@@ -153,14 +150,16 @@ export class CourseListComponent implements OnInit, OnDestroy {
     return courseId !== undefined && courseId === this.highestEnrolledCourseId;
   }
 
-navigateToInstructor(instructorId: number): void {
+  navigateToInstructor(instructorId: number | null): void {
     if (instructorId && !isNaN(instructorId) && instructorId > 0) {
       console.log('Navigating to instructor ID:', instructorId);
       this.router.navigate(['/instructor', instructorId]);
     } else {
       console.error('Cannot navigate: Invalid instructor ID', instructorId);
+      this.snackBar.open('Instructor information is not available', 'Close', { duration: 5000 });
     }
   }
+
   getStarIcon(rating: number, index: number) {
     if (rating >= index) return solidStar;
     if (rating >= index - 0.5) return faStarHalfAlt;
