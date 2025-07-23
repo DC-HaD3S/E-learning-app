@@ -22,6 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { LoginComponent } from './shared/components/login/login.component';
 import { SignupComponent } from './shared/components/signup/signup.component';
@@ -79,6 +80,7 @@ export function appInitializer(authService: AuthService) {
     MatIconModule,
     MatSnackBarModule,
     MatSelectModule,
+    MatProgressSpinnerModule,
     StoreModule.forRoot({ auth: authReducer, courses: courseReducer }),
     EffectsModule.forRoot([CourseEffects])
   ],

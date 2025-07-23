@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { PageEvent } from '@angular/material/paginator';
 import { Observable, Subject, combineLatest, of } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { InstructorService } from '../../services/instructor.service';
@@ -245,6 +246,12 @@ export class InstructorPageComponent implements OnInit, OnDestroy {
       this.currentPage--;
       this.cdr.detectChanges();
     }
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {
