@@ -1,4 +1,3 @@
-
 <div *ngIf="isLoading" class="loading-container">
   <mat-spinner diameter="50"></mat-spinner>
   <p class="loading-text">Loading instructor profile...</p>
@@ -27,11 +26,6 @@
           <p class="instructor-title">Professional Instructor</p>
           
           <div class="stats-row">
-            <div class="stat-item">
-              <mat-icon>school</mat-icon>
-              <span class="stat-label">Courses</span>
-              <span class="stat-value">{{ instructorDetails.courses }}</span>
-            </div>
             <div class="stat-item" *ngIf="averageRating !== null">
               <mat-icon>star_rate</mat-icon>
               <span class="stat-label">Rating</span>
@@ -46,6 +40,11 @@
               <mat-icon>work</mat-icon>
               <span class="stat-label">Experience</span>
               <span class="stat-value">{{ instructorDetails.experience }}+ years</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>comment</mat-icon>
+              <span class="stat-label">Reviews</span>
+              <span class="stat-value">{{ totalReviews | number }}</span>
             </div>
           </div>
 

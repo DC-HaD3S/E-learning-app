@@ -27,6 +27,7 @@ export class InstructorPageComponent implements OnInit, OnDestroy {
   courses: CourseDTO[] = [];
   averageRating: number | null = null;
   enrollmentCount: number | null = null;
+  totalReviews: number | null = null; // Added property for total reviews
   error: string | null = null;
   isLoading = true;
   pageSize = 9;
@@ -35,8 +36,8 @@ export class InstructorPageComponent implements OnInit, OnDestroy {
   solidStar = solidStar;
   faStarHalfAlt = faStarHalfAlt;
   emptyStar = emptyStar;
-  faTwitter: IconProp = faTwitter as IconProp; // Explicit cast to IconProp
-  faGithub: IconProp = faGithub as IconProp;   // Explicit cast to IconProp
+  faTwitter: IconProp = faTwitter as IconProp;
+  faGithub: IconProp = faGithub as IconProp;
 
   private destroy$ = new Subject<void>();
   private averageRatingCache = new Map<number, Observable<number>>();
@@ -80,19 +81,22 @@ export class InstructorPageComponent implements OnInit, OnDestroy {
       this.instructorService.getInstructorDetails(instructorId),
       this.instructorService.getCoursesByInstructorId(instructorId),
       this.instructorService.getInstructorAverageRating(instructorId),
-      this.instructorService.getEnrollmentCount(instructorId)
+      this.instructorService.getEnrollmentCount(instructorId),
+      this.feedbackService.getInstructorFeedbackCount(instructorId)
     ]).pipe(
       takeUntil(this.destroy$),
-      tap(([details, courses, rating, count]) => {
+      tap(([details, courses, rating, count, totalReviews]) => {
         console.log('Instructor details received:', details);
         console.log('Courses received:', courses);
         console.log('Average rating received:', rating);
         console.log('Enrollment count received:', count);
+        console.log('Total reviews received:', totalReviews);
 
         this.instructorDetails = details;
         this.courses = courses.filter((course): course is CourseDTO => course.id !== undefined);
         this.averageRating = rating;
         this.enrollmentCount = count;
+        this.totalReviews = totalReviews; // Assign total reviews
         this.isLoading = false;
 
         // Preload instructor photo
