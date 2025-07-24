@@ -16,6 +16,7 @@ import { faStar as solidStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-
 import { faStar as emptyStar } from '@fortawesome/free-regular-svg-icons';
 import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-instructor-page',
@@ -27,17 +28,19 @@ export class InstructorPageComponent implements OnInit, OnDestroy {
   courses: CourseDTO[] = [];
   averageRating: number | null = null;
   enrollmentCount: number | null = null;
-  totalReviews: number | null = null; // Added property for total reviews
+  totalReviews: number | null = null;
   error: string | null = null;
   isLoading = true;
   pageSize = 9;
   currentPage = 0;
+  isImageLoaded = false; // New flag to track image loading
 
   solidStar = solidStar;
   faStarHalfAlt = faStarHalfAlt;
   emptyStar = emptyStar;
   faTwitter: IconProp = faTwitter as IconProp;
   faGithub: IconProp = faGithub as IconProp;
+  faEnvelope: IconProp = faEnvelope;
 
   private destroy$ = new Subject<void>();
   private averageRatingCache = new Map<number, Observable<number>>();
@@ -85,7 +88,7 @@ export class InstructorPageComponent implements OnInit, OnDestroy {
       this.feedbackService.getInstructorFeedbackCount(instructorId)
     ]).pipe(
       takeUntil(this.destroy$),
-      tap(([details, courses, rating, count, totalReviews]) => {
+      switchMap(([details, courses, rating, count, totalReviews]) => {
         console.log('Instructor details received:', details);
         console.log('Courses received:', courses);
         console.log('Average rating received:', rating);
@@ -96,64 +99,37 @@ export class InstructorPageComponent implements OnInit, OnDestroy {
         this.courses = courses.filter((course): course is CourseDTO => course.id !== undefined);
         this.averageRating = rating;
         this.enrollmentCount = count;
-        this.totalReviews = totalReviews; // Assign total reviews
-        this.isLoading = false;
+        this.totalReviews = totalReviews;
 
         // Preload instructor photo
         if (details.photoUrl) {
-          fetch(details.photoUrl, { method: 'GET', mode: 'no-cors' })
-            .then(response => {
-              if (response.ok) {
-                console.log('Image fetch successful:', details.photoUrl);
-                const img = new Image();
-                img.src = details.photoUrl;
-                img.onload = () => {
-                  console.log('Image loaded successfully:', img.src);
-                  console.log('Image dimensions:', img.width, 'x', img.height);
-                };
-                img.onerror = () => {
-                  console.error('Image failed to load:', img.src);
-                  console.log('Falling back to default image: assets/default-instructor.jpg');
-                };
-              } else {
-                console.error('Image fetch failed:', details.photoUrl, 'Status:', response.status);
-              }
-            })
-            .catch(err => {
-              console.error('Image fetch error:', details.photoUrl, 'Error:', err.message);
-              console.log('Possible CORS or network issue');
-            });
+          return this.preloadImage(details.photoUrl).pipe(
+            tap(() => {
+              console.log('Instructor image preloaded successfully');
+              this.isImageLoaded = true;
+              this.preloadCourseImages(); // Preload course images after instructor image
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            }),
+            catchError(err => {
+              console.error('Instructor image preload failed:', err);
+              this.isImageLoaded = true; // Proceed even if image fails
+              this.instructorDetails!.photoUrl = 'assets/default-instructor.jpg'; // Fallback
+              this.preloadCourseImages();
+              this.isLoading = false;
+              this.cdr.detectChanges();
+              return of(null);
+            }),
+            map(() => void 0)
+          );
+        } else {
+          this.isImageLoaded = true;
+          this.instructorDetails!.photoUrl = 'assets/default-instructor.jpg';
+          this.preloadCourseImages();
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          return of(void 0);
         }
-
-        // Preload course images
-        this.courses.forEach(course => {
-          if (course.imageUrl) {
-            fetch(course.imageUrl, { method: 'GET', mode: 'no-cors' })
-              .then(response => {
-                if (response.ok) {
-                  console.log('Course image fetch successful:', course.imageUrl);
-                  const img = new Image();
-                  img.src = course.imageUrl;
-                  img.onload = () => {
-                    console.log('Course image loaded successfully:', img.src);
-                    console.log('Course image dimensions:', img.width, 'x', img.height);
-                  };
-                  img.onerror = () => {
-                    console.error('Course image failed to load:', img.src);
-                    console.log('Falling back to default image: assets/default-instructor.jpg');
-                  };
-                } else {
-                  console.error('Course image fetch failed:', course.imageUrl, 'Status:', response.status);
-                }
-              })
-              .catch(err => {
-                console.error('Course image fetch error:', course.imageUrl, 'Error:', err.message);
-                console.log('Possible CORS or network issue');
-              });
-          }
-        });
-
-        this.cdr.detectChanges();
       }),
       catchError(err => {
         console.error('Failed to load instructor data:', err);
@@ -165,6 +141,38 @@ export class InstructorPageComponent implements OnInit, OnDestroy {
       }),
       map(() => void 0)
     );
+  }
+
+  private preloadImage(url: string): Observable<void> {
+    return new Observable(observer => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => {
+        console.log('Image loaded successfully:', url);
+        observer.next();
+        observer.complete();
+      };
+      img.onerror = () => {
+        console.error('Image failed to load:', url);
+        observer.error(new Error('Image load failed'));
+      };
+    });
+  }
+
+  private preloadCourseImages(): void {
+    this.courses.forEach(course => {
+      if (course.imageUrl) {
+        this.preloadImage(course.imageUrl).pipe(
+          takeUntil(this.destroy$),
+          tap(() => console.log('Course image preloaded:', course.imageUrl)),
+          catchError(err => {
+            console.error('Course image preload failed:', course.imageUrl, err);
+            course.imageUrl = 'assets/default-instructor.jpg';
+            return of(null);
+          })
+        ).subscribe();
+      }
+    });
   }
 
   getAverageRating$(courseId: number): Observable<number> {
@@ -202,7 +210,6 @@ export class InstructorPageComponent implements OnInit, OnDestroy {
 
   handleImageError(event: any): void {
     console.error('Image load failed in UI:', event.target.src);
-    console.error('Error event details:', event);
     console.log('Falling back to default image: assets/default-instructor.jpg');
     event.target.src = 'assets/default-instructor.jpg';
   }

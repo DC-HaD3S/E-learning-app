@@ -18,6 +18,10 @@
   margin: 1rem;
 }
 
+body {
+  overflow-x: hidden;
+}
+
 .loading-text {
   margin-top: 1rem;
   font-size: 1.1rem;
@@ -143,6 +147,8 @@
 .stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    justify-content: center; /* Center items horizontally */
+
   gap: 1.5rem;
   margin: 2rem 0;
 }
@@ -151,6 +157,8 @@
   background: rgba(255, 255, 255, 0.15);
   padding: 1rem;
   border-radius: 12px;
+    align-items: center; /* Center content inside */
+
   text-align: center;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -190,18 +198,26 @@
   margin-top: 1.5rem;
 }
 
-.social-link {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-}
+
 
 .social-link:hover {
   background: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+.social-link.social-link.twitter{
+    background: #1da1f2;
+  border-color: #1da1f2;
+}
 
+.social-link.social-link.email{
+  background: rgba(255, 255, 255, 0.25);
+  border-color: #1da1f2;
+}
+.social-link.social-link.github{
+    background: #333;
+  border-color: #333;
+}
 .social-link.twitter:hover {
   background: #1da1f2;
   border-color: #1da1f2;
@@ -584,6 +600,8 @@
 
   .stats-row {
     grid-template-columns: repeat(2, 1fr);
+        justify-content: center; 
+
     gap: 1rem;
   }
 
@@ -633,11 +651,15 @@
 
   .stats-row {
     grid-template-columns: 1fr;
+        justify-content: center; /* still center all items */
+
     gap: 0.75rem;
   }
 
   .stat-item {
     padding: 0.75rem;
+        flex: 1 1 100%;
+    max-width: 300px;
   }
 
   .stat-value {
@@ -670,6 +692,10 @@
   .credential-item {
     padding: 0.75rem;
   }
+  .social-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 /* Extra Small Mobile (320px) */
@@ -677,6 +703,12 @@
   .hero-section {
     padding: 1.5rem 0;
   }
+  .course-title,
+.section-title,
+.instructor-name {
+  word-break: break-word;
+}
+
 
   .container {
     padding: 0 0.5rem;
@@ -706,6 +738,9 @@
   .course-content {
     padding: 1rem !important;
   }
+.about-description {
+  font-size: 1rem;
+}
 
   .course-title {
     font-size: 1.1rem;
@@ -722,6 +757,45 @@
   .social-links {
     justify-content: center;
   }
+
+  .enroll-btn {
+  font-size: 0.9rem;
+  padding: 0.4rem 1rem;
+}
+
+.preview-btn mat-icon {
+  font-size: 1.2rem;
+}
+.section-header {
+  align-items: center;
+  text-align: center;
+}
+
+.section-title {
+  justify-content: center;
+  gap: 0.5rem;
+}
+.course-content {
+  padding: 1rem !important;
+}
+
+.stats-row {
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+      justify-content: center; /* still center all items */
+
+}
+
+.stat-item {
+  padding: 0.6rem;
+      flex: 1 1 100%;
+    max-width: 300px;
+}
+.about-card mat-card-title {
+  font-size: 1rem;
+}
+
+
 }
 
 /* ========================================
